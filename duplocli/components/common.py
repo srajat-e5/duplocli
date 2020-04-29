@@ -236,3 +236,12 @@ def remove_empty_elements(d):
         return [v for v in (remove_empty_elements(v) for v in d) if not empty(v)]
     else:
         return {k: v for k, v in ((k, remove_empty_elements(v)) for k, v in d.items()) if not empty(v)}
+
+def remove_empty_from_dict(d):
+    """recursively remove empty lists, empty dicts, or None elements from a dictionary"""
+    if type(d) is dict:
+        return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems() if v and remove_empty_from_dict(v))
+    elif type(d) is list:
+        return [remove_empty_from_dict(v) for v in d if v and remove_empty_from_dict(v)]
+    else:
+        return d
