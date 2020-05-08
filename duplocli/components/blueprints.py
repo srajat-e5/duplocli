@@ -12,6 +12,7 @@ from common import processStatusCode
 import common
 from common import printSuccess
 import shutil
+import getpass
 
 @click.group()
 @click.pass_context
@@ -19,11 +20,12 @@ def blueprints(ctx):
     pass
 
 @blueprints.command('export-tenant')
+@click.option('--services', "-s", is_flag=True)
 @click.pass_obj
-def blueprints_export_tenant(ctx):
+def blueprints_export_tenant(ctx, services):
     tenant, token, url, tenantId = CheckAndGetConnection()
     jsondata = { "IncludeAwsHosts" : "true" }
-    export_tenant(token,url, tenantId, jsondata)
+    export_tenant(token,url, tenantId, services, jsondata)
 
 @blueprints.command('import-tenant')
 @click.option('--svd', '-s', default='', help='SVD file JSON path')
@@ -32,7 +34,7 @@ def blueprints_import_tenant(ctx, svd):
     tenant, token, url, tenantId = CheckAndGetConnection()
     import_tenant(token,url, tenantId, svd)
 
-def export_tenant(token, url, tenantId, funcObject):
+def export_tenant(token, url, tenantId, service, funcObject):
     newFuncUrl = url + "/subscriptions/" + tenantId + "/ExportTenant"
     headerVal = "Bearer " + token
     headers = { 'Authorization' : headerVal, 'content-type': 'application/json' }
@@ -41,6 +43,14 @@ def export_tenant(token, url, tenantId, funcObject):
     processStatusCode(r)
     data = json.loads(r.text)
     data = common.remove_empty_from_dict(data)
+
+    if not service and "Roles" in data:
+        del data["Roles"]
+    if data and "NativeHosts" in data and len(data["NativeHosts"]):
+        for service in data["NativeHosts"]:
+            if 'Volumes' in service:
+                del service['Volumes']
+
     formattedData = json.dumps(data, indent=4, sort_keys=True)
     print(formattedData)
 
@@ -60,9 +70,19 @@ def import_tenant(token, url, tenantId, svdFilePath):
         serviceDescription = json.loads(content)
         instanceIdByName = {}
 
+        if serviceDescription and "RDSInstances" in serviceDescription and len(serviceDescription["RDSInstances"]):
+            for service in serviceDescription["RDSInstances"]:
+                if "MasterPassword" not in service or not service["MasterPassword"]:
+                    service["MasterPassword"] = getpass.getpass(prompt="Enter master password for " + service["Identifier"] + " : ")
+
         if serviceDescription and "NativeHosts" in serviceDescription and len(serviceDescription["NativeHosts"]):
             host_add_url = url + "/subscriptions/" + tenantId + "/CreateNativeHost"
             for service in serviceDescription["NativeHosts"]:
+
+                # TODO: Find a proper fix
+                if 'Volumes' in service:
+                    del service['Volumes']
+
                 post_response = requests.post(host_add_url, headers=headers, json = service)
                 if post_response.status_code == 200:
                     instanceIdByName[service["FriendlyName"]] = post_response.json()
@@ -75,10 +95,10 @@ def import_tenant(token, url, tenantId, svdFilePath):
                 if tempCompId in instanceIdByName:
                     service["ComponentId"] = instanceIdByName[tempCompId]
                     post_response = requests.post(custom_data_update_url, headers=headers, json = service)
-                    print "CustomData for component - " +  tempCompId + " , create requests server return code - " + str(post_response.status_code) + " "  + str(post_response.json())
+                    print "CustomData for component - " +  tempCompId + " , create requests server return code - " + str(post_response.status_code)
 
         if serviceDescription and "RDSInstances" in serviceDescription and len(serviceDescription["RDSInstances"]):
             rds_add_url = url + "/subscriptions/" + tenantId + "/RDSInstanceUpdate"
             for service in serviceDescription["RDSInstances"]:
                 post_response = requests.post(rds_add_url, headers=headers, json = service)
-                print "RDS name - " +  service["Identifier"] + " , create requests server return code - " + str(post_response.status_code) + " "  + str(post_response.json())
+                print "RDS name - " +  service["Identifier"] + " , create requests server return code - " + str(post_response.status_code)
