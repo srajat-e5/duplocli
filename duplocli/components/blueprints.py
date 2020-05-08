@@ -102,3 +102,9 @@ def import_tenant(token, url, tenantId, svdFilePath):
             for service in serviceDescription["RDSInstances"]:
                 post_response = requests.post(rds_add_url, headers=headers, json = service)
                 print "RDS name - " +  service["Identifier"] + " , create requests server return code - " + str(post_response.status_code)
+
+        if serviceDescription and "Roles" in serviceDescription and len(serviceDescription["Roles"]):
+            role_add_url = url + "/subscriptions/" + tenantId + "/ReplicationControllerUpdate"
+            for service in serviceDescription["Roles"]:
+                post_response = requests.post(role_add_url, headers=headers, json = service)
+                print "Service name - " +  service["Name"] + ", create requests server return code - " + str(post_response.status_code)
