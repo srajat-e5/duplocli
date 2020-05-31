@@ -26,10 +26,17 @@ wheels/
 *.egg
 
 #terrafrom ignore folders
-aws/output/*.*
-aws/log*.*
-__pycache__/
+aws/work/*
+_temp/
+duplocli/terraform/aws/work/output/
+log/
+duplocli/terraform/aws/work/backup/*\
 .DS_Store
+.idea/
+duplo_api_json_test.json
+backup_settings_auth_service.json
+params.json
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
