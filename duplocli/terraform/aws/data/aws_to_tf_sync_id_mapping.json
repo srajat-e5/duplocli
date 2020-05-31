@@ -1,0 +1,20 @@
+{
+  "aws": {
+    "aws_security_group": "GroupId",
+    "aws_iam_role": "RoleName",
+    "aws_iam_instance_profile": "InstanceProfileName"
+    ,"aws_vpc": "VpcId"
+    ,"aws_instance":"InstanceId"
+    ,"aws_db_instance":"DBInstanceIdentifier"
+    ,"aws_s3_bucket":"Name"
+    ,"aws_elasticache_cluster": "ClusterId"
+  },
+  "lifecycle": {
+    "aws_instance":{"ignore_changes": ["user_data"] }
+  }
+
+}
+
+
+
+
