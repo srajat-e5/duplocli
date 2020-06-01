@@ -4,10 +4,13 @@ class AwsTfResourceSchema :
     def __init__(self,  tf_obj_name, tf_object):
         self.tf_obj_name=tf_obj_name
         self.tf_object=tf_object
+        #attributes
         self.non_computed = []
         self.computed = []
-        self.all_attributes = []
+        self.required = []
         self.sensitive = []
+        #?
+        self.all_attributes = []
         self.data_type = {}
         # nested hash-table
         self.nested_block  = {}
@@ -24,6 +27,7 @@ class AwsTfResourceSchema :
         tf.computed = self.computed
         tf.all_attributes = self.all_attributes
         tf.sensitive = self.sensitive
+        tf.required = self.required
         tf.data_type = self.data_type
         tf.nested_block = self.nested_block
         tf.spec = self.spec
@@ -43,6 +47,7 @@ class AwsTfResourceSchema :
         data['computed'] = self.computed
         data['all_attributes'] = self.all_attributes
         data['sensitive'] = self.sensitive
+        data['required'] = self.required
         data['data_type'] = self.data_type
 
         # nested hash-table

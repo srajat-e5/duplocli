@@ -1,0 +1,30 @@
+{
+  "syncids": {
+    "aws_security_group": "GroupId"
+    ,"aws_iam_role": "RoleName"
+    ,"aws_iam_instance_profile": "InstanceProfileName"
+    ,"aws_vpc": "VpcId"
+    ,"aws_instance":"InstanceId"
+    ,"aws_db_instance":"DBInstanceIdentifier"
+    ,"aws_s3_bucket":"Name"
+    ,"aws_elasticache_cluster": "ClusterId"
+  },
+  "names": {
+    "aws_security_group": "GroupName"
+    ,"aws_iam_role": "RoleId"
+    ,"aws_iam_instance_profile": "InstanceProfileName"
+    ,"aws_vpc": "VpcId"
+    ,"aws_instance":"InstanceId"
+    ,"aws_db_instance":"DBInstanceIdentifier"
+    ,"aws_s3_bucket":"Name"
+    ,"aws_elasticache_cluster": "ClusterId"
+  },
+  "lifecycle": {
+    "aws_instance":{"ignore_changes": ["user_data"] }
+  }
+
+}
+
+
+
+

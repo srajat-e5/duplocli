@@ -13,6 +13,7 @@ class AwsTfImportStep2():
     aws_tf_schema = {}
     is_allow_none = True
 
+
     # terraform.tfstate from step1
     state_read_from_file = "output/step1/terraform.tfstate"
     state_save_to_file = "output/step2/terraform.tfstate"

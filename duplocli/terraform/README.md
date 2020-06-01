@@ -1,34 +1,44 @@
 #steps to run 
 
 # setup python  
-# install requirements: tested with python 3.6 and conda
+## install requirements: tested with python 3.6 and conda
 pip install -r requirements.txt  
 
-#setup terraform: https://learn.hashicorp.com/terraform/getting-started/install.html
-## install using installer
+##setup terraform: https://learn.hashicorp.com/terraform/getting-started/install.html
+### install using installer
     * mac
     brew install terraform
     * windows
     choco install terraform
-##Manual installation
-   * download appropriate files from 
+### Manual installation
+   * Download appropriate files from 
     https://www.terraform.io/downloads.html
    * Extract and add terrform to PATH
-   
-   
- # run terrform import
-  cd duplocli/terraform
-  cd aws
-  python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2"
   
- # check logs
-  *  cd to duplocli/terraform/aws 
-  *  cat log/step1_log
-  *  cat log/step2_log
+
+ ## steps to terrform import
+  * Go to  duplocli/terraform/aws folder 
+  * Run 'aws_tf_import.py' script to import files = main.tf.json & terraform.tfstate
+  * python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2"
+  
+  ## check output
+  *  Go to duplocli/terraform/aws/output folder
+  *  terraform files:  step1/main.tf.json , step1/terraform.tfstate
+  *  final state in duplocli/terraform/aws/output/step2
+  *  terraform files : step2/main.tf.json or  step2/terraform.tfstate 
  
+  ## debug 
+  # check logs
+  *  Go to  duplocli/terraform/aws folder
+  *  step1 log file = cat log/step1_log.log
+  *  step2 log file = cat log/step2_log.log 
+
   # run terrform plan 
-  * cd to duplocli/terraform/aws/output/step2
-  * RUN
-  ** terrform plan 
+  * Go to duplocli/terraform/aws/output/step1 folder
+  * Or Go to duplocli/terraform/aws/output/step2 folder
+  * RUN terraform commands 
+  * e.g. 
+  * terrform plan 
+  * terrform show 
  
  

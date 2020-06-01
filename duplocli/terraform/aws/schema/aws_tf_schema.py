@@ -18,10 +18,6 @@ class AwsTfSchema:
             self.tfschema = json.load(f)
 
     ######## debug ########
-    def _log(self, msg):
-        if self.debug == True:
-            print(msg)
-
     def get_tf_resource_names_list(self):
         return list(self.get_tf_resource_list().keys())
 
@@ -50,23 +46,23 @@ class AwsTfSchema:
             if tf_obj_name  in self.tf_resource_list.keys():
                 print("**** SCHEMA: get_tf_resource ******* ",tf_obj_name," exist in catch")
             else:
-                # print("**** get_tf_resource ******* ", tf_obj_name, self.tf_resource_list.keys(), "*********** START")
+                # print("**** SCHEMA:  get_tf_resource ******* ", tf_obj_name, self.tf_resource_list.keys(), "*********** START")
                 tf_resource_root = self._process_root(tf_obj_name)
                 tf_resource_root.update_nested()
                 self._catch_resource(tf_obj_name, tf_resource_root)
-                # print("**** get_tf_resource ******* ", tf_resource_root.tf_obj_name, str(tf_resource_root),
+                # print("**** SCHEMA: get_tf_resource ******* ", tf_resource_root.tf_obj_name, str(tf_resource_root),
                 #   "*********** DONE")
             return self.tf_resource_list[tf_obj_name]
         except KeyboardInterrupt:
          quit()
         except Exception as e:
-            print("get_tf_resource Failed to generate " + tf_obj_name)
-            print('get_tf_resource Error: {}'.format(sys.exc_info()[0]))
+            print("**** SCHEMA: get_tf_resource Failed to generate " + tf_obj_name)
+            print('**** SCHEMA: get_tf_resource Error: {}'.format(sys.exc_info()[0]))
             return None
 
     ######
     def _catch_resource(self, tf_obj_name, tf_resource):
-        # print("_catch_resource",tf_obj_name, tf_resource )
+        # print("**** SCHEMA: _catch_resource",tf_obj_name, tf_resource )
         self.tf_resource_list[tf_obj_name] = tf_resource.copy()
 
     def _process_root(self, tf_obj_name):
@@ -90,7 +86,6 @@ class AwsTfSchema:
                     type=None
                     tf_resource.all_attributes.append(attrname)
                     for key1, val1 in attr.items():
-
                         if key1 != 'type':
                             opts.append(computed)
 
@@ -102,11 +97,16 @@ class AwsTfSchema:
                             sensitive = True
                         elif key1 == 'required':
                             required = True
+                            # tf_resource.required.append(attrname)
                         elif key1 == 'type':
                             type = val1
                             tf_resource.data_type[attrname]= str(val1)
+
                     if sensitive:
                         tf_resource.sensitive.append(attrname)
+                    if required:
+                        tf_resource.required.append(attrname)
+
                     if computed :
                         #TF has bugs ?... needs some additional work based on bugs
                         # todo check if its set, list, dict,tupple etc
@@ -123,9 +123,9 @@ class AwsTfSchema:
         except KeyboardInterrupt:
             quit()
         except Exception as e:
-            print("_process_attributes Failed to generate " +  tf_resource.tf_obj_name)
-            print('_process_attributes Error: {}'.format(sys.exc_info()[0]))
-        # print("****_process_attributes******* ", tf_resource.tf_obj_name, "*********** END")
+            print("**** SCHEMA: _process_attributes Failed to generate " +  tf_resource.tf_obj_name)
+            print('**** SCHEMA: _process_attributes Error: {}'.format(sys.exc_info()[0]))
+        # print("**** SCHEMA: _process_attributes******* ", tf_resource.tf_obj_name, "*********** END")
 
     def _process_blocks_nested(self, tf_resource):
         try:
@@ -133,15 +133,15 @@ class AwsTfSchema:
                 return
             block_types = tf_resource.tf_object['block']['block_types']
             for tf_obj_name_nested, tf_object_nested in block_types.items():
-                # print("****_process_blocks_nested******* ", tf_obj_name_nested, "*********** start")
+                # print("**** SCHEMA: _process_blocks_nested******* ", tf_obj_name_nested, "*********** start")
                 tf_resource_child = AwsTfResourceSchema(tf_obj_name_nested, tf_object_nested)
                 self._process_attributes(tf_resource_child)
                 self._process_spec_for_nested(tf_resource_child, tf_object_nested)
                 tf_resource.nested_block[tf_obj_name_nested] = tf_resource_child
-                # print("****_process_blocks_nested******* ", tf_obj_name_nested ,  tf_resource.data_dict(), "*********** END")
+                # print("**** SCHEMA: _process_blocks_nested******* ", tf_obj_name_nested ,  tf_resource.data_dict(), "*********** END")
         except Exception as e:
-            print("_process_blocks_nested Failed to generate " + tf_resource.tf_obj_name)
-            print('_process_blocks_nested Error: {}'.format(sys.exc_info()[0]))
+            print("**** SCHEMA: _process_blocks_nested Failed to generate " + tf_resource.tf_obj_name)
+            print('**** SCHEMA: _process_blocks_nested Error: {}'.format(sys.exc_info()[0]))
 
     def _process_spec_for_nested(self, tf_resource, block_type):
         for spec_key, spec_val in block_type.items():
@@ -176,7 +176,7 @@ def main1():
 
     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
     print(json.dumps(tf_resource_names_list))
-    awsParseSchema.utils.save_json_to_log("aws_tf_resource_names_list.json", tf_resource_names_list)
+    awsParseSchema.utils.save_to_json("../data/aws_tf_resource_names_list.json", tf_resource_names_list)
 
     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].non_computed))
     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].computed))
@@ -196,8 +196,8 @@ def main():
     print(json.dumps(schema.data_dict()))
 
 if __name__ == '__main__':
-    main()
-    main()
-    main()
+    main1()
+    # main()
+    # main()
 
 ######## ####

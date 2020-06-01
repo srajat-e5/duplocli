@@ -5,14 +5,25 @@ from collections import defaultdict
 import os
 
 from duplocli.terraform.aws.common.tf_utils import TfUtils
+from duplocli.terraform.aws.schema.aws_tf_schema import AwsTfSchema
 
 
 class AwsToTfUtilStep1 :
     step = "step1"
 
+    # aws_tf_schema
+    aws_tf_schema_file = "data/aws_tf_schema.json"
+    aws_tf_schema = {}
+    is_allow_none = True
+
+
     # mapping_aws_to_tf_state
     aws_to_tf_state_sync_ids_file = "data/aws_to_tf_sync_id_mapping.json"
     mapping_aws_to_tf_state_sync_ids = []
+
+    # mapping_aws_to_tf_state
+    mapping_aws_keys_to_tf_keys_file = "data/mapping_aws_keys_to_tf_keys.json"
+    mapping_aws_keys_to_tf_keys = []
 
     # main.tf.json
     main_tf_json_file_name = "main.tf.json"
@@ -33,91 +44,122 @@ class AwsToTfUtilStep1 :
         self.tenant_name = tenant_name
         self.tenant_id = self.utils.get_tenant_id(tenant_name)
 
-        # mapping_aws_to_tf_state
-        self.mapping_aws_to_tf_state_sync_ids = self._load_aws_to_tf_state_sync_ids(self.aws_to_tf_state_sync_ids_file)
         ## script files
         self.tf_output_path = self.utils.get_tf_output_path(self.step)
         self.tf_json_file = self.utils.get_save_to_output_path(self.step, self.main_tf_json_file_name)
         self.tf_import_script_file = self.utils.get_save_to_output_path(self.step, self.tf_import_script_file_name)
         self.tf_run_script_file = self.utils.get_save_to_output_path(self.step, self.tf_run_script_file_name)
+        # mapping_aws_keys_to_tf_keys_file
+        self._load_mapping_aws_keys_to_tf_keys()
         #
+        self.load_schema()
         self.empty_output()
         self.aws_provider()
 
+    def load_schema(self):
+        self.aws_tf_schema = AwsTfSchema (self.aws_tf_schema_file)
+
+        #self.utils.load_json_file(self.aws_tf_schema_file)
     ############ aws tf resources ##########
     #todo: could be automated using schema -- using required fields + data/duplo_aws_tf_schema.json
+    def aws_resource(self, tf_resource_type, aws_obj, tf_name=None):
+
+        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME" e.g. "aws_elasticache_cluster" "cluster1"
+        if tf_name is None:
+            tf_resource_var_name = self._get_aws_to_tf_state_sync_name(tf_resource_type,  aws_obj)
+        else:
+            tf_resource_var_name = tf_name
+
+        ### create: resource tf_resource_type  tf_resource_var_name
+        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+
+        #keep an eye ---we are neglecting datas type !
+        #required fields: can not use current value from aws_obj. we do not know aws field name to tf field name mapping.
+        schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
+        for required_name in schema.required:
+            resource_obj[required_name] = "aa"
+        return resource_obj
+
     ############ aws tf resources ##########
     def aws_elasticache_cluster(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_elasticache_cluster"
-        tf_resource_var_name = aws_obj['ClusterId']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        # resource_obj['ami'] = "aaa"
+        return self.aws_resource("aws_elasticache_cluster", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_elasticache_cluster"
+        # tf_resource_var_name = aws_obj['ClusterId']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # # resource_obj['ami'] = "aaa"
 
     def aws_s3_bucket(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_s3_bucket"
-        tf_resource_var_name = aws_obj['Name']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        # resource_obj['ami'] = "aaa"
-        return resource_obj
+        return self.aws_resource("aws_s3_bucket", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_s3_bucket"
+        # tf_resource_var_name = aws_obj['Name']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # # resource_obj['ami'] = "aaa"
+        # return resource_obj
 
     def aws_db_instance(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_db_instance"
-        tf_resource_var_name = aws_obj['DBInstanceIdentifier']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        resource_obj['instance_class'] = "aa"
-        # resource_obj['ami'] = "aaa"
-        return resource_obj
+        return self.aws_resource("aws_db_instance", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_db_instance"
+        # tf_resource_var_name = aws_obj['DBInstanceIdentifier']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # resource_obj['instance_class'] = "aa"
+        # # resource_obj['ami'] = "aaa"
+        # return resource_obj
 
     def aws_instance(self, aws_obj, name):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_instance"
-        tf_resource_var_name = name
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        resource_obj['instance_type'] = "aa"
-        resource_obj['ami'] = "aaa"
-        return resource_obj
+        return self.aws_resource("aws_instance", aws_obj, tf_name=name)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_instance"
+        # tf_resource_var_name = name
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # resource_obj['instance_type'] = "aa"
+        # resource_obj['ami'] = "aaa"
+        # return resource_obj
 
     def aws_iam_instance_profile(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_iam_instance_profile"
-        tf_resource_var_name = aws_obj['InstanceProfileName']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        return resource_obj
+        return self.aws_resource("aws_iam_instance_profile", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_iam_instance_profile"
+        # tf_resource_var_name = aws_obj['InstanceProfileName']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # return resource_obj
 
     def aws_iam_role(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_iam_role"
-        tf_resource_var_name = aws_obj['RoleId']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        #required ?
-        assume_role_policy = self.utils.getVal(aws_obj, "AssumeRolePolicyDocument")
-        resource_obj['assume_role_policy'] = "{}" #self.utils.to_json_str(assume_role_policy)
-        return resource_obj
+        return self.aws_resource("aws_iam_role", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_iam_role"
+        # tf_resource_var_name = aws_obj['RoleId']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # #required ?
+        # assume_role_policy = self.utils.getVal(aws_obj, "AssumeRolePolicyDocument")
+        # resource_obj['assume_role_policy'] = "{}" #self.utils.to_json_str(assume_role_policy)
+        # return resource_obj
 
     def aws_security_group(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_security_group"
-        tf_resource_var_name = aws_obj['GroupName']
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        return resource_obj
+        return self.aws_resource("aws_security_group", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_security_group"
+        # tf_resource_var_name = aws_obj['GroupName']
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # return resource_obj
 
     def aws_vpc(self, aws_obj):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "aws_vpc"
-        tf_resource_var_name = "duplo-vpc"
-        ### create: resource tf_resource_type  tf_resource_var_name
-        resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
-        return resource_obj
+        return self.aws_resource("aws_vpc", aws_obj)
+        # ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        # tf_resource_type = "aws_vpc"
+        # tf_resource_var_name = "duplo-vpc"
+        # ### create: resource tf_resource_type  tf_resource_var_name
+        # resource_obj = self._init_tf_resource(tf_resource_type, tf_resource_var_name, aws_obj)
+        # return resource_obj
 
     def aws_provider(self):
         ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
@@ -129,8 +171,6 @@ class AwsToTfUtilStep1 :
         resource_obj["region"] = self.aws_az
         self.tf_import_sh_list.append('terraform init ')
         return resource_obj
-    ############ aws tf resources ##########
-    #todo: could be automated using schema -- using required fields + data/duplo_aws_tf_schema.json
     ############ aws tf resources ##########
 
 
@@ -167,19 +207,34 @@ class AwsToTfUtilStep1 :
         ### return:  resource_obj
         return resource_obj
 
-    ############ aws_to_tf_state_sync_id ##########
-    def _get_aws_to_tf_state_sync_id(self, tf_resource_type,  aws_obj):
-        ### get aws sync_id: used to update tf state
-        tf_resource_type_sync_id_key = self.mapping_aws_to_tf_state_sync_ids[tf_resource_type]
-        ### get aws sync_id value: from aws_obj
-        tf_resource_type_sync_id = aws_obj[tf_resource_type_sync_id_key]
-        return tf_resource_type_sync_id
 
-    def _load_aws_to_tf_state_sync_ids(self, aws_to_tf_state_sync_ids_file):
-        ### load mapping: aws sync_ids and tf resources
-        aws_to_tf_state_sync_ids_json = self.utils.load_json_file(aws_to_tf_state_sync_ids_file)
-        aws_to_tf_state_sync_ids = aws_to_tf_state_sync_ids_json['aws']
-        return aws_to_tf_state_sync_ids
+
+    ############ mapping_aws_keys_to_tf_keys = sync_ids and names ##########
+    def _load_mapping_aws_keys_to_tf_keys(self):
+        self.mapping_aws_keys_to_tf_keys = self.utils.load_json_file(self.mapping_aws_keys_to_tf_keys_file)
+        self.mapping_aws_to_tf_state_sync_ids = self.mapping_aws_keys_to_tf_keys['syncids']
+        self.mapping_aws_to_tf_state_sync_names = self.mapping_aws_keys_to_tf_keys['names']
+
+    def _get_aws_to_tf_state_sync_id(self, tf_resource_type,  aws_obj):
+        if tf_resource_type not in self.mapping_aws_to_tf_state_sync_ids:
+            raise Exception("please define sync_id for '{0}' mapping_aws_keys_to_tf_keys.json."
+                            + " Used to aws id during terraform import.".format(tf_resource_type))
+
+        ### get aws sync_id: used to update tf state
+        aws_key = self.mapping_aws_to_tf_state_sync_ids[tf_resource_type]
+        aws_key_val = aws_obj[aws_key]
+        return aws_key_val
+
+    def _get_aws_to_tf_state_sync_name(self, tf_resource_type,  aws_obj):
+        if tf_resource_type not in self.mapping_aws_to_tf_state_sync_names:
+            raise Exception("please define sync name for '{0}' mapping_aws_keys_to_tf_keys.json. "
+                            + " Used to create a name for terraform resource in main.tf.json".format(tf_resource_type))
+
+        ### get aws sync_name: used to create a name for terraform object in main.tf
+        aws_key = self.mapping_aws_to_tf_state_sync_names[tf_resource_type]
+        aws_key_val = aws_obj[aws_key]
+        return aws_key_val
+
     ############ aws_to_tf_state_sync_id ##########
 
     ############ main.tf.json + script + generate state ##########
