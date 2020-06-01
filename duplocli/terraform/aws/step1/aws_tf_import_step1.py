@@ -55,11 +55,14 @@ class AwsTfImportStep1:
         aws_obj_list=[]
         for instance in response["Buckets"]:
             # pass
-            #if instance['Name'] !="cf-templates-n3v0h2x4m8ny-us-west-2":
-            self.tf_util.aws_s3_bucket(instance)
-            print("**** aws import : aws_s3_bucket ", instance['Name'])
+            aws_name=instance['Name']
+            if aws_name.startswith(self.tenant_id+"-"):
+                self.tf_util.aws_s3_bucket(instance)
+                aws_obj_list.append(instance)
+                print("**** aws import : aws_s3_bucket ", instance['Name'])
             #todo: resolve tenant specific
-
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_s3_bucket ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
@@ -71,11 +74,17 @@ class AwsTfImportStep1:
             self.utils.save_json_to_log("aws_db_instance.json", response, self.step)
         aws_obj_list=[]
         for instance in response["DBInstances"]:
-            #todo: fetch security_group id name
-            self.tf_util.aws_db_instance(instance)
-            print("**** aws import : aws_db_instance", instance['DBInstanceIdentifier'])
+            arn = instance['DBInstanceArn']
+            tags = awsclient.list_tags_for_resource(ResourceName=arn)
+            tags_dict = self.utils.getHashFromArray(tags['TagList'])
+            tannant_id_instance = self.utils.getVal(tags_dict, "Name")
+            if tannant_id_instance == self.tenant_id:
+                self.tf_util.aws_db_instance(instance)
+                aws_obj_list.append(instance)
+                print("**** aws import : aws_db_instance", instance['DBInstanceIdentifier'], arn)
             #todo: resolve tenant specific
-
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_db_instance ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
@@ -95,6 +104,8 @@ class AwsTfImportStep1:
                     self.tf_util.aws_instance(instance, name)
                     aws_obj_list.append(instance)
                     print("**** aws import : aws_instance " ,tenant_name_ec2, name)
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_instance ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
@@ -112,7 +123,8 @@ class AwsTfImportStep1:
                 arn = self.utils.getVal(instance, "Arn")
                 print("**** aws import : aws_iam_role " ,name, arn)
                 aws_obj_list.append(instance)
-
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_iam_role ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
@@ -131,7 +143,8 @@ class AwsTfImportStep1:
                 self.tf_util.aws_security_group(instance)
                 print("**** aws import : aws_security_group " ,group_name, group_id)
                 aws_obj_list[group_name] = instance
-
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_security_group ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
@@ -150,7 +163,25 @@ class AwsTfImportStep1:
                 self.tf_util.aws_iam_instance_profile(instance)
                 print("**** aws import : aws_iam_instance_profile " , InstanceProfileName, InstanceProfileId)
                 aws_obj_list[InstanceProfileName] = instance
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_iam_instance_profile ", "NOT_FOUND ANY")
         if self.debug:
             self.utils.print_json(aws_obj_list)
         return self
 
+# if __name__ == '__main__':
+    # utils = TfUtils()
+    # awsclient = boto3.client('rds')
+    # response = awsclient.describe_db_instances()
+    # # utils.print_json(response)
+    # aws_obj_list = []
+    # for instance in response["DBInstances"]:
+    #     # todo: fetch security_group id name
+    #     # name = instance['DBInstanceIdentifier']
+    #     arn = instance['DBInstanceArn']
+    #     # arn:aws:rds:ap-southeast-1::db:mydbrafalmarguzewicz
+    #     tags = awsclient.list_tags_for_resource(ResourceName=arn)
+    #     tags_dict = utils.getHashFromArray(tags['TagList'])
+    #     utils.print_json(tags_dict)
+    #     print("**** aws import : aws_db_instance", instance['DBInstanceIdentifier'])
+    #     # todo: resolve tenant specific

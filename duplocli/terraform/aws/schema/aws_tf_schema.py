@@ -164,40 +164,40 @@ class AwsTfSchema:
         f.close()
 
 
-
-##### test ##########
-def main1():
-    awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
-    data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
-    awsParseSchema.save_json(data_dict_tf_resource_list, '../data/duplo_aws_tf_schema.json')
-    print(json.dumps(data_dict_tf_resource_list))
-
-    tf_resource_list = awsParseSchema.get_tf_resource_list()
-
-    tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
-    print(json.dumps(tf_resource_names_list))
-    awsParseSchema.utils.save_to_json("../data/aws_tf_resource_names_list.json", tf_resource_names_list)
-
-    print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].non_computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested))
-    print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].non_computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].computed))
-
-    print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].non_computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested))
-    print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].non_computed))
-    print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].computed))
-
-def main():
-    awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
-    schema=awsParseSchema.get_tf_resource("aws_security_group")
-    print(json.dumps(schema.data_dict()))
-
-if __name__ == '__main__':
-    main1()
-    # main()
-    # main()
-
-######## ####
+#
+# ##### test ##########
+# def main1():
+#     awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
+#     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
+#     awsParseSchema.save_json(data_dict_tf_resource_list, '../data/duplo_aws_tf_schema.json')
+#     print(json.dumps(data_dict_tf_resource_list))
+#
+#     tf_resource_list = awsParseSchema.get_tf_resource_list()
+#
+#     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
+#     print(json.dumps(tf_resource_names_list))
+#     awsParseSchema.utils.save_to_json("../data/aws_tf_resource_names_list.json", tf_resource_names_list)
+#
+#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].non_computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested))
+#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].non_computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].computed))
+#
+#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].non_computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested))
+#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].non_computed))
+#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].computed))
+#
+# def main():
+#     awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
+#     schema=awsParseSchema.get_tf_resource("aws_security_group")
+#     print(json.dumps(schema.data_dict()))
+#
+# if __name__ == '__main__':
+#     main1()
+#     # main()
+#     # main()
+#
+# ######## ####

@@ -37,7 +37,6 @@ class TfUtils:
         try:
             # json.dumps(object): todo?
             type_b = isinstance(object, (list, tuple, set, dict))
-            print(type_b  )
             return not type_b
         except TypeError:
             print ("Can't convert", object)
