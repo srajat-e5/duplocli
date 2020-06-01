@@ -1,13 +1,17 @@
 import json
 import datetime
 from collections import defaultdict
-from tenant_import_to_tf.aws.common.tf_utils import TfUtils
+
 import os
 
+from duplocli.terraform.aws.common.tf_utils import TfUtils
+
+
 class AwsToTfUtilStep1 :
+    step = "step1"
 
     # mapping_aws_to_tf_state
-    aws_to_tf_state_sync_ids_file = "../data/aws_to_tf_sync_id_mapping.json"
+    aws_to_tf_state_sync_ids_file = "data/aws_to_tf_sync_id_mapping.json"
     mapping_aws_to_tf_state_sync_ids = []
 
     # main.tf.json
@@ -23,9 +27,11 @@ class AwsToTfUtilStep1 :
     tf_run_script_file_name = "run.sh"
 
 
-    def __init__(self, step="step1"):
+    def __init__(self, tenant_name="bigdata01", aws_az="us-west-2"):
         self.utils = TfUtils()
-        self.step=step
+        self.aws_az = aws_az
+        self.tenant_name = tenant_name
+        self.tenant_id = self.utils.get_tenant_id(tenant_name)
 
         # mapping_aws_to_tf_state
         self.mapping_aws_to_tf_state_sync_ids = self._load_aws_to_tf_state_sync_ids(self.aws_to_tf_state_sync_ids_file)
@@ -120,7 +126,7 @@ class AwsToTfUtilStep1 :
         ### create: resource "provider" "aws"
         resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
         resource_obj["version"] = "~> 2.0"
-        resource_obj["region"] = "us-west-2"
+        resource_obj["region"] = self.aws_az
         self.tf_import_sh_list.append('terraform init ')
         return resource_obj
     ############ aws tf resources ##########
@@ -177,31 +183,29 @@ class AwsToTfUtilStep1 :
     ############ aws_to_tf_state_sync_id ##########
 
     ############ main.tf.json + script + generate state ##########
-    # add plan to script
-    def plan(self):
-        ### create: terraform plan... bug tf created extra aws_security_group_rule... remove them.
-        self.tf_import_sh_list.append(
-            'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
 
     def empty_output(self):
-        cmd_mod = "rm -rf  {0}/*".format(self.tf_output_path)
-        os.system(cmd_mod)
+        self.utils.empty_output_folder(self.step)
 
-    def save_tf_files(self):
+    def create_state(self):
+        self._plan()
+        self._save_tf_files()
+        self.utils.create_state(self.tf_run_script_file, self.step)
+
+    def _save_tf_files(self):
         self.utils.save_to_json(self.tf_json_file, self.main_tf_json_dict)
         self.utils.save_run_script(self.tf_import_script_file, self.tf_import_sh_list)
-
         run_sh_list=[]
         run_sh_list.append("cd {0}".format(self.tf_output_path))
         run_sh_list.append("chmod 777 *.sh")
-        # run_sh_list.append("./{0} > output.log 2>&1 ".format(self.tf_import_script_file_name))
         run_sh_list.append("./{0}  ".format(self.tf_import_script_file_name))
         self.utils.save_run_script(self.tf_run_script_file, run_sh_list)
+        # add plan to script
 
-    def create_state(self):
-        self.plan()
-        self.save_tf_files()
-        cmd_mod ="chmod +x {0}; ./{0}".format(self.tf_run_script_file)
-        print(cmd_mod)
-        os.system(cmd_mod)
+    def _plan(self):
+        ### create: terraform plan ...
+        # bug in tf -> creates extra aws_security_group_rule... remove aws_security_group_rule first.
+        self.tf_import_sh_list.append(
+            'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
+
     ############ main.tf.json + script + generate state ##########

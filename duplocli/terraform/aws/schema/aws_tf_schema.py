@@ -1,8 +1,9 @@
 import sys
 import json
-from src.tenant_import.aws.aws_tf_resource_schema import AwsTfResourceSchema
 import datetime
-from tenant_import_to_tf.aws.common.tf_utils import TfUtils
+
+from duplocli.terraform.aws.common.tf_utils import TfUtils
+from duplocli.terraform.aws.schema.aws_tf_resource_schema import AwsTfResourceSchema
 
 class AwsTfSchema:
     tfschema={}
@@ -47,7 +48,7 @@ class AwsTfSchema:
     def get_tf_resource(self, tf_obj_name):
         try:
             if tf_obj_name  in self.tf_resource_list.keys():
-                print("**** get_tf_resource ******* ",tf_obj_name," exist in catch")
+                print("**** SCHEMA: get_tf_resource ******* ",tf_obj_name," exist in catch")
             else:
                 # print("**** get_tf_resource ******* ", tf_obj_name, self.tf_resource_list.keys(), "*********** START")
                 tf_resource_root = self._process_root(tf_obj_name)

@@ -1,17 +1,31 @@
 import json
 import datetime
 from collections import defaultdict
+import os
 
 class TfUtils:
 
     def get_tf_output_path(self, step_name):
-        output_path = "../output/{0}".format(step_name)
+        output_path = "output/{0}".format(step_name)
         return output_path
 
     def get_save_to_output_path(self, step_name, file_name):
         output_path = self.get_tf_output_path(step_name)
         output_file_path = "{0}/{1}".format(output_path, file_name)
         return output_file_path
+
+    #######
+    def empty_output_folder(self, step):
+        cmd_mod = "mkdir -p  log/; mkdir -p {0}; rm -rf  {0}/*; ls  {0}".format(self.get_tf_output_path(step))
+        print("empty_output_folder", cmd_mod)
+        os.system(cmd_mod)
+        print("DONE empty_output_folder", cmd_mod)
+
+    def create_state(self, tf_run_script_file, step):
+        cmd_mod = "chmod +x {0}; ./{0} > log/{1}_log.log  2>&1".format(tf_run_script_file, step)
+        print("create_state ", cmd_mod)
+        os.system(cmd_mod)
+
     #######
     def get_tenant_id(self, tenant_name):
         tenant_name_prafix="duploservices"
@@ -21,7 +35,7 @@ class TfUtils:
     ###
     def is_native_type(self, object):
         try:
-            # json.dumps(object)
+            # json.dumps(object): todo?
             type_b = isinstance(object, (list, tuple, set, dict))
             print(type_b  )
             return not type_b
@@ -106,7 +120,7 @@ class TfUtils:
         f.close()
 
     def save_json_to_log(self, file_name, data_dict, step="step1"):
-        file_path= "../log/{0}_{1}".format(step,file_name )
+        file_path= "log/{0}_{1}".format(step,file_name )
         self.save_to_json(file_path, data_dict)
 
     def save_to_json(self, file_name, data_dict):
