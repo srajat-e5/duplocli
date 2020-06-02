@@ -11,7 +11,7 @@
   },
   "names": {
     "aws_security_group": "GroupName"
-    ,"aws_iam_role": "RoleId"
+    ,"aws_iam_role": "RoleName"
     ,"aws_iam_instance_profile": "InstanceProfileName"
     ,"aws_vpc": "VpcId"
     ,"aws_instance":"InstanceId"

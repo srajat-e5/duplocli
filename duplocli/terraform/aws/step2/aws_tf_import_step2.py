@@ -89,17 +89,24 @@ class AwsTfImportStep2():
             # print(attribute_name)
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
+            is_optional = attribute_name  in schema.optional
             if  is_nested:
                 self._process_nested(attribute_name, attribute, resource_obj, schema)
-            elif not is_computed:
+            elif is_optional or not is_computed :
                 #https://github.com/hashicorp/terraform/issues/18321
                 #https://github.com/terraform-providers/terraform-provider-aws/issues/4954
                 #todo: forcing aws_instance recreation?
                 if attribute_name in ["user_data", "replicas" ]:
                     # pass; #resource_obj[attribute_name] = attribute
                     resource_obj["lifecycle"]={"ignore_changes": [attribute_name] }
-                elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy" ]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy" ]}
+                elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy"]:
+                    resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy"]}
+                elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
+                    resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
+                elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
+                    resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
+                elif attribute_name == "id":
+                    pass
                 elif attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
                     resource_obj[attribute_name]=attribute
             else:

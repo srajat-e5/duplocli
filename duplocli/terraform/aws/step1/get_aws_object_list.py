@@ -26,7 +26,7 @@ from duplocli.terraform.aws.step1.aws_to_tf_util_step1 import AwsToTfUtilStep1
 class GetAwsObjectList:
     step = "step1"
     debug_output = False
-    debug_json = False
+    debug_json = True
     aws_obj_list = []
     resources_unique_ids =[]
     # mapping_aws_to_tf_state

@@ -7,6 +7,7 @@ class AwsTfResourceSchema :
         #attributes
         self.non_computed = []
         self.computed = []
+        self.optional = []
         self.required = []
         self.sensitive = []
         #?
@@ -25,6 +26,7 @@ class AwsTfResourceSchema :
         tf = AwsTfResourceSchema(self.tf_obj_name, self.tf_object)
         tf.non_computed = self.non_computed
         tf.computed = self.computed
+        tf.optional = self.optional
         tf.all_attributes = self.all_attributes
         tf.sensitive = self.sensitive
         tf.required = self.required
@@ -45,6 +47,7 @@ class AwsTfResourceSchema :
         data = {}
         data['non_computed'] = self.non_computed
         data['computed'] = self.computed
+        data['optional'] = self.optional
         data['all_attributes'] = self.all_attributes
         data['sensitive'] = self.sensitive
         data['required'] = self.required

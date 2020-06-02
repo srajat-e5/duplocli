@@ -88,15 +88,14 @@ class AwsTfSchema:
                     for key1, val1 in attr.items():
                         if key1 != 'type':
                             opts.append(computed)
-
                         if key1 == 'computed':
-                            computed = True
+                            computed = val1
                         elif key1 == 'optional':
-                            optional = True
+                            optional = val1
                         elif key1 == 'sensitive':
-                            sensitive = True
+                            sensitive = val1
                         elif key1 == 'required':
-                            required = True
+                            required = val1
                             # tf_resource.required.append(attrname)
                         elif key1 == 'type':
                             type = val1
@@ -106,6 +105,8 @@ class AwsTfSchema:
                         tf_resource.sensitive.append(attrname)
                     if required:
                         tf_resource.required.append(attrname)
+                    if optional:
+                        tf_resource.optional.append(attrname)
 
                     if computed :
                         #TF has bugs ?... needs some additional work based on bugs
