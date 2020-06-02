@@ -3,7 +3,9 @@ import json
 import datetime
 import argparse
 from duplocli.terraform.aws.common.tf_utils import TfUtils
+from duplocli.terraform.aws.step1.aws_create_tfstate_step1 import AwsCreateTfstateStep1
 from duplocli.terraform.aws.step1.aws_tf_import_step1 import AwsTfImportStep1
+from duplocli.terraform.aws.step1.get_aws_object_list import GetAwsObjectList
 from duplocli.terraform.aws.step2.aws_tf_import_step2 import AwsTfImportStep2
 
 
@@ -24,13 +26,22 @@ class AwsTfImport:
     def execute_step(self, steps="all"):
 
         if steps == "step1":
-            self.execute_step1()
+            # self.execute_step1()
+            self.execute_step1_with_api()
         elif steps == "step2":
             self.execute_step2()
         else:
-            self.execute_step1()
+            # self.execute_step1()
+            self.execute_step1_with_api()
             self.execute_step2()
 
+    def execute_step1_with_api(self):
+        print("\n====== execute_step1 ====== START")
+        api = GetAwsObjectList(tenant_name=self.tenant_name, aws_az=self.aws_az)
+        tenant_resources = api.get_tenant_resources()
+        self.step1 = AwsCreateTfstateStep1(self.aws_az)
+        self.step1.execute_step(tenant_resources)
+        print(" ====== execute_step1 ====== DONE\n")
 
     def execute_step1(self):
         print("\n====== execute_step1 ====== START")

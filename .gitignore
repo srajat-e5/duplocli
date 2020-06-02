@@ -26,10 +26,11 @@ wheels/
 *.egg
 
 #terrafrom ignore folders
-aws/output/*.*
-aws/log*.*
+aws/output/*
+aws/log*
 __pycache__/
 .DS_Store
+.idea/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
