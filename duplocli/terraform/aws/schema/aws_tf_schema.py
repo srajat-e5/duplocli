@@ -44,7 +44,8 @@ class AwsTfSchema:
     def get_tf_resource(self, tf_obj_name):
         try:
             if tf_obj_name  in self.tf_resource_list.keys():
-                print("**** SCHEMA: get_tf_resource ******* ",tf_obj_name," exist in catch")
+                pass
+                # print("**** SCHEMA: get_tf_resource ******* ",tf_obj_name," exist in catch")
             else:
                 # print("**** SCHEMA:  get_tf_resource ******* ", tf_obj_name, self.tf_resource_list.keys(), "*********** START")
                 tf_resource_root = self._process_root(tf_obj_name)

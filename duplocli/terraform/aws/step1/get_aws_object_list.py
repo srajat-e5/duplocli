@@ -26,14 +26,14 @@ from duplocli.terraform.aws.step1.aws_to_tf_util_step1 import AwsToTfUtilStep1
 class GetAwsObjectList:
     step = "step1"
     debug_output = False
-    debug_json = True
+    debug_json = False
     aws_obj_list = []
     resources_unique_ids =[]
     # mapping_aws_to_tf_state
     mapping_aws_keys_to_tf_keys_file = "data/mapping_aws_keys_to_tf_keys.json"
     mapping_aws_keys_to_tf_keys = []
 
-    def __init__(self, tenant_name="bigdata01", aws_az="us-west-2"):
+    def __init__(self, tenant_name="k8-02", aws_az="us-west-2"):
         self.utils = TfUtils()
         self.aws_az = aws_az
         self.tenant_name = tenant_name
@@ -65,10 +65,10 @@ class GetAwsObjectList:
             if aws_name.startswith(self.tenant_id+"-"):
                 self.aws_resource("aws_s3_bucket", instance)
                 aws_obj_list.append(instance)
-                print("**** aws import : aws_s3_bucket ", instance['Name'])
+                print("**** aws import : aws_s3_bucket step1 :", instance['Name'])
             #todo: resolve tenant specific
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_s3_bucket ", "NOT_FOUND ANY")
+            print("**** aws import : aws_s3_bucket step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
@@ -87,10 +87,10 @@ class GetAwsObjectList:
             if tannant_id_instance == self.tenant_id:
                 self.aws_resource("aws_db_instance", instance)
                 aws_obj_list.append(instance)
-                print("**** aws import : aws_db_instance", instance['DBInstanceIdentifier'], arn)
+                print("**** aws import : aws_db_instance step1 : ", instance['DBInstanceIdentifier'], arn)
             #todo: resolve tenant specific
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_db_instance ", "NOT_FOUND ANY")
+            print("**** aws import : aws_db_instance step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
@@ -109,15 +109,16 @@ class GetAwsObjectList:
                     name = self.utils.getVal(tags, "Name")
                     self.aws_resource("aws_instance", instance, tf_variable_id=name)
                     aws_obj_list.append(instance)
-                    print("**** aws import : aws_instance " ,tenant_name_ec2, name)
+                    print("**** aws import : aws_instance step1 : " ,tenant_name_ec2, name)
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_instance ", "NOT_FOUND ANY")
+            print("**** aws import : aws_instance step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
 
     def _aws_iam_role(self):
         awsclient = boto3.client('iam')
+        iam = boto3.resource('iam')
         response = awsclient.list_roles()
         if self.debug_json:
             self.utils.save_json_to_log("aws_iam_role.json", response, self.step)
@@ -127,10 +128,37 @@ class GetAwsObjectList:
             if self.tenant_id == name :
                 self.aws_resource("aws_iam_role", instance)
                 arn = self.utils.getVal(instance, "Arn")
-                print("**** aws import : aws_iam_role " ,name, arn)
+                print("**** aws import : aws_iam_role step1 : " ,name, arn)
                 aws_obj_list.append(instance)
+                role = iam.Role(name)
+                attached_policies =  list(role.attached_policies.all())
+                # instance_profiles = list(role.instance_profiles.all())
+                for attached_policy in attached_policies:
+                    arn = attached_policy.arn
+                    policy_name = arn.split("/").pop();
+                    data = {}
+                    data["PolicyName"] = policy_name
+                    data["arn"] = arn
+                    data["RoleName"] = name
+                    sync_id="{0}/{1}".format(name, arn)
+                    # data["PolicyId"] = attached_policy.meta.data['PolicyId']
+                    self.aws_resource("aws_iam_role_policy_attachment", data, tf_import_id=sync_id)
+                    aws_obj_list.append(data)
+                    print("**** aws import : aws_iam_role_policy_attachment step1 : ", policy_name, sync_id)
+
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_iam_role ", "NOT_FOUND ANY")
+            print("**** aws import : aws_iam_role_policy_attachment step1 : ", "NOT_FOUND ANY")
+        if self.debug_output:
+            self.utils.print_json(aws_obj_list)
+
+        # for instance in response["Roles"]:
+        #     name = self.utils.getVal(instance, "RoleName")
+        #     role = iam.Role(name).meta.data
+        #     policy_iterator = list(role.attached_policies.all())
+        #     self.utils.print_json(policy_iterator)
+
+        if len(aws_obj_list) ==0 :
+            print("**** aws import : aws_iam_role step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
@@ -147,10 +175,10 @@ class GetAwsObjectList:
             # print( "1", group_name, group_id)
             if  group_name == self.tenant_id or group_name.startswith(self.tenant_id+"-"):
                 self.aws_resource("aws_security_group", instance)
-                print("**** aws import : aws_security_group " ,group_name, group_id)
+                print("**** aws import : aws_security_group step1 : " ,group_name, group_id)
                 aws_obj_list[group_name] = instance
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_security_group ", "NOT_FOUND ANY")
+            print("**** aws import : aws_security_group step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
@@ -162,15 +190,14 @@ class GetAwsObjectList:
             self.utils.save_json_to_log("aws_iam_instance_profile.json", response, self.step)
         aws_obj_list = defaultdict(self.utils.def_value)
         for instance in response["InstanceProfiles"]:
-            # print(instance)
             InstanceProfileName = self.utils.getVal(instance, "InstanceProfileName")
             InstanceProfileId = self.utils.getVal(instance, "InstanceProfileId")
             if  InstanceProfileName == self.tenant_id  :
                 self.aws_resource("aws_iam_instance_profile", instance)
-                print("**** aws import : aws_iam_instance_profile " , InstanceProfileName, InstanceProfileId)
+                print("**** aws import : aws_iam_instance_profile step1 : " , InstanceProfileName, InstanceProfileId)
                 aws_obj_list[InstanceProfileName] = instance
         if len(aws_obj_list) ==0 :
-            print("**** aws import : aws_iam_instance_profile ", "NOT_FOUND ANY")
+            print("**** aws import : aws_iam_instance_profile step1 : ", "NOT_FOUND ANY")
         if self.debug_output:
             self.utils.print_json(aws_obj_list)
         return self
@@ -254,4 +281,11 @@ if __name__ == '__main__':
     json =api.get_tenant_resources()
     utils.print_json(json)
 
+# terraform import aws_iam_role_policy_attachment.role-attach-1 {test-role}/arn:aws:iam::aws:policy/ReadOnlyAccess
 
+# terraform import -provider=aws.{example} aws_iam_role_policy_attachment.role-attach-1 {test-role}/arn:aws:iam::aws:policy/ReadOnlyAccess
+# aws_iam_role_policy_attachment.role-attach-1: Importing from ID "{test-role}/arn:aws:iam::aws:policy/ReadOnlyAccess"...
+# aws_iam_role_policy_attachment.role-attach-1: Import complete!
+#   I
+# mported aws_iam_role_policy_attachment (ID: {test-role}-arn:aws:iam::aws:policy/ReadOnlyAccess)
+# aws_iam_role_policy_attachment.role-attach-1: Refreshing state... (ID: {test-role}-arn:aws:iam::aws:policy/ReadOnlyAccess)
