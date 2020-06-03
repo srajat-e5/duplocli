@@ -5,42 +5,54 @@
 pip install -r requirements.txt  
 
 ##setup terraform: https://learn.hashicorp.com/terraform/getting-started/install.html
-### install using installer
+### Terraform Install
     * mac
-    brew install terraform
+        brew install terraform
     * windows
-    choco install terraform
-### Manual installation
-   * Download appropriate files from 
-    https://www.terraform.io/downloads.html
-   * Extract and add terrform to PATH
-   
- ## steps to import duplo managed aws resources into terrform managed state 
-  * Go to  duplocli/terraform/aws folder 
-  * Run 'aws_tf_import.py' script to import files = main.tf.json & terraform.tfstate
-  * python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2"
-  
-  ## check output main.tf.json and tfstate files. 
-  *  Go to duplocli/terraform/aws/output folder
-  *  terraform files:  step1/main.tf.json , step1/terraform.tfstate
-  *  final state in duplocli/terraform/aws/output/step2
-  *  terraform files : step2/main.tf.json or  step2/terraform.tfstate 
- 
-  ## debug log location
-  # check logs
-  *  Go to  duplocli/terraform/aws folder
-  *  step1 log file = cat log/step1_log.log
-  *  step2 log file = cat log/step2_log.log 
+        choco install terraform
+    * Terraform Manual installation
+       * Download appropriate files from 
+        https://www.terraform.io/downloads.html
+       * Extract and add terrform to PATH
+       
+ ## Configure aws access. (It will shared by terraform and boto3)
+    * Please refer to aws documentation for coonfiguration.
+        https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
-  # running - terrform plan with imported main.tf.json and tfstate files. 
-  * Go to duplocli/terraform/aws/output/step1 folder
-  * Or Go to duplocli/terraform/aws/output/step2 folder
-  * RUN terraform commands 
-  * e.g. 
-  * terrform plan 
-  * terrform show 
+ ## steps to import duplo managed aws resources into terrform managed state 
+      * Go to  duplocli/terraform/aws folder 
+      * Run 'aws_tf_import.py' script. 
+      * This will create files required for import = main.tf.json & terraform.tfstate
+      * Arguments 
+        --tenant_name "YOUR_TENANT_NAME" : duplo tenant to be imported into Terraform state
+        --aws_az "us-west-2"  : aws availability zone
+        --export_keys "true" : to export aws EC2 public ssh keys into keys folder
+       ''' 
+         python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --export_keys "true"
+       '''
+  
+  ## check output main.tf.json and tfstate files.   
+      *  duplocli/terraform/aws/step2/main.tf.json
+      *  duplocli/terraform/aws/step2/terraform.tfstate
+
+  ## debug log location 
+      *  duplocli/terraform/aws/log/step1_log.log
+      *  duplocli/terraform/aws/log/step2_log.log 
+
+  # Modiffing and running Terraform scripts 
+      *  You can make changes to following files
+      *  duplocli/terraform/aws/step2/main.tf.json
+      *  duplocli/terraform/aws/step2/terraform.tfstate
+      * RUN terraform commands 
+      ''' 
+        terrform plan 
+        terrform show 
+      '''
+       
+       
  
- 
+# use cases: TODO
+## new create creation
 
 ## importing into new tenant ins aws?
     * please add manually the key_pair for new tenant
@@ -54,4 +66,19 @@ pip install -r requirements.txt
     * remove ipaddresses from 'main.tf.json'
     * may be you need to look at conflicting optional attributes.
     
+ ## create new key_pair 
+  * use terrafrom module 
+  
+  ```
+    resource "tls_private_key" "this" {
+       algorithm = "RSA"
+    }
     
+    module "key_pair" {
+      source = "terraform-aws-modules/key-pair/aws"
+    
+      key_name   = "deployer-one"
+      public_key = tls_private_key.this.public_key_openssh
+    }
+    * refer
+    ```
