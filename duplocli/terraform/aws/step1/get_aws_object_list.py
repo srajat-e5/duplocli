@@ -109,7 +109,12 @@ class GetAwsObjectList:
                     name = self.utils.getVal(tags, "Name")
                     self.aws_resource("aws_instance", instance, tf_variable_id=name)
                     aws_obj_list.append(instance)
-                    print("**** aws import step1 : aws_instance :" ,tenant_name_ec2, name)
+                    print("**** aws import step1 : aws_instance :", tenant_name_ec2, name)
+                    #aws_resource
+                    key_name = instance["KeyName"]
+                    self.aws_resource("aws_key_pair", instance, tf_variable_id=key_name, tf_import_id=key_name , skip_if_exists=True)
+                    aws_obj_list.append(instance)
+                    print("**** aws import step1 : aws_key_pair :" , key_name)
         if len(aws_obj_list) ==0 :
             print("**** aws import step1 : aws_instance :", "NOT_FOUND ANY")
         if self.debug_output:
@@ -133,32 +138,22 @@ class GetAwsObjectList:
                 role = iam.Role(name)
                 attached_policies =  list(role.attached_policies.all())
                 policies = list(role.policies.all())
-                # print(policies)
-                for  inline_policy in policies:
-                    ip_data={}
+                for inline_policy in policies:
                     ip_name = inline_policy.name
                     ip_role_name =  inline_policy.role_name
-                    ip_data['name'] = ip_name
-                    ip_data['role_name'] = ip_role_name
                     ip_sync_id = "{0}:{1}".format(ip_role_name, ip_name)
-                    self.aws_resource("aws_iam_role_policy", ip_data, tf_import_id=ip_sync_id)
+                    ip_data = {'name':ip_name, 'role_name':ip_role_name }
+                    self.aws_resource("aws_iam_role_policy", ip_data, tf_variable_id = ip_name, tf_import_id=ip_sync_id)
                     aws_obj_list.append(ip_data)
                     print("**** aws import step1 : aws_iam_role_policy:", ip_role_name, ip_sync_id)
-
-                # instance_profiles = list(role.instance_profiles.all())
                 for attached_policy in attached_policies:
                     arn = attached_policy.arn
-                    policy_name = arn.split("/").pop();
-                    data = {}
-                    data["PolicyName"] = policy_name
-                    data["arn"] = arn
-                    data["RoleName"] = name
+                    policy_name = arn.split("/").pop()
                     sync_id="{0}/{1}".format(name, arn)
-                    # data["PolicyId"] = attached_policy.meta.data['PolicyId']
-                    self.aws_resource("aws_iam_role_policy_attachment", data, tf_import_id=sync_id)
+                    data = {'PolicyName': policy_name, 'RoleName': name, 'arn': arn}
+                    self.aws_resource("aws_iam_role_policy_attachment", data, tf_variable_id=policy_name, tf_import_id=sync_id)
                     aws_obj_list.append(data)
                     print("**** aws import step1 : aws_iam_role_policy_attachment :", policy_name, sync_id)
-
         if len(aws_obj_list) ==0 :
             print("**** aws import step1 : aws_iam_role_policy_attachment :", "NOT_FOUND ANY")
         if self.debug_output:
@@ -231,7 +226,7 @@ class GetAwsObjectList:
         return self
 
     ########### helpers ###########
-    def aws_resource(self, tf_resource_type, aws_obj, tf_variable_id=None, tf_import_id=None):
+    def aws_resource(self, tf_resource_type, aws_obj, tf_variable_id=None, tf_import_id=None , skip_if_exists=False):
         # unique tf variable name
         if tf_variable_id is None:
             tf_resource_var_name = self._get_aws_to_tf_state_sync_name(tf_resource_type, aws_obj)
@@ -250,6 +245,9 @@ class GetAwsObjectList:
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
         if tf_id in self.resources_unique_ids:
+            if skip_if_exists:
+                print("**** aws import step1 : SKIP: already exists - tf_resource_var_name should be unique **** aws import step1 : {0} {1} {2}".format(tf_resource_type,tf_resource_var_name, tf_id))
+                return
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
         # create array
         tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
