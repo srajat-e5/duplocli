@@ -8,7 +8,8 @@
     ,"aws_db_instance":"DBInstanceIdentifier"
     ,"aws_s3_bucket":"Name"
     ,"aws_elasticache_cluster": "ClusterId"
-    ,"aws_iam_role_policy_attachment": "PolicyName"
+    ,"aws_iam_role_policy": "?"
+    ,"aws_iam_role_policy_attachment": "?"
   },
   "names": {
     "aws_security_group": "GroupName"
@@ -19,6 +20,7 @@
     ,"aws_db_instance":"DBInstanceIdentifier"
     ,"aws_s3_bucket":"Name"
     ,"aws_elasticache_cluster": "ClusterId"
+    ,"aws_iam_role_policy": "name"
     ,"aws_iam_role_policy_attachment": "PolicyName"
   },
   "lifecycle": {

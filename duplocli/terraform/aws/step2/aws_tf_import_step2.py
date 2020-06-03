@@ -71,10 +71,10 @@ class AwsTfImportStep2():
             self._process_resource(resource)
 
     def _process_resource(self, resource):
-        # print("**** aws import : step2 :", "=========================\n\n\n")
+        # print("**** aws import step2 : ", "=========================\n\n\n")
         tf_resource_type = resource["type"]
         tf_resource_var_name = resource["name"]
-        print("**** aws import : step2 :", tf_resource_type, "=", tf_resource_var_name)
+        print("**** aws import step2 : ", tf_resource_type, "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes'] # ??? WHY this is array?
         # self.utils.print_json(attributes, sort_keys=False)
 
@@ -86,7 +86,7 @@ class AwsTfImportStep2():
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         # self.utils.print_json(schema.data_dict(), sort_keys=False)
         for attribute_name, attribute  in attributes.items():
-            # print("**** aws import : step2 :", attribute_name)
+            # print("**** aws import step2 : ", attribute_name)
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
@@ -114,13 +114,13 @@ class AwsTfImportStep2():
 
     def _process_nested(self, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
         schema = schema_nested.nested_block[nested_atr_name]
-        # print("**** aws import : step2 :", "_process_nested", schema.data_dict())
+        # print("**** aws import step2 : ", "_process_nested", schema.data_dict())
         if isinstance(nested_atr, dict):
             resource_obj = {}
             resource_obj_parent[nested_atr_name] = resource_obj
             #
             for attribute_name, attribute in nested_atr.items():
-                # print("**** aws import : step2 :", attribute_name)
+                # print("**** aws import step2 : ", attribute_name)
                 is_nested = attribute_name in schema.nested
                 is_computed = attribute_name in schema.computed
                 if is_nested:
