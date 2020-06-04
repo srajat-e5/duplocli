@@ -77,7 +77,8 @@ class GetAwsObjectList:
                     if key_name not in key_names:
                         aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
                         aws_objs.append(aws_obj)
-                        self.utils.print_json(aws_obj)
+                        key_names.append(key_name)
+                        # self.utils.print_json(aws_obj)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : get_key_pair_list  :", "NOT_FOUND ANY")
         if self.debug_output:
