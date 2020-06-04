@@ -27,6 +27,7 @@ class GetAwsObjectList:
     step = "step1"
     debug_output = False
     debug_json = False
+    create_key_pair = False
     aws_obj_list = []
     aws_sg_list = []
     resources_unique_ids =[]
@@ -41,6 +42,7 @@ class GetAwsObjectList:
         self.tenant_id = self.utils.get_tenant_id(tenant_name)
         self._load_mapping_aws_keys_to_tf_keys()
 
+    #### public merhods #######
     def get_tenant_resources(self):
         self.aws_obj_list = []
         self.aws_sg_list=[]
@@ -54,7 +56,7 @@ class GetAwsObjectList:
         self._aws_elasticache_cluster()
         return  self.aws_obj_list
 
-    def get_key_pair_list(self):
+    def get_tenant_key_pair_list(self):
         awsclient = boto3.client('ec2')
         response = awsclient.describe_instances()
         if self.debug_json:
@@ -84,7 +86,8 @@ class GetAwsObjectList:
         if self.debug_output:
             self.utils.print_json(aws_objs)
         return aws_objs
-    ###
+
+    ### private: methods to get individual resource for tenant ###
     def _aws_s3_bucket(self):
         awsclient = boto3.client('s3')
         response = awsclient.list_buckets()
@@ -144,7 +147,10 @@ class GetAwsObjectList:
                     print("**** aws import step1 : aws_instance :", tenant_name_ec2, name)
                     ######## aws_key_pair
                     key_name = instance["KeyName"]
-                    self.aws_resource("aws_key_pair", instance, tf_variable_id=key_name, tf_import_id=key_name , skip_if_exists=True)
+                    if self.create_key_pair:
+                        self.aws_resource("aws_key_pair", instance, tf_variable_id=key_name, tf_import_id=key_name , skip_if_exists=True)
+                    else:
+                        print("**** aws import step1 :SKIP create aws_key_pair :", key_name, "as self.create_key_pair=", self.create_key_pair)
                     aws_objs.append(instance)
                     print("**** aws import step1 : aws_key_pair :" , key_name)
         if len(aws_objs) ==0 :
@@ -212,8 +218,6 @@ class GetAwsObjectList:
             self.utils.print_json(aws_objs)
         return self
 
-
-
     def _aws_iam_instance_profile(self):
         awsclient = boto3.client('iam')
         response = awsclient.list_instance_profiles()
@@ -233,7 +237,6 @@ class GetAwsObjectList:
             self.utils.print_json(aws_objs)
         return self
 
-    ######
     def _aws_elasticache_cluster(self):
         awsclient = boto3.client('elasticache')
         response = awsclient.describe_cache_clusters()

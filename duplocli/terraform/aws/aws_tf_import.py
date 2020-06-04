@@ -49,7 +49,7 @@ class AwsTfImport:
         #download_aws_keys
         if self.download_aws_keys:
             print(" ====== execute_step1 download_key ====== \n")
-            tenant_key_pairs = api.get_key_pair_list()
+            tenant_key_pairs = api.get_tenant_key_pair_list()
             self.step1.download_key(tenant_key_pairs, duplo_api_json_file=self.duplo_api_json_file)
         print(" ====== execute_step1 ====== DONE\n")
 

@@ -95,14 +95,16 @@ class AwsTfImportStep2():
             elif is_optional or not is_computed :
                 #https://github.com/hashicorp/terraform/issues/18321
                 #https://github.com/terraform-providers/terraform-provider-aws/issues/4954
-                #todo: forcing aws_instance recreation?
+                #todo: forcing aws_instance recreation?: should we move to configuration data/mapping_aws_keys_to_tf_keys.json
                 if attribute_name in ["user_data", "replicas" ]:
                     # pass; #resource_obj[attribute_name] = attribute
                     resource_obj["lifecycle"]={"ignore_changes": [attribute_name] }
+                elif tf_resource_type == "aws_elasticache_cluster" and attribute_name in ["replication_group_id", "cache_nodes"]:
+                    resource_obj["lifecycle"] = {"ignore_changes": ["replication_group_id", "cache_nodes"]}
                 elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy"]:
                     resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy"]}
                 elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
+                        resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
                 elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
                     resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
                 elif attribute_name == "id":
