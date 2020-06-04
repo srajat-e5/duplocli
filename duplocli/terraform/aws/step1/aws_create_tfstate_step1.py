@@ -1,7 +1,8 @@
 
 from duplocli.terraform.aws.common.tf_utils import TfUtils
 from duplocli.terraform.aws.schema.aws_tf_schema import AwsTfSchema
-
+import os
+import requests
 
 class AwsCreateTfstateStep1 :
     #output folder  output/step1
@@ -45,6 +46,26 @@ class AwsCreateTfstateStep1 :
         self._create_state()
         return self.tf_json_file
 
+    def download_key(self,  aws_obj_list=[], duplo_api_json_file=None):
+        if duplo_api_json_file is None:
+            raise  Exception("duplo_api_json file is required")
+        self.utils.create_output_folder("keys")
+        for aws_key_pair_instance in  aws_obj_list:
+            #aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
+            key_name = aws_key_pair_instance['key_name']
+            instanceId = aws_key_pair_instance['instanceId']
+            # self.utils.print_json(aws_key_pair_instance)
+            duplo_api_json = self.utils.load_json_file(duplo_api_json_file)
+            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(duplo_api_json['url']
+                                                                , duplo_api_json['tenant_id']
+                                                                , instanceId)
+            headers = {"Authorization": "Bearer {0}".format(duplo_api_json['api_token'] )}
+            response = requests.get(endpoint,   headers=headers)
+            output_keys_folder = self.utils.get_tf_output_path("keys")
+            output_key_file_path = "{0}/{1}".format(output_keys_folder, key_name)
+            self.utils.save_key_file(output_key_file_path, response.content )
+            print("**** aws import step1 : save_key_file ", output_key_file_path, instanceId)
+        return self.tf_json_file
 
     ############ aws tf resources ##########
 

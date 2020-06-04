@@ -54,6 +54,35 @@ class GetAwsObjectList:
         self._aws_elasticache_cluster()
         return  self.aws_obj_list
 
+    def get_key_pair_list(self):
+        awsclient = boto3.client('ec2')
+        response = awsclient.describe_instances()
+        if self.debug_json:
+            self.utils.save_json_to_log("aws_instance.json", response, self.step)
+        aws_objs=[]
+        key_names=[]
+        for reservation in response["Reservations"]:
+            for instance in reservation["Instances"]:
+                tags = self.utils.getHashFromArray(instance["Tags"])
+                tenant_name_ec2 =  self.utils.getVal(tags, "TENANT_NAME")
+                #todo:this is for linux ... skip for windows
+                if self.tenant_name == tenant_name_ec2 :
+                    name = self.utils.getVal(tags, "Name")
+                    instanceId = instance["InstanceId"]
+                    key_name = instance["KeyName"]
+                    if "Platform" in instance and instance["Platform"] == 'windows':
+                        platform = instance["Platform"]
+                        print("**** aws import step1 : get_key_pair_list platform is ", platform, name )
+                        #skip?
+                    if key_name not in key_names:
+                        aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
+                        aws_objs.append(aws_obj)
+                        self.utils.print_json(aws_obj)
+        if len(aws_objs) ==0 :
+            print("**** aws import step1 : get_key_pair_list  :", "NOT_FOUND ANY")
+        if self.debug_output:
+            self.utils.print_json(aws_objs)
+        return aws_objs
     ###
     def _aws_s3_bucket(self):
         awsclient = boto3.client('s3')

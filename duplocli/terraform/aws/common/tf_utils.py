@@ -21,6 +21,12 @@ class TfUtils:
         os.system(cmd_mod)
         print("DONE empty_output_folder", cmd_mod)
 
+    def create_output_folder(self, step):
+        cmd_mod = " rm -rf  {0}/*; mkdir -p  {0}".format(self.get_tf_output_path(step))
+        print("create_output_folder", cmd_mod)
+        os.system(cmd_mod)
+
+
     def create_state(self, tf_run_script_file, step):
         cmd_mod = "chmod +x {0}; ./{0} > log/{1}_log.log  2>&1".format(tf_run_script_file, step)
         print("create_state ", cmd_mod)
@@ -109,6 +115,11 @@ class TfUtils:
                                indent=3,
                                default=self.default)
         print(resp_json)
+
+    def save_key_file (self, file_name, content):
+        f = open(file_name, "wb")
+        f.write(content)
+        f.close()
 
     def save_run_script(self, file_name, data_dict, mode="w"):
         f = open(file_name, mode)
