@@ -31,6 +31,7 @@ aws/log*
 __pycache__/
 .DS_Store
 .idea/
+duplo_api_json_test.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
