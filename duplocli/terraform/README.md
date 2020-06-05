@@ -16,19 +16,19 @@ pip install -r requirements.txt
        * Extract and add terrform to PATH
        
  ## Configure aws access. (It will shared by terraform and boto3)
-    * Please refer to aws documentation for coonfiguration.
+    * Please refer to aws documentation for configuration.
         https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 
- ## steps to import duplo managed aws resources into terrform managed state 
-      * Go to  duplocli/terraform/aws folder 
+ ## Steps to import duplo managed aws resources into terrform managed state 
+      * cd  into  duplocli/terraform/aws folder 
       * Run 'aws_tf_import.py' script. 
-      * This will create files required for import = main.tf.json & terraform.tfstate
-      * Arguments 
+      * This will create files terrform files : main.tf.json & terraform.tfstate
+      *  'aws_tf_import.py'  arguments :
         --tenant_name "YOUR_TENANT_NAME" : duplo tenant to be imported into Terraform state
         --aws_az "us-west-2"  : aws availability zone
-        --export_keys "true" : to export aws EC2 public ssh keys into keys folder
-        --duplo_api_json "path_to_json_file": duplo api configuration e.g. --duplo_api_json=duplo_api_json.json
-       ''' #duplo_api_json.json
+        --download_aws_keys "True" : to export aws EC2 public ssh keys into keys folder
+        --duplo_api_json_file "path_to_json_file": duplo api configuration e.g. --duplo_api_json=duplo_api_json.json
+       ''' # duplo_api_json.json to downlopad keys fomr duplocloud.
             {
               "url": "https://XXX.duplocloud.net",
               "tenant_id": "XXXXXX",
@@ -36,23 +36,22 @@ pip install -r requirements.txt
             }
        '''
        ''' 
-         python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --export_keys "true" --duplo_api_json "duplo_api_json.json"
          python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"
         '''
   
-  ## check output main.tf.json and tfstate files.   
+  ## Output Folder
       *  duplocli/terraform/aws/step2/main.tf.json
       *  duplocli/terraform/aws/step2/terraform.tfstate
 
-  ## debug log location 
+  ## Log files
       *  duplocli/terraform/aws/log/step1_log.log
       *  duplocli/terraform/aws/log/step2_log.log 
 
-  # Modiffing and running Terraform scripts 
-      *  You can make changes to following files
-      *  duplocli/terraform/aws/step2/main.tf.json
-      *  duplocli/terraform/aws/step2/terraform.tfstate
-      * RUN terraform commands 
+  # Modifing and re-running Terraform scripts 
+      *  Make changes to terraform files 
+      **  duplocli/terraform/aws/step2/main.tf.json
+      **  duplocli/terraform/aws/step2/terraform.tfstate
+      * Could run terraform commands like 
       ''' 
         terrform plan 
         terrform show 
@@ -61,7 +60,7 @@ pip install -r requirements.txt
        
  
 # use cases: TODO
-## new create creation
+## new tenant creation
 
 ## importing into new tenant ins aws?
     * please add manually the key_pair for new tenant
