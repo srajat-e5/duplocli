@@ -39,9 +39,10 @@ pip install -r requirements.txt
          python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"
         '''
   
-  ## Output Folder
+  ## Output Files
       *  duplocli/terraform/aws/step2/main.tf.json
       *  duplocli/terraform/aws/step2/terraform.tfstate
+      *  duplocli/terraform/aws/keys/PKEY_FILES
 
   ## Log files
       *  duplocli/terraform/aws/log/step1_log.log
@@ -61,21 +62,7 @@ pip install -r requirements.txt
  
 # use cases: TODO
 ## new tenant creation
-
-## importing into new tenant ins aws?
-    * please add manually the key_pair for new tenant
-    * e.g.
-    ''' 
-    resource "aws_key_pair" "deployer" {
-      key_name   = "deployer-key"
-      public_key = "ssh-rsa +EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
-    }
-    '''
-    * remove ipaddresses from 'main.tf.json'
-    * may be you need to look at conflicting optional attributes.
-    
- ## create new key_pair 
-  * use terrafrom module 
+### create new key_pair  
   
   ```
     resource "tls_private_key" "this" {
@@ -88,5 +75,20 @@ pip install -r requirements.txt
       key_name   = "deployer-one"
       public_key = tls_private_key.this.public_key_openssh
     }
-    * refer
+     
     ```
+    
+    
+### importing into new tenant ins aws?
+    * please add manually the key_pair for new tenant
+    * e.g.
+    ''' 
+    resource "aws_key_pair" "deployer" {
+      key_name   = "deployer-key"
+      public_key = "ssh-rsa +EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
+    }
+    '''
+    * remove ipaddresses from 'main.tf.json'
+    * may be you need to look at conflicting optional attributes.
+    
+ 
