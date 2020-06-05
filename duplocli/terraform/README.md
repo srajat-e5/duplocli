@@ -76,10 +76,10 @@ pip install -r requirements.txt
       public_key = tls_private_key.this.public_key_openssh
     }
      
-    ```
+  ```
     
     
-### importing into new tenant ins aws?
+###  importing into new tenant ins aws?
     * please add manually the key_pair for new tenant
     * e.g.
     ''' 
