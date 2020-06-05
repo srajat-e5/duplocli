@@ -62,8 +62,8 @@ pip install -r requirements.txt
  
 # use cases: TODO
 ## new tenant creation
-### create new key_pair  
-  * create new key pair by adding follwoing entry in main.ts
+### create new key_pair. (by adding following entry into main.ts)
+  * new key pair 
   ```
     resource "tls_private_key" "this" {
        algorithm = "RSA"
@@ -76,14 +76,15 @@ pip install -r requirements.txt
       public_key = tls_private_key.this.public_key_openssh
     }
      
+ 
+  # Or upload existing public key 
+ 
+     resource "aws_key_pair" "deployer" {
+         key_name   = "deployer-key"
+         public_key = "ssh-rsa+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
+       }
   ```
- * or upload your public key 
- ''' 
-    resource "aws_key_pair" "deployer" {
-      key_name   = "deployer-key"
-      public_key = "ssh-rsa +EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
-    }
- '''
+ 
     
 ###  Creating new tenant ?
     * please add manually the key_pair for new tenant. (as shown above )
