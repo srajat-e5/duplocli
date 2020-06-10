@@ -73,7 +73,7 @@ class AwsTfImportStep2():
             else:
                 self.zip_folder = output_folder
         else:
-            self.zip_folder = self.file_utils_final.zip_folder()
+            self.zip_folder = self.file_utils.zip_folder()
         return self.zip_folder
 
     def _state_file_or_default(self, state_file):
@@ -194,13 +194,14 @@ class AwsTfImportStep2():
 
     def _copy_final(self):
         self._zip_folder_or_default(self.output_folder_arg)
-        self.file_utils_final.ensure_empty_output_folder(self.zip_folder)
+        self.file_utils.ensure_empty_output_folder(self.file_utils._output_final_folder())
+        # self.file_utils.ensure_empty_output_folder(self.zip_folder)
         copy_files=[]
         copy_files.append(self.file_utils.tf_state_file())
-        copy_files.append(self.file_utils.tf_file())
+        copy_files.append(self.file_utils.tf_main_file())
         copy_files.append(self.file_utils.keys_folder())
         self.file_utils.zip_final_folder(self.tenant_name,
-                                             self.file_utils_final._output_folder(),
+                                             self.file_utils._output_final_folder(),
                                              self.zip_folder,
                                              copy_files )
     def _create_tf_state(self):
@@ -213,6 +214,7 @@ class AwsTfImportStep2():
         self.file_utils.save_tf_run_script()
         ## execute script
         self.file_utils.create_state(self.file_utils.tf_run_script())
+        self._copy_final()
 
 
 

@@ -21,7 +21,6 @@ class AwsCreateTfstateStep1 :
         #file_utils for steps
         self.file_utils = TfFileUtils(step=self.step)
         self.file_utils_step2 = TfFileUtils(step="step2")
-        self.file_utils_final = TfFileUtils(step="final")
         self._load_schema()
 
     ############ execute_step public api ##########
@@ -130,8 +129,10 @@ class AwsCreateTfstateStep1 :
     def _plan(self):
         ### create: terraform plan ...
         # bug in tf -> creates extra aws_security_group_rule... remove aws_security_group_rule first.
-        self.tf_import_sh_list.append(
-            'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
+        # self.tf_import_sh_list.append(
+        #     'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
+
+        self.tf_import_sh_list.append( "terraform plan")
 
     ############ main.tf.json + script + generate state ##########
     def rm_aws_security_group_rule_tf_bug(self):
@@ -161,4 +162,4 @@ class AwsCreateTfstateStep1 :
             resources.remove(resource)
         # save
         self.file_utils.save_state_file(state_dict)
-        print(state_dict)
+        # print(state_dict)
