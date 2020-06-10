@@ -7,15 +7,12 @@ import shutil
 import psutil
 
 class AwsTfImportStep2():
+
     step = "step2"
+    is_allow_none = True
 
     # aws_tf_schema
     aws_tf_schema = {}
-    is_allow_none = True
-
-    # terraform.tfstate from step1
-    state_read_from_file = "output/step1/terraform.tfstate"
-    state_save_to_file = "output/step2/terraform.tfstate"
     state_dict = {}
 
     # main.tf.json
@@ -24,7 +21,6 @@ class AwsTfImportStep2():
 
     #tf_import_script.sh
     tf_import_sh_list = []
-
 
     def __init__(self, state_file=None, output_folder=None, tenant_name="bigdata01", aws_az="us-west-2"):
         self.utils = TfUtils(self.step)
@@ -211,40 +207,16 @@ class AwsTfImportStep2():
         # self._empty_output()
         ## save files
         self._plan()
-        self.file_utils.save_state_file(self.main_tf_json_dict)
+        self.file_utils.save_state_file(self.state_dict)
+        self.file_utils.save_main_file(self.main_tf_json_dict)
         self.file_utils.save_tf_import_script(self.tf_import_sh_list)
         self.file_utils.save_tf_run_script()
         ## execute script
-        self.file_utils.create_state(self.file_utils.tf_run_script_file())
+        self.file_utils.create_state(self.file_utils.tf_run_script())
+
 
 
     def _plan(self):
         ## needed : terraform init and terraform plan
         self.tf_import_sh_list.append('terraform init ')
         self.tf_import_sh_list.append('terraform plan ')
-
-    # def _save_tf_files(self):
-    #     ## save: tf_json_file , tf_import_script_file , terraform.tfstate
-    #     self.utils.save_to_json(self.tf_json_file, self.main_tf_json_dict)
-    #     self.utils.save_run_script(self.tf_import_script_file, self.tf_import_sh_list)
-    #     self.utils.save_to_json(self.state_save_to_file, self.state_dict)
-    #
-    #     #wrapper script  ? : cd into "../output/step2" and terraform init and terraform plan
-    #     #an extra script in case of --- error check inside bash?
-    #     run_sh_list = []
-    #     run_sh_list.append("cd {0}".format(self.tf_output_path))
-    #     if psutil.WINDOWS:
-    #         run_sh_list.append("call ./{0}  ".format(self.tf_import_script_file_name))
-    #     else:
-    #         run_sh_list.append("chmod 777 *.sh")
-    #         run_sh_list.append("./{0}  ".format(self.tf_import_script_file_name))
-    #     self.utils.save_run_script(self.tf_run_script_file, run_sh_list)
-    #
-    #
-    #
-    #
-    # def create_state(self):
-    #     self._save_tf_files()
-    #     self.utils.create_state(self.tf_run_script_file, self.step)
-
-

@@ -125,6 +125,7 @@ class AwsCreateTfstateStep1 :
         self.file_utils.save_tf_run_script()
         ## execute script
         self.file_utils.create_state(self.file_utils.tf_run_script())
+        self.rm_aws_security_group_rule_tf_bug()
 
     def _plan(self):
         ### create: terraform plan ...
@@ -133,3 +134,31 @@ class AwsCreateTfstateStep1 :
             'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
 
     ############ main.tf.json + script + generate state ##########
+    def rm_aws_security_group_rule_tf_bug(self):
+        main_resources= self.main_tf_json_dict['resource']
+        aws_security_group_rules=[]
+        object_type_bug="aws_security_group_rule" # #aws_security_group
+        if object_type_bug in main_resources:
+            aws_security_group_rules = list(main_resources[object_type_bug].keys())
+
+        state_dict = self.file_utils.load_json_file( self.file_utils.tf_state_file())
+        if "resources" in  state_dict:
+            resources = state_dict['resources']
+        else:
+            resources = state_dict['resource']
+
+        resources_to_del = []
+        for resource in resources: #list
+            print(resource)
+            if object_type_bug == resource["type"]:
+                name = resource["name"]
+                if name not in aws_security_group_rules:
+                    # resources.remove(resource)
+                    resources_to_del.append(resource)
+                else:
+                   print("name skip ", name)
+        for resource in resources_to_del:  # list
+            resources.remove(resource)
+        # save
+        self.file_utils.save_state_file(state_dict)
+        print(state_dict)
