@@ -77,6 +77,7 @@ def main(steps="all", tenant_name="bigdata01", aws_az="us-west-2"
     #tenant.execute_step(steps="step2")
 
 if __name__ == '__main__':
+    # set PYTHONPATH=c:\duplocli;
     # python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2"
     # python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"
 

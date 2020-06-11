@@ -17,7 +17,7 @@ class AwsTfSchema:
         with open(json_file) as f:
             self.tfschema = json.load(f)
 
-    ######## debug ########
+    ######## debug  ########
     def get_tf_resource_names_list(self):
         return list(self.get_tf_resource_list().keys())
 

@@ -3,7 +3,6 @@ import datetime
 from collections import defaultdict
 import os
 import psutil
-# import duplocli.terraform.aws.common.tf_file_utils as TfFileUtils
 
 class TfUtils:
 

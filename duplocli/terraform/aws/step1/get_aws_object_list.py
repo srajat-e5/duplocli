@@ -8,7 +8,7 @@ from duplocli.terraform.aws.common.tf_utils import TfUtils
 from duplocli.terraform.aws.step1.aws_create_tfstate_step1 import AwsCreateTfstateStep1
 from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
 
-### json from duplo api ############
+### json from duplo api  ############
 # [
 #     {
 #         "tf_import_id": "sg-05f79b15664ff729a",

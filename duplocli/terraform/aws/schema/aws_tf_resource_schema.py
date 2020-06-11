@@ -1,5 +1,6 @@
 import json
 
+
 class AwsTfResourceSchema :
     def __init__(self,  tf_obj_name, tf_object):
         self.tf_obj_name=tf_obj_name
@@ -22,7 +23,7 @@ class AwsTfResourceSchema :
         return json.dumps(self.data_dict())
 
     def copy(self):
-        #only copy useful things, neglect debug list/maps
+        # only copy useful things, neglect debug list/maps
         tf = AwsTfResourceSchema(self.tf_obj_name, self.tf_object)
         tf.non_computed = self.non_computed
         tf.computed = self.computed

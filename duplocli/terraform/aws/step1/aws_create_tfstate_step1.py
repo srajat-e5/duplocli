@@ -150,7 +150,7 @@ class AwsCreateTfstateStep1 :
 
         resources_to_del = []
         for resource in resources: #list
-            print(resource)
+            # print(resource)
             if object_type_bug == resource["type"]:
                 name = resource["name"]
                 if name not in aws_security_group_rules:

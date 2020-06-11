@@ -190,7 +190,7 @@ class AwsTfImportStep2():
     ##### manage files and state ##############
     def _empty_output(self):
         self.file_utils.empty_output_folder()
-        self.file_utils_final.ensure_empty_output_folder(self.file_utils.zip_folder)
+        self.file_utils_final.ensure_empty_output_folder(self.file_utils.zip_folder())
 
     def _copy_final(self):
         self._zip_folder_or_default(self.output_folder_arg)
