@@ -11,27 +11,49 @@ import psutil
 
 
 class ImportParameters:
-    def __init__(self, parameters):
-        self.tenant_id = parameters['tenant_id']
-        self.tenant_name = parameters['tenant_name']
-        self.aws_region = parameters['aws_region']
-        self.zip_folder = parameters['zip_folder']
-        self.api_token = parameters['api_token']
-        self.download_keys = parameters['download_keys']
-        self.url = parameters['url']
-        self.params_Json_File = parameters['params_Json_File']
-        self.temp_folder = parameters['temp_folder']
-        self.tenant_with_prefix = parameters['tenant_with_prefix']
+    tenant_name = None
 
+    def __init__(self, parameters):
+
+        self.tenant_name = self.get_key(parameters, 'tenant_name')
+        self.aws_region = self.get_key(parameters, 'aws_region')
+        self.zip_folder = self.get_key(parameters, 'zip_folder')
+
+        self.download_aws_keys = self.get_key(parameters, 'download_aws_keys')
+        self.url = self.get_key(parameters, 'url')
+        self.tenant_id = self.get_key(parameters, 'tenant_id')
+        self.api_token = self.get_key(parameters, 'api_token')
+
+        self.params_Json_File = self.get_key(parameters, 'params_Json_File')
+        self.temp_folder = self.get_key(parameters, 'temp_folder')
+        self.tenant_with_prefix = self.get_key(parameters, 'tenant_with_prefix')
+        self.state_file = self.get_key(parameters, 'state_file')
+
+    def get_key(self, parameters, key):
+        if key in parameters:
+            return parameters[key]
+        return None
 
 class AwsParseParams:
 
     def __init__(self):
-        self.file_utils = TfFileUtils(step="step1")
+        self.file_utils = TfFileUtils(self.get_default_params(), step="step1")
         print("is WINDOWS ", psutil.WINDOWS)
+
+    ######## ####
+    def resolve_parameters(self, parsed_args):
+        parameters = self.app_defaults(parsed_args)
+        params = ImportParameters(parameters)
+        return params
 
 
     ######## ####
+    def get_default_params(self):
+        file_utils = TfFileUtils(None, step="step1")
+        parameters = file_utils.load_json_file("default_parameters.json")
+        params = ImportParameters(parameters)
+        return params
+
 
     def get_help(self):
         return """
@@ -76,11 +98,13 @@ class AwsParseParams:
         export tenant_id="xxx-2662-4e9c-9867-9a4565ec5cb6",
         export api_token="xxxxxx"
 
-        Sequence of parameters evaluation is:
+        Sequence of parameters evaluation is: default -> ENV -> JSON_FILE -> arguments
         parameters in argument 
          ->  override  parameters in terraform_import_json
         AND parameters in terraform_import_json
          ->   override  parameters in ENV variables
+        AND parameters in ENV variables
+         ->   override default values (default_parameters.json)
         """
 
     ######## ####
@@ -103,31 +127,15 @@ class AwsParseParams:
         # parser.add_argument('-h', '--help', action='help' , help=" params usage")
         return parser
 
-    ######## ####
-    def resolve_parameters(self, parsed_args):
-        parameters = self.app_defaults(parsed_args)
-        return parameters
+
 
     ######## ####
 
     def app_defaults(self, parsed_args):
         parameters = self.file_utils.load_json_file("default_parameters.json")
-        # if parsed_args.help is not None:
-        #     print(self.get_help())
-        #     return
-
-        if parsed_args.params_json_file_path is not None:
-            print("params_json_file_path")
-            return
-
         print("########## default parameters ########## ")
         for key in parameters:
             print(" default parameter values", key, parameters[key])
-
-        print("########## passed as arguments parameters ########## ")
-        for key, val in vars(parsed_args).items():
-            print(" override parameter by passed in arguments ", key, val)
-            parameters[key] = val
 
         print("########## passed as environ variables  ########## ")
         for key in parameters:
@@ -135,6 +143,22 @@ class AwsParseParams:
                 print(" override parameter by passed as environ variable ", key, os.environ[key])
                 val = os.environ[key]
                 parameters[key] = val
+
+        print("########## params_json_file_path parameters ########## ")
+
+        if parsed_args.params_json_file_path is not None:
+            print("params_json_file_path ", parsed_args.params_json_file_path)
+            parameters_json = self.file_utils.load_json_file(parsed_args.params_json_file_path)
+            for key in parameters_json:
+                print(" params_json_file_path parameter values", key, parameters_json[key])
+                parameters[key] = parameters_json[key]
+
+        print("########## passed as arguments parameters ########## ")
+        for key, val in vars(parsed_args).items():
+            if val is not None:
+                print(" override parameter by passed in arguments ", key, val)
+                parameters[key] = val
+
         print("########## final parameters ########## ")
         for key in parameters:
             print("final", key, parameters[key])

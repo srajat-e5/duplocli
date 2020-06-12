@@ -34,9 +34,14 @@ class GetAwsObjectList:
     resources_unique_ids =[]
     mapping_aws_keys_to_tf_keys = []
 
-    def __init__(self, tenant_name="k8-02", aws_az="us-west-2"):
-        self.utils = TfUtils(step=self.step)
-        self.file_utils = TfFileUtils(step=self.step)
+    def __init__(self, params):
+        self.params = params
+
+        tenant_name = params.tenant_name
+        aws_az = params.aws_region
+
+        self.utils = TfUtils(params, step=self.step)
+        self.file_utils = TfFileUtils(params, step=self.step)
         self.aws_az = aws_az
         #tenant
         self.tenant_name = tenant_name

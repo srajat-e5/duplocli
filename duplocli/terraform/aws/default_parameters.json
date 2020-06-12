@@ -1,7 +1,9 @@
 {
   "tenant_name": null,
   "aws_region":null,
-  "zip_folder": "zip",
+  "state_file": null,
+  "zip_folder": "output/zip",
+  "temp_folder": "output",
   "download_aws_keys": "no",
   "url": null,
   "tenant_id": null,

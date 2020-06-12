@@ -22,34 +22,36 @@ class AwsTfImportStep2():
     #tf_import_script.sh
     tf_import_sh_list = []
 
-    def __init__(self, state_file=None, temp_folder=None, tenant_name="bigdata01", aws_az="us-west-2"):
-        self.utils = TfUtils(self.step)
+    def __init__(self, params):
+        self.params = params
+        aws_az = params.aws_region
+        tenant_name = params.tenant_name
+
+        self.utils = TfUtils(self.step, params)
         self.aws_az = aws_az
-        self.tenant_name = tenant_name
+        self.tenant_name = params.tenant_name
         self.tenant_id = self.utils.get_tenant_id(tenant_name)
         ####
-        self.utils = TfUtils(step=self.step)
+        self.utils = TfUtils(self.params, step=self.step)
         # file_utils for steps
-        self.file_utils = TfFileUtils(step=self.step)
-        self.file_utils_step1 = TfFileUtils(step="step1")
-        self.file_utils_final = TfFileUtils(step="final")
+        self.file_utils = TfFileUtils(self.params, step=self.step)
+        self.file_utils_step1 = TfFileUtils(self.params, step="step1")
+        self.file_utils_final = TfFileUtils(self.params, step="final")
         self._load_schema()
 
-        #paths
-        self.state_file_arg = state_file
-        self.temp_folder_arg = temp_folder
+
 
         self.aws_provider()
 
     #######
     def execute_step(self):
         self._empty_output()
-        self.process(self.state_file_arg, self.temp_folder_arg)
+        self.process()
         self._create_tf_state()
 
-    def process(self, state_file, temp_folder):
-        self._state_file_or_default(state_file)
-        self._zip_folder_or_default(temp_folder)
+    def process(self):
+        self._state_file_or_default()
+        self._zip_folder_or_default()
         # self.utils.print_json(self.state_dict, sort_keys=False)
         if "resources" in  self.state_dict:
             resources = self.state_dict['resources']
@@ -61,27 +63,21 @@ class AwsTfImportStep2():
 
     ####### load json files
     def _load_schema(self):
-        self.aws_tf_schema = AwsTfSchema(self.file_utils.aws_tf_schema_file())
+        self.aws_tf_schema = AwsTfSchema(self.params, self.file_utils.aws_tf_schema_file())
 
     def _load_tf_state_file(self):
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
 
-    def _zip_folder_or_default(self, temp_folder):
-        if temp_folder is not None:
-            if psutil.WINDOWS:
-                self.zip_folder = temp_folder.replace("/", "\\")
-            else:
-                self.zip_folder = temp_folder
-        else:
-            self.zip_folder = self.file_utils.zip_folder()
+    def _zip_folder_or_default(self):
+        self.zip_folder = self.file_utils.zip_folder()
         return self.zip_folder
 
-    def _state_file_or_default(self, state_file):
-        if state_file is not None:
+    def _state_file_or_default(self):
+        if self.params.state_file is not None:
             if psutil.WINDOWS:
-                self.state_read_from_file = state_file.replace("/", "\\")
+                self.state_read_from_file = self.params.state_file.replace("/", "\\")
             else:
-                self.state_read_from_file = state_file
+                self.state_read_from_file = self.params.state_file
         else:
             self.state_read_from_file = self.file_utils_step1.tf_state_file()
         self._load_tf_state_file()
@@ -193,7 +189,7 @@ class AwsTfImportStep2():
         self.file_utils_final.ensure_empty_temp_folder(self.file_utils.zip_folder())
 
     def _copy_final(self):
-        self._zip_folder_or_default(self.temp_folder_arg)
+        self._zip_folder_or_default()
         self.file_utils.ensure_empty_temp_folder(self.file_utils._temp_final_folder())
         # self.file_utils.ensure_empty_temp_folder(self.zip_folder)
         copy_files=[]

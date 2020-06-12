@@ -19,13 +19,36 @@ class TfFileUtils:
     _tf_run_script_prefix = "run" #.bat .sh
 
     #TEMP_FOLDER
-    temp_folder="output"
-    zip_folder="zip"
+    temp_folder_path="output"
+    zip_folder_path="output/zip"
+    zip_folder_local_path = "output/zip"
 
-    def __init__(self, step="step1"):
+    def __init__(self, params, step="step1"):
+        self.params = params
         self.step = step
+        self.set_temp_and_zip_folder()
 
-    ####### get file paths
+
+    def set_temp_and_zip_folder(self):
+        if self.params is None:
+            return
+        self.zip_folder_local_path = self.zip_folder_path
+        if self.params.temp_folder is not None:
+            self.temp_folder_path = self.params.temp_folder
+        if self.params.zip_folder is not None:
+            self.zip_folder_path = self.params.zip_folder
+        if psutil.WINDOWS:
+            self.zip_folder_path = self.zip_folder_path.replace("/", "\\")
+            self.temp_folder_path = self.temp_folder_path.replace("/", "\\")
+            self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
+        else:
+            self.zip_folder_path = self.zip_folder_path.replace("\\", "/")
+            self.temp_folder_path = self.temp_folder_path.replace("\\", "/")
+            self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
+
+
+
+            ####### get file paths
     # TEMP_FOLDER/step1/aws_tf_schema.json
 
     def tf_state_file(self):
@@ -71,12 +94,12 @@ class TfFileUtils:
         else:
             run_sh_list.append("cd {0}".format(self._temp_folder()))
             run_sh_list.append("chmod 777 *.sh")
-            run_sh_list.append("./{0}  ".format(tf_import_script_file))
+            run_sh_list.append("bash {0}  ".format(tf_import_script_file))
 
         self.save_run_script(self.tf_run_script(), run_sh_list)
     def save_key_file(self, key_name, response_content):
         self._ensure_folder(self._temp_keys_folder())
-        self.file_utils.save_key_file(self._file_in_temp_keys_folder(key_name), response_content)
+        self._save_key_file(self._file_in_temp_keys_folder(key_name), response_content)
 
 
     #######
@@ -114,7 +137,7 @@ class TfFileUtils:
             cmd_mod = "call \"{0}\" > \"{1}\"  2>&1".format(tf_run_script_file, self.log_file())
             # cmd_mod = "call \"{0}\" ".format(tf_run_script_file )
         else:
-            cmd_mod = "chmod +x {0}; ./{0} > {1}  2>&1".format(tf_run_script_file, self.log_file())
+            cmd_mod = "chmod +x {0}; bash {0} > {1}  2>&1".format(tf_run_script_file, self.log_file())
         print("create_state ", cmd_mod)
         os.system(cmd_mod)
 
@@ -145,6 +168,7 @@ class TfFileUtils:
         zipfile_name="import-{0}-{1}".format(tenant, now_str)
         #save to out
         zip_file_to_zip_folder= "{0}{1}{2}".format(zip_folder, os.path.sep, zipfile_name)
+
         shutil.make_archive(zip_file_to_zip_folder, 'zip', root_dir=final_folder)
         #if zip folder is not same
         if zip_folder != self.zip_folder():
@@ -165,7 +189,7 @@ class TfFileUtils:
                                default=self.default)
         print(resp_json)
 
-    def save_key_file (self, file_name, content):
+    def _save_key_file (self, file_name, content):
         f = open(file_name, "wb")
         f.write(content)
         f.close()
@@ -218,7 +242,7 @@ class TfFileUtils:
 
     ## folders
     def _temp_child_folder(self, sub_folder):
-        return "{0}{1}{2}".format(self.temp_folder, os.path.sep, sub_folder)
+        return "{0}{1}{2}".format(self.temp_folder_path, os.path.sep, sub_folder)
 
     def _temp_folder(self):
         return self._temp_child_folder(self.step)
@@ -227,7 +251,7 @@ class TfFileUtils:
         return self._temp_child_folder("keys")
 
     def _temp_zip_folder(self):
-        return self._temp_child_folder("zip")
+        return self.zip_folder_path #_temp_child_folder("zip")
 
     def _temp_final_folder(self):
         return self._temp_child_folder("final")

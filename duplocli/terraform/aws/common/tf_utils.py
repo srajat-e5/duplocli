@@ -6,7 +6,8 @@ import psutil
 
 class TfUtils:
 
-    def __init__(self, step="step1"):
+    def __init__(self, params, step="step1"):
+        self.params = params
         self.step = step
         # self.file_utils = TfFileUtils(step)
 

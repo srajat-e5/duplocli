@@ -12,8 +12,9 @@ class AwsTfSchema:
     tf_resource_list_inited = False
     debug = False
 
-    def __init__(self, json_file):
-        self.utils = TfUtils()
+    def __init__(self, params, json_file):
+        self.params = params
+        self.utils = TfUtils(self.params)
         with open(json_file) as f:
             self.tfschema = json.load(f)
 

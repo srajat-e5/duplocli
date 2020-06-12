@@ -15,12 +15,12 @@ class AwsCreateTfstateStep1 :
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
 
-    def __init__(self, aws_az):
-        self.aws_az = aws_az;
-        self.utils = TfUtils(step=self.step)
+    def __init__(self,  params):
+        self.params = params
+        self.aws_az = params.aws_region
+        self.utils = TfUtils(params, step=self.step)
         #file_utils for steps
-        self.file_utils = TfFileUtils(step=self.step)
-        self.file_utils_step2 = TfFileUtils(step="step2")
+        self.file_utils = TfFileUtils(params, step=self.step)
         self._load_schema()
 
     ############ execute_step public api ##########
@@ -32,23 +32,26 @@ class AwsCreateTfstateStep1 :
         return self.file_utils.tf_main_file()
 
     ############ download_key public api ##########
-    def download_key(self,  aws_obj_list=[], duplo_api_json_file=None):
-        if duplo_api_json_file is None:
-            raise  Exception("duplo_api_json file is required")
+    def download_key(self,  aws_obj_list=[] ):
+        # download_aws_keys = self.params.download_aws_keys
+        url = self.params.url
+        tenant_id = self.params.tenant_id
+        api_token = self.params.api_token
+        if  url is None or tenant_id is None  or api_token is None :
+            raise  Exception("to download_keys  - url, tenant_id, api_token are required.")
+
         for aws_key_pair_instance in  aws_obj_list:
             #aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
             key_name = aws_key_pair_instance['key_name']
             instanceId = aws_key_pair_instance['instanceId']
-            # self.file_utils.print_json(aws_key_pair_instance)
-            duplo_api_json = self.file_utils.load_json_file(duplo_api_json_file)
-            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(duplo_api_json['url']
-                                                                , duplo_api_json['tenant_id']
+            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(url
+                                                                , tenant_id
                                                                 , instanceId)
-            headers = {"Authorization": "Bearer {0}".format(duplo_api_json['api_token'] )}
+            headers = {"Authorization": "Bearer {0}".format( api_token )}
             response = requests.get(endpoint,   headers=headers)
             self.file_utils.save_key_file(key_name, response.content )
             print("**** aws import step1 : save_key_file ", key_name, instanceId)
-        return (self.file_utils.tf_json_file(), self.file_utils.tf_state_file(), self.file_utils.keys_folder())
+        return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), self.file_utils.keys_folder())
 
     ############ aws tf resources ##########
     # aws_resources
@@ -94,7 +97,7 @@ class AwsCreateTfstateStep1 :
         return self.resources_dict[tf_resource_type]
 
     def _load_schema(self):
-        self.aws_tf_schema = AwsTfSchema(self.file_utils.aws_tf_schema_file())
+        self.aws_tf_schema = AwsTfSchema(self.params, self.file_utils.aws_tf_schema_file())
 
     ############ aws_provider ##########
     def _aws_provider(self):
