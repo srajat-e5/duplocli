@@ -113,7 +113,7 @@ class AwsCreateTfstateStep1 :
 
     ############ main.tf.json + script + generate state ##########
     def _empty_output(self):
-        self.file_utils.empty_output_folder()
+        self.file_utils.empty_temp_folder()
 
     def _create_tf_state(self):
         # self._empty_output()

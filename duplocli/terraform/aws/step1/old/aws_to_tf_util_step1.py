@@ -45,10 +45,10 @@
 #         self.tenant_id = self.utils.get_tenant_id(tenant_name)
 #
 #         ## script files
-#         self.tf_output_path = self.utils.get_tf_output_path(self.step)
-#         self.tf_json_file = self.utils.get_save_to_output_path(self.step, self.main_tf_json_file_name)
-#         self.tf_import_script_file = self.utils.get_save_to_output_path(self.step, self.tf_import_script_file_name)
-#         self.tf_run_script_file = self.utils.get_save_to_output_path(self.step, self.tf_run_script_file_name)
+#         self.tf_temp_path = self.utils.get_tf_temp_path(self.step)
+#         self.tf_json_file = self.utils.get_save_to_temp_path(self.step, self.main_tf_json_file_name)
+#         self.tf_import_script_file = self.utils.get_save_to_temp_path(self.step, self.tf_import_script_file_name)
+#         self.tf_run_script_file = self.utils.get_save_to_temp_path(self.step, self.tf_run_script_file_name)
 #
 #         #
 #         self._load_mapping_aws_keys_to_tf_keys()
@@ -176,7 +176,7 @@
 #     ############ main.tf.json + script + generate state ##########
 #
 #     def empty_output(self):
-#         self.utils.empty_output_folder(self.step)
+#         self.utils.empty_temp_folder(self.step)
 #
 #     def create_state(self):
 #         self._plan()
@@ -187,7 +187,7 @@
 #         self.utils.save_to_json(self.tf_json_file, self.main_tf_json_dict)
 #         self.utils.save_run_script(self.tf_import_script_file, self.tf_import_sh_list)
 #         run_sh_list=[]
-#         run_sh_list.append("cd {0}".format(self.tf_output_path))
+#         run_sh_list.append("cd {0}".format(self.tf_temp_path))
 #         run_sh_list.append("chmod 777 *.sh")
 #         run_sh_list.append("./{0}  ".format(self.tf_import_script_file_name))
 #         self.utils.save_run_script(self.tf_run_script_file, run_sh_list)

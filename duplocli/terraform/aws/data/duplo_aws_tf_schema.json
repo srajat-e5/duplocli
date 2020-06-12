@@ -19159,7 +19159,7 @@
    "id",
    "input_bucket",
    "name",
-   "output_bucket",
+   "temp_bucket",
    "role",
    "content_config",
    "content_config_permissions",
@@ -19171,7 +19171,7 @@
    "arn",
    "id",
    "name",
-   "output_bucket"
+   "temp_bucket"
   ],
   "data_type": {
    "arn": "string",
@@ -19179,7 +19179,7 @@
    "id": "string",
    "input_bucket": "string",
    "name": "string",
-   "output_bucket": "string",
+   "temp_bucket": "string",
    "role": "string"
   },
   "nested": [
@@ -21366,7 +21366,7 @@
      "input_format",
      "location",
      "number_of_buckets",
-     "output_format",
+     "temp_format",
      "parameters",
      "stored_as_sub_directories"
     ],
@@ -21377,7 +21377,7 @@
      "input_format": "string",
      "location": "string",
      "number_of_buckets": "number",
-     "output_format": "string",
+     "temp_format": "string",
      "parameters": "['map', 'string']",
      "stored_as_sub_directories": "bool"
     },
@@ -21389,7 +21389,7 @@
      "input_format",
      "location",
      "number_of_buckets",
-     "output_format",
+     "temp_format",
      "parameters",
      "stored_as_sub_directories"
     ],
@@ -24925,7 +24925,7 @@
      "buffer_interval",
      "buffer_size",
      "compression_format",
-     "error_output_prefix",
+     "error_temp_prefix",
      "kms_key_arn",
      "prefix",
      "role_arn",
@@ -24937,7 +24937,7 @@
      "buffer_interval": "number",
      "buffer_size": "number",
      "compression_format": "string",
-     "error_output_prefix": "string",
+     "error_temp_prefix": "string",
      "kms_key_arn": "string",
      "prefix": "string",
      "role_arn": "string",
@@ -24950,7 +24950,7 @@
      "buffer_interval",
      "buffer_size",
      "compression_format",
-     "error_output_prefix",
+     "error_temp_prefix",
      "kms_key_arn",
      "prefix",
      "role_arn",
@@ -38835,7 +38835,7 @@
    "name",
    "parameters",
    "schedule_expression",
-   "output_location",
+   "temp_location",
    "targets"
   ],
   "computed": [
@@ -38858,11 +38858,11 @@
    "schedule_expression": "string"
   },
   "nested": [
-   "output_location",
+   "temp_location",
    "targets"
   ],
   "nested_block": {
-   "output_location": {
+   "temp_location": {
     "all_attributes": [
      "s3_bucket_name",
      "s3_key_prefix"

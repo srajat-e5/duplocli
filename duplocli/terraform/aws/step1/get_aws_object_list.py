@@ -25,7 +25,7 @@ from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
 
 class GetAwsObjectList:
     step = "step1"
-    debug_output = False
+    debug_print_out = False
     debug_json = False
     create_key_pair = False
     #
@@ -84,7 +84,7 @@ class GetAwsObjectList:
                         # self.file_utils.print_json(aws_obj)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : get_key_pair_list  :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return aws_objs
 
@@ -105,7 +105,7 @@ class GetAwsObjectList:
             #todo: resolve tenant specific
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_s3_bucket :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -126,7 +126,7 @@ class GetAwsObjectList:
                 print("**** aws import step1 : aws_db_instance :", instance['DBInstanceIdentifier'], arn)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_db_instance :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -156,7 +156,7 @@ class GetAwsObjectList:
                     print("**** aws import step1 : aws_key_pair :" , key_name)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_instance :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -195,7 +195,7 @@ class GetAwsObjectList:
                     print("**** aws import step1 : aws_iam_role_policy_attachment :", policy_name, sync_id)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_iam_role, aws_iam_role_policy, aws_iam_role_policy_attachment :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -215,7 +215,7 @@ class GetAwsObjectList:
                 aws_objs.append(instance)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_security_group :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -234,7 +234,7 @@ class GetAwsObjectList:
                 aws_objs.append(instance)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_iam_instance_profile :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 
@@ -254,7 +254,7 @@ class GetAwsObjectList:
                     print("**** aws import step1 : aws_elasticache_cluster :", cacheClusterId)
         if len(aws_objs) ==0 :
             print("**** aws import step1 : aws_iam_instance_profile :", "NOT_FOUND ANY")
-        if self.debug_output:
+        if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
 

@@ -1,0 +1,9 @@
+{
+  "tenant_name": null,
+  "aws_region":null,
+  "zip_folder": "zip",
+  "download_aws_keys": "no",
+  "url": null,
+  "tenant_id": null,
+  "api_token": null
+}

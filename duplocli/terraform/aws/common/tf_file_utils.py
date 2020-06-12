@@ -15,39 +15,43 @@ class TfFileUtils:
     _schema_file_name = "aws_tf_schema.json"
 
     #scripts
-    _tf_import_script_prefix = "tf_import_script"
-    _tf_run_script_prefix = "run"
+    _tf_import_script_prefix = "tf_import_script" #.bat .sh
+    _tf_run_script_prefix = "run" #.bat .sh
+
+    #TEMP_FOLDER
+    temp_folder="output"
+    zip_folder="zip"
 
     def __init__(self, step="step1"):
         self.step = step
 
     ####### get file paths
-    # output/step1/aws_tf_schema.json
+    # TEMP_FOLDER/step1/aws_tf_schema.json
 
     def tf_state_file(self):
-        return self._file_in_output_folder(self._tf_state_file_name)
-    # output/step1/terraform.tfstate
+        return self._file_in_temp_folder(self._tf_state_file_name)
+    # TEMP_FOLDER/step1/terraform.tfstate
     def tf_main_file(self):
-        return self._file_in_output_folder(self._tf_file_name)
+        return self._file_in_temp_folder(self._tf_file_name)
     # log/step1_import.log
     def log_file(self):
         return self._file_in_log_folder("import")
-    # output/step1/tf_import_script.sh
+    # TEMP_FOLDER/step1/tf_import_script.sh
     def tf_import_script(self):
-        return self._script_file_in_output_folder(self._tf_import_script_prefix)
-    # output/step1/run.sh
+        return self._script_file_in_temp_folder(self._tf_import_script_prefix)
+    # TEMP_FOLDER/step1/run.sh
     def tf_run_script(self):
-        return self._script_file_in_output_folder(self._tf_run_script_prefix)
+        return self._script_file_in_temp_folder(self._tf_run_script_prefix)
     # data/mapping_aws_keys_to_tf_keys.json
     def mapping_aws_keys_to_tf_keys_file(self):
         return self._file_in_data_folder(self._mapping_keys_file_name)
     # data/aws_tf_schema.json
     def aws_tf_schema_file(self):
-        return self._file_in_data_folder(self._schema_file_name) 
+        return self._file_in_data_folder(self._schema_file_name)
     def keys_folder(self):
-        return self._output_keys_folder()
+        return self._temp_keys_folder()
     def zip_folder(self):
-        return self._output_zip_folder()
+        return self._temp_zip_folder()
 
     ####### save to files
     def save_main_file(self, data_dict):
@@ -61,28 +65,29 @@ class TfFileUtils:
         print(os.getcwd())
         tf_import_script_file = os.path.basename(self.tf_import_script())
         if psutil.WINDOWS :
-            run_sh_list.append("cd \"{0}\" ".format(self._output_folder()))
-            run_sh_list.append("SET CURRENTDIR=\"%cd%\";  echo %CURRENTDIR%  ".format(self._output_folder()))
+            run_sh_list.append("cd \"{0}\" ".format(self._temp_folder()))
+            run_sh_list.append("SET CURRENTDIR=\"%cd%\";  echo %CURRENTDIR%  ".format(self._temp_folder()))
             run_sh_list.append("call \"{0}\" ".format(tf_import_script_file))
         else:
-            run_sh_list.append("cd {0}".format(self._output_folder()))
+            run_sh_list.append("cd {0}".format(self._temp_folder()))
             run_sh_list.append("chmod 777 *.sh")
             run_sh_list.append("./{0}  ".format(tf_import_script_file))
 
         self.save_run_script(self.tf_run_script(), run_sh_list)
     def save_key_file(self, key_name, response_content):
-        self._ensure_folder(self._output_keys_folder())
-        self.file_utils.save_key_file(self._file_in_output_keys_folder(key_name), response_content)
+        self._ensure_folder(self._temp_keys_folder())
+        self.file_utils.save_key_file(self._file_in_temp_keys_folder(key_name), response_content)
 
 
     #######
-    def ensure_empty_output_folder(self, folder):
+    def ensure_empty_temp_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "rmdir /s /q \"{0}\\*\";  md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "rm -rf  {0}/*; mkdir -p {0}; ls  {0}".format(folder)
-        print("ensure_empty_output_folder ", cmd_mod)
+        print("ensure_empty_temp_folder ", cmd_mod)
         os.system(cmd_mod)
+
     def _ensure_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
@@ -91,15 +96,16 @@ class TfFileUtils:
         print("_ensure_folder", cmd_mod)
         os.system(cmd_mod)
 
-    def empty_output_folder(self):
-        self.ensure_empty_output_folder(self._output_folder())
+    def empty_temp_folder(self):
+        self.ensure_empty_temp_folder(self._temp_folder())
         self._ensure_folders()
-        print("DONE empty_output_folder")
+        print("DONE empty_temp_folder")
 
     def empty_all_folder(self):
-        self.ensure_empty_output_folder(self._output_folder())
-        self.ensure_empty_output_folder(self.keys_folder())
-        self.ensure_empty_output_folder(self._mapping_keys_file_name())
+        self.ensure_empty_temp_folder(self._temp_folder()) # step1 step2
+        self.ensure_empty_temp_folder(self._temp_keys_folder())
+        # self.ensure_empty_temp_folder(self._temp_zip_folder()) #keep zip files
+        self.ensure_empty_temp_folder(self._temp_final_folder())
         self._ensure_folders()
         print("DONE empty_all_folder")
 
@@ -114,16 +120,16 @@ class TfFileUtils:
 
     ######
     def _ensure_folders(self):
-        self._ensure_folder(self._output_folder())
-        self._ensure_folder(self._output_keys_folder())
-        self._ensure_folder(self._output_zip_folder())
-        self._ensure_folder(self._output_final_folder())
+        self._ensure_folder(self._temp_folder())
+        self._ensure_folder(self._temp_keys_folder())
+        self._ensure_folder(self._temp_zip_folder())
+        self._ensure_folder(self._temp_final_folder())
         self._ensure_folder(self._data_folder())
         self._ensure_folder(self._log_folder())
 
     ##########
     def copy_to_final_folder(self, final_folder , copy_files):
-        self._ensure_folder(self._output_final_folder())
+        self._ensure_folder(self._temp_final_folder())
         for copy_file in copy_files:
             src_name = os.path.basename(copy_file)
             dest_path = os.path.join(final_folder, src_name)
@@ -211,23 +217,23 @@ class TfFileUtils:
         return file_path
 
     ## folders
-    def _output_child_folder(self, sub_folder):
-        return "output{0}{1}".format(os.path.sep, sub_folder)
+    def _temp_child_folder(self, sub_folder):
+        return "{0}{1}{2}".format(self.temp_folder, os.path.sep, sub_folder)
 
-    def _output_folder(self):
-        return self._output_child_folder(self.step)
+    def _temp_folder(self):
+        return self._temp_child_folder(self.step)
 
-    def _output_keys_folder(self):
-        return self._output_child_folder("keys")
+    def _temp_keys_folder(self):
+        return self._temp_child_folder("keys")
 
-    def _output_zip_folder(self):
-        return self._output_child_folder("zip")
+    def _temp_zip_folder(self):
+        return self._temp_child_folder("zip")
 
-    def _output_final_folder(self):
-        return self._output_child_folder("final")
+    def _temp_final_folder(self):
+        return self._temp_child_folder("final")
 
     def _log_folder(self):
-        return "log"
+        return self._temp_child_folder("log")
 
     def _data_folder(self):
         return "data"
@@ -237,27 +243,27 @@ class TfFileUtils:
 
 
     ## files in folder
-    def _file_in_output_folder(self, file_name):
-        folder = self._output_folder()
-        # output/step1/main.tf.json
+    def _file_in_temp_folder(self, file_name):
+        folder = self._temp_folder()
+        # TEMP_FOLDER/step1/main.tf.json
         file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
-    def _script_file_in_output_folder(self, file_name):
-        folder = self._output_folder()
-        # output/step1/run.sh output/step1/run.bat
-        file_path = "{0}{1}".format(self._file_in_output_folder(file_name), self._script_ext())
+    def _script_file_in_temp_folder(self, file_name):
+        folder = self._temp_folder()
+        # TEMP_FOLDER/step1/run.sh output/step1/run.bat
+        file_path = "{0}{1}".format(self._file_in_temp_folder(file_name), self._script_ext())
         return file_path
 
-    def _file_in_output_keys_folder(self, file_name):
-        folder = self._output_keys_folder()
-        # output/final/keys/file_name.json
+    def _file_in_temp_keys_folder(self, file_name):
+        folder = self._temp_keys_folder()
+        # TEMP_FOLDER/final/keys/file_name.json
         file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
     def _file_in_zip_folder(self, file_name):
-        folder = self._output_zip_folder()
-        # output/final/keys/file_name.json
+        folder = self._temp_zip_folder()
+        # TEMP_FOLDER/final/keys/file_name.json
         file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
@@ -272,5 +278,3 @@ class TfFileUtils:
         # data/map.json
         file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
-
-

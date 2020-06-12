@@ -6073,7 +6073,7 @@
                       "nesting_mode": "list",
                       "block": {
                         "attributes": {
-                          "output_location": {
+                          "temp_location": {
                             "type": "string",
                             "optional": true
                           }
@@ -10621,7 +10621,7 @@
                             "type": "string",
                             "optional": true
                           },
-                          "output_artifacts": {
+                          "temp_artifacts": {
                             "type": [
                               "list",
                               "string"
@@ -20767,7 +20767,7 @@
                 "optional": true,
                 "computed": true
               },
-              "output_bucket": {
+              "temp_bucket": {
                 "type": "string",
                 "optional": true,
                 "computed": true
@@ -22913,7 +22913,7 @@
                       "type": "number",
                       "optional": true
                     },
-                    "output_format": {
+                    "temp_format": {
                       "type": "string",
                       "optional": true
                     },
@@ -26486,7 +26486,7 @@
                       "type": "string",
                       "optional": true
                     },
-                    "error_output_prefix": {
+                    "error_temp_prefix": {
                       "type": "string",
                       "optional": true
                     },
@@ -26594,7 +26594,7 @@
                             "min_items": 1,
                             "max_items": 1
                           },
-                          "output_format_configuration": {
+                          "temp_format_configuration": {
                             "nesting_mode": "list",
                             "block": {
                               "block_types": {
@@ -37991,7 +37991,7 @@
                       "nesting_mode": "list",
                       "block": {
                         "attributes": {
-                          "output_schema_version": {
+                          "temp_schema_version": {
                             "type": "string",
                             "optional": true
                           }
@@ -41420,7 +41420,7 @@
               }
             },
             "block_types": {
-              "output_location": {
+              "temp_location": {
                 "nesting_mode": "list",
                 "block": {
                   "attributes": {
@@ -41866,11 +41866,11 @@
                             "type": "string",
                             "optional": true
                           },
-                          "output_s3_bucket": {
+                          "temp_s3_bucket": {
                             "type": "string",
                             "optional": true
                           },
-                          "output_s3_key_prefix": {
+                          "temp_s3_key_prefix": {
                             "type": "string",
                             "optional": true
                           },
