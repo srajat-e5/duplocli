@@ -29,6 +29,7 @@ class ImportParameters:
         self.tenant_with_prefix = self.get_key(parameters, 'tenant_with_prefix')
         self.state_file = self.get_key(parameters, 'state_file')
 
+
     def get_key(self, parameters, key):
         if key in parameters:
             return parameters[key]
@@ -74,7 +75,7 @@ class AwsParseParams:
 
         OR alternately 
 
-        pass the above parameters in json file
+        pass the above parameters in single json file
 
        [-j/--params_json_file_path PARAMSJSONFILE] = FOLDER/terraform_import_json.json
             terraform_import_json.json

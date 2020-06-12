@@ -24,16 +24,56 @@ pip install -r requirements.txt
       * Run 'aws_tf_import.py' script. 
       * This will create files terrform files : main.tf.json & terraform.tfstate
       *  'aws_tf_import.py'  arguments :
-        --tenant_name "YOUR_TENANT_NAME" : duplo tenant to be imported into Terraform state
-        --aws_az "us-west-2"  : aws availability zone
-        --download_aws_keys "True" : to export aws EC2 public ssh keys into keys folder
-        --duplo_api_json_file "path_to_json_file": duplo api configuration e.g. --duplo_api_json=duplo_api_json.json
-       ''' # duplo_api_json.json to downlopad keys fomr duplocloud.
+         
+       '''  
+       
+        argument to python file
+
+        [-t / --tenant_id TENANTID]           -- TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6
+        [-n / --tenant_name TENANTNAME]         -- TenantName e.g. webdev
+        [-r / --aws_region AWSREGION]          -- AWSREGION  e.g. us-west2
+        [-a / --api_token APITOKEN]           -- Duplo API Token
+        [-u / --url URL]                -- Duplo URL  e.g. https://msp.duplocloud.net
+        [-k / --download_aws_keys DOWNLOADKEYS]       -- Aws keypair=yes/no, private key used for ssh into EC2 servers
+        [-z / --zip_folder ZIPFOLDER]          -- folder to save imported terrorform files in zip format
+        [-j / --params_json_file_path PARAMSJSONFILE]     -- All params passed in single JSON file
+        [-h / --help HELP]               -- help
+
+
+
+        OR alternately 
+
+        pass the above parameters in single json file
+
+       [-j/--params_json_file_path PARAMSJSONFILE] = FOLDER/terraform_import_json.json
+            terraform_import_json.json
             {
-              "url": "https://XXX.duplocloud.net",
-              "tenant_id": "XXXXXX",
-              "api_token": "XXX"
+              "tenant_name": "xxxxxx",
+              "aws_region": "xxxxxx",
+              "zip_folder": "zip",
+              "download_aws_keys": "yes",
+              "url": "https://xxx.duplocloud.net",
+              "tenant_id": "xxx-2662-4e9c-9867-9a4565ec5cb6",
+              "api_token": "xxxxxx"
             }
+
+        OR alternately 
+        pass the above parameters in ENV variables
+        export tenant_name="xxxxxx"
+        export aws_region="xxxxxx"
+        export zip_folder="zip",
+        export download_aws_keys="yes",
+        export url="https://xxx.duplocloud.net",
+        export tenant_id="xxx-2662-4e9c-9867-9a4565ec5cb6",
+        export api_token="xxxxxx"
+
+        Sequence of parameters evaluation is: default -> ENV -> JSON_FILE -> arguments
+        parameters in argument 
+         ->  override  parameters in terraform_import_json
+        AND parameters in terraform_import_json
+         ->   override  parameters in ENV variables
+        AND parameters in ENV variables
+         ->   override default values (default_parameters.json)
        '''
        ''' 
          python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"

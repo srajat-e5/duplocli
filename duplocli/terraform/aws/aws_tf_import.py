@@ -9,12 +9,13 @@ from duplocli.terraform.aws.step2.aws_tf_import_step2 import AwsTfImportStep2
 from duplocli.terraform.aws.aws_parse_params import AwsParseParams, ImportParameters
 
 import psutil
-
+import os
 class AwsTfImport:
 
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.params = params
+        os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
 
     def execute_step(self, steps="all"):
         if steps == "step1":
