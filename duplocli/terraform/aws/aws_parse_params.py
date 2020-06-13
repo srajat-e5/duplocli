@@ -18,13 +18,15 @@ class ImportParameters:
         self.tenant_name = self.get_key(parameters, 'tenant_name')
         self.aws_region = self.get_key(parameters, 'aws_region')
         self.zip_folder = self.get_key(parameters, 'zip_folder')
+        self.zip_file_path = self.get_key(parameters, 'zip_file_path')
+
 
         self.download_aws_keys = self.get_key(parameters, 'download_aws_keys')
         self.url = self.get_key(parameters, 'url')
         self.tenant_id = self.get_key(parameters, 'tenant_id')
         self.api_token = self.get_key(parameters, 'api_token')
 
-        self.params_Json_File = self.get_key(parameters, 'params_Json_File')
+        self.params_json_file_path = self.get_key(parameters, 'params_json_file_path')
         self.temp_folder = self.get_key(parameters, 'temp_folder')
         self.tenant_with_prefix = self.get_key(parameters, 'tenant_with_prefix')
         self.state_file = self.get_key(parameters, 'state_file')
@@ -68,6 +70,7 @@ class AwsParseParams:
         [-u / --url URL]                -- Duplo URL  e.g. https://msp.duplocloud.net
         [-k / --download_aws_keys DOWNLOADKEYS]       -- Aws keypair=yes/no, private key used for ssh into EC2 servers
         [-z / --zip_folder ZIPFOLDER]          -- folder to save imported terrorform files in zip format
+        [-o / --zip_file_path ZIPFILEPATH]         -- zip file path to save imported terrorform files in zip format        
         [-j / --params_json_file_path PARAMSJSONFILE]     -- All params passed in single JSON file
         [-h / --help HELP]               -- help
 
@@ -86,7 +89,8 @@ class AwsParseParams:
               "download_aws_keys": "yes",
               "url": "https://xxx.duplocloud.net",
               "tenant_id": "xxx-2662-4e9c-9867-9a4565ec5cb6",
-              "api_token": "xxxxxx"
+              "api_token": "xxxxxx",
+              "zip_file_path":"/tmp/NAMe.zip"
             }
 
         OR alternately 
@@ -98,6 +102,8 @@ class AwsParseParams:
         export url="https://xxx.duplocloud.net",
         export tenant_id="xxx-2662-4e9c-9867-9a4565ec5cb6",
         export api_token="xxxxxx"
+        export zip_file_path="/tmp/NAMe.zip"
+        
 
         Sequence of parameters evaluation is: default -> ENV -> JSON_FILE -> arguments
         parameters in argument 
@@ -124,6 +130,7 @@ class AwsParseParams:
         parser.add_argument('-u', '--url', action='store', dest='url')
         parser.add_argument('-k', '--download_aws_keys', action='store', dest='download_keys')
         parser.add_argument('-z', '--zip_folder', action='store', dest='zip_folder')
+        parser.add_argument('-o', '--zip_file_path', action='store', dest='zip_file_path')
         parser.add_argument('-j', '--params_json_file_path', action='store', dest='params_json_file_path')
         # parser.add_argument('-h', '--help', action='help' , help=" params usage")
         return parser

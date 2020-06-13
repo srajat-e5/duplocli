@@ -171,9 +171,8 @@ class TfFileUtils:
 
         shutil.make_archive(zip_file_to_zip_folder, 'zip', root_dir=final_folder)
         #if zip folder is not same
-        if zip_folder != self.zip_folder():
-            zip_file_to_zip_folder = "{0}{1}{2}".format(self.zip_folder(), os.path.sep, zipfile_name)
-            shutil.make_archive(zip_file_to_zip_folder, 'zip', root_dir=final_folder)
+        if self.params.zip_file_path != self.zip_folder():
+            shutil.make_archive( self.params.zip_file_path, 'zip', root_dir=final_folder)
 
 
    #######

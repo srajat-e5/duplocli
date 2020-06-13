@@ -3,6 +3,7 @@
   "aws_region":null,
   "state_file": null,
   "zip_folder": "output/zip",
+  "zip_file_path": null,
   "temp_folder": "output",
   "download_aws_keys": "no",
   "url": null,
