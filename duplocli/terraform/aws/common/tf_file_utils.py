@@ -104,13 +104,21 @@ class TfFileUtils:
 
 
     #######
+    def empty_folder(self, folder):
+        if psutil.WINDOWS:
+            cmd_mod = "rmdir /s /q \"{0}\\*\" ".format(folder)
+        else:
+            cmd_mod = "rm -rf  {0}/* ".format(folder)
+        os.system(cmd_mod)
+        print("empty_folder ", cmd_mod)
+
     def ensure_empty_temp_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "rmdir /s /q \"{0}\\*\";  md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "rm -rf  {0}/*; mkdir -p {0}; ls  {0}".format(folder)
-        print("ensure_empty_temp_folder ", cmd_mod)
         os.system(cmd_mod)
+        print("ensure_empty_temp_folder ", cmd_mod)
 
     def _ensure_folder(self, folder):
         if psutil.WINDOWS:

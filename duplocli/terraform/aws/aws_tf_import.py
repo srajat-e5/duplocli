@@ -7,6 +7,7 @@ from duplocli.terraform.aws.step1.aws_create_tfstate_step1 import AwsCreateTfsta
 from duplocli.terraform.aws.step1.get_aws_object_list import GetAwsObjectList
 from duplocli.terraform.aws.step2.aws_tf_import_step2 import AwsTfImportStep2
 from duplocli.terraform.aws.aws_parse_params import AwsParseParams, ImportParameters
+from duplocli.terraform.aws.backup_import_folders import BackupImportFolders
 
 import psutil
 import os
@@ -25,6 +26,14 @@ class AwsTfImport:
         else:
             self.execute_step1_with_api()
             self.execute_step2()
+
+        # backup and s3 sync
+        if os.path.exists("backup_settings_auth_service.json"):
+            backup_settings_json="backup_settings_auth_service.json"
+        else:
+            backup_settings_json="backup_settings.json"
+        eackupImportFolders = BackupImportFolders(backup_settings_json=backup_settings_json)
+        eackupImportFolders.backup_folders()
 
     def execute_step1_with_api(self):
         print("\n====== execute_step1 ====== START")
