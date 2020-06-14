@@ -52,7 +52,7 @@ class AwsParseParams:
 
     ######## ####
     def get_default_params(self):
-        file_utils = TfFileUtils(None, step="step1")
+        file_utils = TfFileUtils(None, step=None, set_temp_and_zip_folders=False)
         parameters = file_utils.load_json_file("default_parameters.json")
         params = ImportParameters(parameters)
         return params

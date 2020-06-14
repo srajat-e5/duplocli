@@ -23,10 +23,11 @@ class TfFileUtils:
     zip_folder_path="output/zip"
     zip_folder_local_path = "output/zip"
 
-    def __init__(self, params, step="step1"):
+    def __init__(self, params, step="step1", set_temp_and_zip_folders=True):
         self.params = params
         self.step = step
-        self.set_temp_and_zip_folder()
+        if set_temp_and_zip_folders:
+            self.set_temp_and_zip_folder()
 
 
     def set_temp_and_zip_folder(self):
@@ -124,6 +125,11 @@ class TfFileUtils:
         self._ensure_folders()
         print("DONE empty_temp_folder")
 
+    def empty_terraform_binary_folder(self):
+        terraform_binary_folder = self._file_in_temp_folder(".terraform")
+        self.ensure_empty_temp_folder(terraform_binary_folder)
+        print("****************  DONE empty_terraform_binary_folder **************** ")
+
     def empty_all_folder(self):
         self.ensure_empty_temp_folder(self._temp_folder()) # step1 step2
         self.ensure_empty_temp_folder(self._temp_keys_folder())
@@ -140,6 +146,10 @@ class TfFileUtils:
             cmd_mod = "chmod +x {0}; bash {0} > {1}  2>&1".format(tf_run_script_file, self.log_file())
         print("create_state ", cmd_mod)
         os.system(cmd_mod)
+        #delete terraform binaries
+        print("**************** deleting terraform binaries **************** ")
+        self.empty_terraform_binary_folder()
+        print("**************** to get back terraform binaries please run ' terrafrom init ' **************** ")
 
     ######
     def _ensure_folders(self):
@@ -171,7 +181,7 @@ class TfFileUtils:
 
         shutil.make_archive(zip_file_to_zip_folder, 'zip', root_dir=final_folder)
         #if zip folder is not same
-        if self.params.zip_file_path != self.zip_folder():
+        if self.params.zip_file_path is not None and self.params.zip_file_path != self.zip_folder():
             shutil.make_archive( self.params.zip_file_path, 'zip', root_dir=final_folder)
 
 
