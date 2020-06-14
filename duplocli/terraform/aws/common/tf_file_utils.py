@@ -86,7 +86,7 @@ class TfFileUtils:
         self.save_run_script(self.tf_import_script(), data_list)
     def save_tf_run_script(self):
         run_sh_list=[]
-        print(os.getcwd())
+        # print(os.getcwd())
         tf_import_script_file = os.path.basename(self.tf_import_script())
         if psutil.WINDOWS :
             run_sh_list.append("cd \"{0}\" ".format(self._temp_folder()))
@@ -104,13 +104,13 @@ class TfFileUtils:
 
 
     #######
-    def empty_folder(self, folder):
+    def delete_folder(self, folder):
         if psutil.WINDOWS:
-            cmd_mod = "rmdir /s /q \"{0}\\*\" ".format(folder)
+            cmd_mod = "rmdir /s /q \"{0}\" ".format(folder)
         else:
-            cmd_mod = "rm -rf  {0}/* ".format(folder)
+            cmd_mod = "rm -rf  {0} ".format(folder)
         os.system(cmd_mod)
-        print("empty_folder ", cmd_mod)
+        print("DONE delete_folder ", cmd_mod)
 
     def ensure_empty_temp_folder(self, folder):
         if psutil.WINDOWS:
@@ -118,14 +118,14 @@ class TfFileUtils:
         else:
             cmd_mod = "rm -rf  {0}/*; mkdir -p {0}; ls  {0}".format(folder)
         os.system(cmd_mod)
-        print("ensure_empty_temp_folder ", cmd_mod)
+        print("DONE ensure_empty_temp_folder ", cmd_mod)
 
     def _ensure_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "mkdir -p {0}; ls  {0}".format(folder)
-        print("_ensure_folder", cmd_mod)
+        print("DONE _ensure_folder", cmd_mod)
         os.system(cmd_mod)
 
     def empty_temp_folder(self):
@@ -152,8 +152,9 @@ class TfFileUtils:
             # cmd_mod = "call \"{0}\" ".format(tf_run_script_file )
         else:
             cmd_mod = "chmod +x {0}; bash {0} > {1}  2>&1".format(tf_run_script_file, self.log_file())
-        print("create_state ", cmd_mod)
+        print("START create_state ", cmd_mod)
         os.system(cmd_mod)
+        print("DONE create_state ", cmd_mod)
         #delete terraform binaries
         print("**************** deleting terraform binaries **************** ")
         self.empty_terraform_binary_folder()

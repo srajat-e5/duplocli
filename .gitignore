@@ -33,6 +33,7 @@ duplocli/terraform/aws/work/backup/*\
 .DS_Store
 .idea/
 duplo_api_json_test.json
+backup_settings_auth_service.json
 params.json
 
 
