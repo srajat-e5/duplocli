@@ -3,6 +3,7 @@ import os
 import psutil
 import shutil
 import time, sys
+from datetime import date, timedelta, datetime
 from duplocli.terraform.aws.common.tf_utils import TfUtils
 from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
 
@@ -45,6 +46,7 @@ class BackupImportFolders:
                 s3_file =  os.path.join(tenant, backup_file)
                 if s3_file not in all_s3_files:
                     local_file = os.path.join(self.backup_root_folder,s3_file)
+                    s3_file = s3_file.replace("\\", "/")
                     print("uploading ---- ", local_file , bucket_name, s3_file)
                     s3_connect.upload_file(local_file , bucket_name, s3_file)
 
@@ -57,8 +59,14 @@ class BackupImportFolders:
         shutil.make_archive(zip_file_name, 'zip', root_dir=import_folder)
 
         #delete import_folder - only if older than 1 day
-        now = time.time()
-        if os.stat(import_folder).st_mtime > now - 1 * 86400:
+        today = datetime.today()
+        file_creation_time = datetime.fromtimestamp(os.stat(import_folder).st_ctime)
+        delta = today - file_creation_time  # +ve
+        days_older = delta.days
+        # days_older = int(delta.total_seconds()/60) #test ..since it takes a day in windows to create folder one day older
+        print("days_older delta.days", days_older, "file_creation_time",file_creation_time,"today",today, import_folder)
+        if abs( days_older) >= 1:
+            print("days_older delta.days", days_older, "DELETING ", import_folder)
             self.file_utils.delete_folder(import_folder)
 
     ######
