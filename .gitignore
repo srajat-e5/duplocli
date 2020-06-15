@@ -27,6 +27,7 @@ wheels/
 
 #terrafrom ignore folders
 aws/work/*
+_temp/
 duplocli/terraform/aws/work/output/
 log/
 duplocli/terraform/aws/work/backup/*\

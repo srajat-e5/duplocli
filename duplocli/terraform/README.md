@@ -76,8 +76,8 @@ pip install -r requirements.txt
          ->   override default values (default_parameters.json)
        '''
        ''' 
-         python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"
-        '''
+         python aws_tf_import.py --tenant_name "bigdata01" --aws_region "us-west-2" 
+          '''
   
   ## Output Files
       *  duplocli/terraform/aws/step2/main.tf.json

@@ -76,9 +76,8 @@ if __name__ == '__main__':
     #     [-h / --help HELP]               -- help
     #
     # """
-    # python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2"
-    # python aws_tf_import.py --tenant_name "bigdata01" --aws_az "us-west-2" --download_aws_keys True --duplo_api_json_file "duplo_api_json.json"
-    #python aws_tf_import.py --params_json_file_path "/Users/brighu/_duplo_code/duplocli/duplocli/terraform/aws/duplo_api_json_test.json"
+    # python aws_tf_import.py --tenant_name "bigdata01" --aws_region "us-west-2"
+    # python aws_tf_import.py --params_json_file_path "/Users/ubuntu/duplocli/duplocli/terraform/aws/duplo_api_json_test.json"
     params_resovler = AwsParseParams()
     parsed_args = params_resovler.get_parser().parse_args()
     final_params = params_resovler.resolve_parameters(parsed_args)
