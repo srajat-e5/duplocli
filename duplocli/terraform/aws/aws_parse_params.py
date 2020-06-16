@@ -19,6 +19,7 @@ class ImportParameters:
         self.aws_region = self.get_key(parameters, 'aws_region')
         self.zip_folder = self.get_key(parameters, 'zip_folder')
         self.zip_file_path = self.get_key(parameters, 'zip_file_path')
+        self.import_name = self.get_key(parameters, 'import_name')
 
 
         self.download_aws_keys = self.get_key(parameters, 'download_aws_keys')
@@ -44,9 +45,27 @@ class AwsParseParams:
         print("is WINDOWS ", psutil.WINDOWS)
 
     ######## ####
+    def check_required_fields(self,params,  required_fields):
+        for required_field in required_fields:
+            if params[required_field] is None:
+                raise Exception("missing required_fields = ", required_fields.join(","))
     def resolve_parameters(self, parsed_args):
         parameters = self.app_defaults(parsed_args)
         params = ImportParameters(parameters)
+
+        # validate params
+        required_fields = ["tenant_name", "tenant_id", "aws_region"]
+        self.check_required_fields(params, required_fields)
+        if params["download_aws_keys"] == "yes":
+            required_fields=["url","tenant_id","api_token"]
+            self.check_required_fields(params, required_fields)
+
+        if params.import_name is not None and params.zip_file_path is None:
+            #append import_name to zip_file_path, zip_folder, temp_folder
+            params.zip_folder = os.path.join(params.zip_folder, params.tenant_name, params.import_name)
+            params.zip_file_path = os.path.join(params.zip_file_path, params.tenant_name, params.import_name)
+            params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
+
         return params
 
 
@@ -69,8 +88,10 @@ class AwsParseParams:
         [-a / --api_token APITOKEN]           -- Duplo API Token
         [-u / --url URL]                -- Duplo URL  e.g. https://msp.duplocloud.net
         [-k / --download_aws_keys DOWNLOADKEYS]       -- Aws keypair=yes/no, private key used for ssh into EC2 servers
-        [-z / --zip_folder ZIPFOLDER]          -- folder to save imported terrorform files in zip format
-        [-o / --zip_file_path ZIPFILEPATH]         -- zip file path to save imported terrorform files in zip format        
+        [-z / --zip_folder ZIPFOLDER]          -- folder to save imported  files in zip format
+                self.import_name = self.get_key(parameters, 'import_name')
+        [-n / --import_name IMPORTNAME]            -- import name and zip file path are mutually exclusive.  import name will create sub folders and zip file with same name.    
+        [-o / --zip_file_path ZIPFILEPATH]         -- zip file path to save imported terraform files in zip format        
         [-j / --params_json_file_path PARAMSJSONFILE]     -- All params passed in single JSON file
         [-h / --help HELP]               -- help
 
@@ -90,7 +111,7 @@ class AwsParseParams:
               "url": "https://xxx.duplocloud.net",
               "tenant_id": "xxx-2662-4e9c-9867-9a4565ec5cb6",
               "api_token": "xxxxxx",
-              "zip_file_path":"/tmp/NAMe.zip"
+              "import_name":"UNIQUE_NAME"
             }
 
         OR alternately 
@@ -102,7 +123,7 @@ class AwsParseParams:
         export url="https://xxx.duplocloud.net",
         export tenant_id="xxx-2662-4e9c-9867-9a4565ec5cb6",
         export api_token="xxxxxx"
-        export zip_file_path="/tmp/NAMe.zip"
+        export zip_file_path="/tmp/NAMe.zip" or export import_name="UNIQUE_NAME"
         
 
         Sequence of parameters evaluation is: default -> ENV -> JSON_FILE -> arguments
@@ -130,6 +151,7 @@ class AwsParseParams:
         parser.add_argument('-u', '--url', action='store', dest='url')
         parser.add_argument('-k', '--download_aws_keys', action='store', dest='download_keys')
         parser.add_argument('-z', '--zip_folder', action='store', dest='zip_folder')
+        parser.add_argument('-n', '--import_name', action='store', dest='import_name')
         parser.add_argument('-o', '--zip_file_path', action='store', dest='zip_file_path')
         parser.add_argument('-j', '--params_json_file_path', action='store', dest='params_json_file_path')
         # parser.add_argument('-h', '--help', action='help' , help=" params usage")

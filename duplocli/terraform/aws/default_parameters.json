@@ -1,10 +1,13 @@
 {
+  "zip_folder": "work/output/zip",
+  "temp_folder": "work/output",
+
   "tenant_name": null,
   "aws_region":null,
+
   "state_file": null,
-  "zip_folder": "work/output/zip",
   "zip_file_path": null,
-  "temp_folder": "work/output",
+
   "download_aws_keys": "no",
   "url": null,
   "tenant_id": null,
