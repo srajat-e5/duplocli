@@ -8,20 +8,18 @@ ENV TERRAFORM_VERSION=0.12.24
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 
-RUN apt-get install -y curl python3.6 python3.6-distutils python3.6-dev python3-pip
+RUN apt-get install -y curl python3.6 python3.6-distutils python3.6-dev python3-pip python-pip
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
 RUN update-alternatives --set python /usr/bin/python3.6
 
-#RUN apt-get update &&  apt-get install -y awscli
+RUN pip install   awscli
 
 RUN apt-get update \
-  && apt-get install -y wget unzip curl jq bash ca-certificates git openssl unzip wget \
+  && apt-get install -y wget vim unzip curl jq bash ca-certificates git openssl unzip wget \
   && cd /tmp \
   && wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-  && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin \
-  && rm -rf /tmp/* \
-  && rm -rf /var/lib/apt/lists/* \
-  rm -rf /var/tmp/*
+  && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
+
 
 #RUN pip install --upgrade pip
 #
@@ -35,10 +33,11 @@ RUN python3 -V
 RUN python -V
 
 RUN pip3 install -r /duplocli/duplocli/terraform/requirements.txt
-#RUN pip3  install boto3  requests
-#RUN pip3  install  psutil
 
-#
+RUN rm -rf /tmp/* \
+  && rm -rf /var/lib/apt/lists/* \
+  rm -rf /var/tmp/*
+
 ADD startup.sh /
 RUN chmod 777 /duplocli/*.sh
 
