@@ -61,24 +61,30 @@ class AwsParseParams:
             required_fields=["url","tenant_id","api_token"]
             self.check_required_fields(parameters, required_fields)
         params = ImportParameters(parameters)
-        if params.zip_file_path is None:
-            if params.import_name is None:
-                now = datetime.datetime.now()
-                now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
-                params.import_name = now_str
+        # if params.zip_file_path is None:
+        if params.import_name is None:
+            now = datetime.datetime.now()
+            now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
+            params.import_name = now_str
+        if self.parameters_default["temp_folder"] == params.temp_folder:
             #append import_name to zip_file_path, zip_folder, temp_folder
             params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
             params.zip_folder = os.path.join(params.temp_folder, "zip")
+        if params.zip_file_path is None:
             params.zip_file_path = os.path.join(params.zip_folder, params.import_name)
-            print("zip_file_path  ***** ", os.path.abspath(params.zip_file_path+".zip") )
+        print("temp_folder  ***** ", params.temp_folder)
+        print("zip_folder  ***** ", params.zip_folder)
+        print("zip_file_path  ***** ", os.path.abspath(params.zip_file_path+".zip") )
 
         return params
 
 
     ######## ####
+
     def get_default_params(self):
         file_utils = TfFileUtils(None, step=None, set_temp_and_zip_folders=False)
         parameters = file_utils.load_json_file("import_tf_parameters_default.json")
+        self.parameters_default = parameters
         params = ImportParameters(parameters)
         return params
 
