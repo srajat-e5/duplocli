@@ -1,0 +1,12 @@
+{
+  "tenant_name": "compliance",
+  "aws_region":"us-west2",
+
+  "state_file": null,
+  "zip_file_path": null,
+
+  "download_aws_keys": "no",
+  "url": null,
+  "tenant_id": null,
+  "api_token": null
+}

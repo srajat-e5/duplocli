@@ -6,6 +6,7 @@ import psutil
 import shutil
 
 class TfFileUtils:
+    root_folder="duplocli/terraform/aws/"
     #tf files
     _tf_file_name = "main.tf.json"
     _tf_state_file_name = "terraform.tfstate"
@@ -28,7 +29,8 @@ class TfFileUtils:
         self.step = step
         if set_temp_and_zip_folders:
             self.set_temp_and_zip_folder()
-
+        if psutil.WINDOWS:
+            self.root_folder=self.root_folder.replace("/", "\\")
 
     def set_temp_and_zip_folder(self):
         if self.params is None:
@@ -46,8 +48,6 @@ class TfFileUtils:
             self.zip_folder_path = self.zip_folder_path.replace("\\", "/")
             self.temp_folder_path = self.temp_folder_path.replace("\\", "/")
             self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
-
-
 
             ####### get file paths
     # TEMP_FOLDER/step1/aws_tf_schema.json
@@ -260,7 +260,8 @@ class TfFileUtils:
 
     ## folders
     def _temp_child_folder(self, sub_folder):
-        return "{0}{1}{2}".format(self.temp_folder_path, os.path.sep, sub_folder)
+        return os.path.join(self.temp_folder_path,sub_folder)
+        # return "{0}{1}{2}".format(self.temp_folder_path, os.path.sep, sub_folder)
 
     def _temp_folder(self):
         return self._temp_child_folder(self.step)
@@ -278,17 +279,14 @@ class TfFileUtils:
         return self._temp_child_folder("log")
 
     def _data_folder(self):
-        return "data"
-
-
-
-
+        return os.path.join(self.root_folder, "data")
 
     ## files in folder
     def _file_in_temp_folder(self, file_name):
         folder = self._temp_folder()
         # TEMP_FOLDER/step1/main.tf.json
-        file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
+        file_path = os.path.join(folder, file_name)
+        # file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
     def _script_file_in_temp_folder(self, file_name):
@@ -300,23 +298,27 @@ class TfFileUtils:
     def _file_in_temp_keys_folder(self, file_name):
         folder = self._temp_keys_folder()
         # TEMP_FOLDER/final/keys/file_name.json
-        file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
+        file_path = os.path.join(folder, file_name)
+        # file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
     def _file_in_zip_folder(self, file_name):
         folder = self._temp_zip_folder()
         # TEMP_FOLDER/final/keys/file_name.json
-        file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
+        file_path = os.path.join(folder, file_name)
+        # file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
 
     def _file_in_log_folder(self, file_prefix):
         folder = self._log_folder()
         # log/step1-import.log
+        # file_path = "{0}-{3}.log".format(os.path.join(folder,  self.step), file_prefix)
         file_path = "{0}{1}{2}-{3}.log".format(folder, os.path.sep, self.step, file_prefix)
         return file_path
 
     def _file_in_data_folder(self, file_name):
         folder = self._data_folder()
         # data/map.json
-        file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
+        file_path = os.path.join(folder, file_name)
+        # file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path

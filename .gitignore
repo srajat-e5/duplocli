@@ -26,11 +26,10 @@ wheels/
 *.egg
 
 #terrafrom ignore folders
-aws/work/*
+work/*
+dir/
 _temp/
-duplocli/terraform/aws/work/output/
 log/
-duplocli/terraform/aws/work/backup/*\
 .DS_Store
 .idea/
 duplo_api_json_test.json

@@ -42,28 +42,32 @@ class AwsParseParams:
 
     def __init__(self):
         self.file_utils = TfFileUtils(self.get_default_params(), step="step1")
-        print("is WINDOWS ", psutil.WINDOWS)
 
     ######## ####
-    def check_required_fields(self,params,  required_fields):
+    def check_required_fields(self,parameters,  required_fields):
         for required_field in required_fields:
-            if params[required_field] is None:
-                raise Exception("missing required_fields = ", required_fields.join(","))
+            if parameters[required_field] is None:
+                fields=",".join(required_fields)
+                print(parameters)
+                raise Exception("missing required_fields = " +fields)
+
     def resolve_parameters(self, parsed_args):
         parameters = self.app_defaults(parsed_args)
-        params = ImportParameters(parameters)
-
         # validate params
-        required_fields = ["tenant_name", "tenant_id", "aws_region"]
-        self.check_required_fields(params, required_fields)
-        if params["download_aws_keys"] == "yes":
+        required_fields = ["tenant_name",  "aws_region"]
+        self.check_required_fields(parameters, required_fields)
+        if parameters["download_aws_keys"] == "yes":
             required_fields=["url","tenant_id","api_token"]
-            self.check_required_fields(params, required_fields)
-
-        if params.import_name is not None and params.zip_file_path is None:
+            self.check_required_fields(parameters, required_fields)
+        params = ImportParameters(parameters)
+        if params.zip_file_path is None:
+            if params.import_name is None:
+                now = datetime.datetime.now()
+                now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
+                params.import_name = now_str
             #append import_name to zip_file_path, zip_folder, temp_folder
             params.zip_folder = os.path.join(params.zip_folder, params.tenant_name, params.import_name)
-            params.zip_file_path = os.path.join(params.zip_file_path, params.tenant_name, params.import_name)
+            params.zip_file_path = os.path.join(params.zip_folder, params.tenant_name, params.import_name)
             params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
 
         return params
@@ -72,7 +76,7 @@ class AwsParseParams:
     ######## ####
     def get_default_params(self):
         file_utils = TfFileUtils(None, step=None, set_temp_and_zip_folders=False)
-        parameters = file_utils.load_json_file("default_parameters.json")
+        parameters = file_utils.load_json_file("import_tf_parameters_default.json")
         params = ImportParameters(parameters)
         return params
 
@@ -90,7 +94,7 @@ class AwsParseParams:
         [-k / --download_aws_keys DOWNLOADKEYS]       -- Aws keypair=yes/no, private key used for ssh into EC2 servers
         [-z / --zip_folder ZIPFOLDER]          -- folder to save imported  files in zip format
                 self.import_name = self.get_key(parameters, 'import_name')
-        [-n / --import_name IMPORTNAME]            -- import name and zip file path are mutually exclusive.  import name will create sub folders and zip file with same name.    
+        [-i / --import_name IMPORTNAME]            -- import name and zip file path are mutually exclusive.  import name will create sub folders and zip file with same name.    
         [-o / --zip_file_path ZIPFILEPATH]         -- zip file path to save imported terraform files in zip format        
         [-j / --params_json_file_path PARAMSJSONFILE]     -- All params passed in single JSON file
         [-h / --help HELP]               -- help
@@ -132,7 +136,7 @@ class AwsParseParams:
         AND parameters in terraform_import_json
          ->   override  parameters in ENV variables
         AND parameters in ENV variables
-         ->   override default values (default_parameters.json)
+         ->   override default values (import_tf_parameters_default.json)
         """
 
     ######## ####
@@ -151,7 +155,7 @@ class AwsParseParams:
         parser.add_argument('-u', '--url', action='store', dest='url')
         parser.add_argument('-k', '--download_aws_keys', action='store', dest='download_keys')
         parser.add_argument('-z', '--zip_folder', action='store', dest='zip_folder')
-        parser.add_argument('-n', '--import_name', action='store', dest='import_name')
+        parser.add_argument('-i', '--import_name', action='store', dest='import_name')
         parser.add_argument('-o', '--zip_file_path', action='store', dest='zip_file_path')
         parser.add_argument('-j', '--params_json_file_path', action='store', dest='params_json_file_path')
         # parser.add_argument('-h', '--help', action='help' , help=" params usage")
@@ -162,7 +166,7 @@ class AwsParseParams:
     ######## ####
 
     def app_defaults(self, parsed_args):
-        parameters = self.file_utils.load_json_file("default_parameters.json")
+        parameters = self.file_utils.load_json_file("import_tf_parameters_default.json")
         print("########## default parameters ########## ")
         for key in parameters:
             print(" default parameter values", key, parameters[key])

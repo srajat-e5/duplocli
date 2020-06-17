@@ -28,10 +28,10 @@ class AwsTfImport:
             self.execute_step2()
 
         # backup and s3 sync
-        if os.path.exists("backup_settings_auth_service.json"):
-            backup_settings_json="backup_settings_auth_service.json"
+        if os.path.exists("import_tf_backup_settings_auth_service.json"):
+            backup_settings_json="import_tf_backup_settings_auth_service.json"
         else:
-            backup_settings_json="backup_settings.json"
+            backup_settings_json="import_tf_backup_settings_default.json"
         eackupImportFolders = BackupImportFolders(backup_settings_json=backup_settings_json)
         eackupImportFolders.backup_folders()
 
@@ -55,30 +55,3 @@ class AwsTfImport:
         print(" ====== execute_step2 ====== DONE\n")
 
         #self.step2 = AwsTfImportStep2(tenant_name=tenant_name, aws_az=aws_az)
-
-
-######## ####
-def main(params):
-    tenant = AwsTfImport(params)
-    tenant.execute_step(steps="all")
-
-if __name__ == '__main__':
-    # set PYTHONPATH=c:\duplocli;
-    # """
-    #     [-t / --tenant_id TENANTID]           -- TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6
-    #     [-n / --tenant_name TENANTNAME]         -- TenantName e.g. webdev
-    #     [-r / --aws_region AWSREGION]          -- AWSREGION  e.g. us-west2
-    #     [-a / --api_token APITOKEN]           -- Duplo API Token
-    #     [-u / --url URL]                -- Duplo URL  e.g. https://msp.duplocloud.net
-    #     [-k / --download_aws_keys DOWNLOADKEYS]       -- Aws keypair=yes/no, private key used for ssh into EC2 servers
-    #     [-z / --zip_folder ZIPFOLDER]          -- folder to save imported terrorform files in zip format
-    #     [-j / --params_json_file_path PARAMSJSONFILE]     -- All params passed in single JSON file
-    #     [-h / --help HELP]               -- help
-    #
-    # """
-    # python aws_tf_import.py --tenant_name "bigdata01" --aws_region "us-west-2"
-    # python aws_tf_import.py --params_json_file_path "/Users/ubuntu/duplocli/duplocli/terraform/aws/duplo_api_json_test.json"
-    params_resovler = AwsParseParams()
-    parsed_args = params_resovler.get_parser().parse_args()
-    final_params = params_resovler.resolve_parameters(parsed_args)
-    main(final_params)
