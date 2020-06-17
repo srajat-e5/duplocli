@@ -115,12 +115,12 @@ class AwsTfImportStep2():
                     resource_obj["lifecycle"]={"ignore_changes": [attribute_name] }
                 elif tf_resource_type == "aws_elasticache_cluster" and attribute_name in ["replication_group_id", "cache_nodes"]:
                     resource_obj["lifecycle"] = {"ignore_changes": ["replication_group_id", "cache_nodes"]}
-                elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy"]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy"]}
+                elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy","acceleration_status"]:
+                    resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy", "acceleration_status"]}
                 elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
-                        resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
+                    resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
                 elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
-                    resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
+                    pass #resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
                 elif attribute_name == "id":
                     pass
                 elif attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
