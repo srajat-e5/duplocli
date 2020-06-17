@@ -143,6 +143,8 @@ class GetAwsObjectList:
         aws_objs=[]
         for reservation in response["Reservations"]:
             for instance in reservation["Instances"]:
+                if "Tags" not in instance:
+                    continue
                 tags = self.utils.getHashFromArray(instance["Tags"])
                 tenant_name_ec2 =  self.utils.getVal(tags, "TENANT_NAME")
                 if self.tenant_name == tenant_name_ec2 :

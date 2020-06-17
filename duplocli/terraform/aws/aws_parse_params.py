@@ -48,7 +48,8 @@ class AwsParseParams:
         for required_field in required_fields:
             if parameters[required_field] is None:
                 fields=",".join(required_fields)
-                print(parameters)
+                print("missing required_fields = " + parameters)
+                print(self.get_help())
                 raise Exception("missing required_fields = " +fields)
 
     def resolve_parameters(self, parsed_args):
