@@ -21,15 +21,16 @@ RUN set -xe \
     && apt-get install -y python-pip
 RUN pip install --upgrade pip
 #
-RUN mkdir -p /duplocli/terrform/aws
-copy . /duplocli/terrform/
-RUN pip install -r /duplocli/terrform/requirements.txt
 
-#
-WORKDIR /duplocli/terrform/aws
+mkdir -p /duplocli
+copy . /duplocli/
+
+WORKDIR /duplocli
+RUN pip install -r ./duplocli/terrform/requirements.txt
+
 
 #
 ADD startup.sh /
 RUN chmod 777 /*.sh
 
-CMD ["/startup.sh"]
+CMD ["/duplocli/startup.sh"]

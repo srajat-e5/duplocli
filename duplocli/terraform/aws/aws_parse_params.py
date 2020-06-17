@@ -66,9 +66,10 @@ class AwsParseParams:
                 now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
                 params.import_name = now_str
             #append import_name to zip_file_path, zip_folder, temp_folder
-            params.zip_folder = os.path.join(params.zip_folder, params.tenant_name, params.import_name)
-            params.zip_file_path = os.path.join(params.zip_folder, params.tenant_name, params.import_name)
             params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
+            params.zip_folder = os.path.join(params.temp_folder, "zip")
+            params.zip_file_path = os.path.join(params.zip_folder, params.import_name)
+
 
         return params
 
