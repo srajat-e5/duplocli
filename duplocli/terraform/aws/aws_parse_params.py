@@ -69,7 +69,7 @@ class AwsParseParams:
             params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
             params.zip_folder = os.path.join(params.temp_folder, "zip")
             params.zip_file_path = os.path.join(params.zip_folder, params.import_name)
-
+            print("zip_file_path  ***** ", os.path.abspath(params.zip_file_path+".zip") )
 
         return params
 

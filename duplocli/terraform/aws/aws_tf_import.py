@@ -34,6 +34,8 @@ class AwsTfImport:
             backup_settings_json="import_tf_backup_settings_default.json"
         eackupImportFolders = BackupImportFolders(backup_settings_json=backup_settings_json)
         eackupImportFolders.backup_folders()
+        #
+        return  [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
 
     def execute_step1_with_api(self):
         print("\n====== execute_step1 ====== START")
@@ -52,6 +54,9 @@ class AwsTfImport:
         print("\n====== execute_step2 ====== START")
         self.step2 = AwsTfImportStep2(self.params)
         self.step2.execute_step()
+        print("temp_folder  ***** ", self.params.temp_folder)
+        print("import_name  ***** ", self.params.import_name)
+        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path+".zip"))
         print(" ====== execute_step2 ====== DONE\n")
 
         #self.step2 = AwsTfImportStep2(tenant_name=tenant_name, aws_az=aws_az)
