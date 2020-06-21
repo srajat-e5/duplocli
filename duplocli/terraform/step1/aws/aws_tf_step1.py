@@ -1,10 +1,11 @@
 
-from duplocli.terraform.aws.common.tf_utils import TfUtils
-from duplocli.terraform.aws.schema.aws_tf_schema import AwsTfSchema
-import os
+from duplocli.terraform.common.tf_utils import TfUtils
+from duplocli.terraform.common.tf_file_utils import TfFileUtils
+from duplocli.terraform.schema.aws_tf_schema import AwsTfSchema
 import requests
+import os 
 import psutil
-from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
+
 
 class AwsCreateTfstateStep1 :
 
@@ -17,10 +18,11 @@ class AwsCreateTfstateStep1 :
 
     def __init__(self,  params):
         self.params = params
+        self.step=self.params.step
         self.aws_az = params.aws_region
         self.utils = TfUtils(params, step=self.step)
         #file_utils for steps
-        self.file_utils = TfFileUtils(params, step=self.step)
+        self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
         self._load_schema()
 
     ############ execute_step public api ##########

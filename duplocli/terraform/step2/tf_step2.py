@@ -1,14 +1,13 @@
 import boto3
 import os
-from duplocli.terraform.aws.common.tf_utils import TfUtils
-from duplocli.terraform.aws.schema.aws_tf_schema import AwsTfSchema
-from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
+from duplocli.terraform.common.tf_utils import TfUtils
+from duplocli.terraform.schema.aws_tf_schema import AwsTfSchema
+from duplocli.terraform.common.tf_file_utils import TfFileUtils
 import shutil
 import psutil
 
-class AwsTfImportStep2():
+class TfImportStep2():
 
-    step = "step2"
     is_allow_none = True
 
     # aws_tf_schema
@@ -24,22 +23,13 @@ class AwsTfImportStep2():
 
     def __init__(self, params):
         self.params = params
-        aws_az = params.aws_region
-        tenant_name = params.tenant_name
-
-        self.utils = TfUtils(self.step, params)
-        self.aws_az = aws_az
-        self.tenant_name = params.tenant_name
-        self.tenant_id = self.utils.get_tenant_id(tenant_name)
+        self.utils = TfUtils(params)
         ####
-        self.utils = TfUtils(self.params, step=self.step)
         # file_utils for steps
-        self.file_utils = TfFileUtils(self.params, step=self.step)
+        self.file_utils = TfFileUtils(self.params)
         self.file_utils_step1 = TfFileUtils(self.params, step="step1")
         self.file_utils_final = TfFileUtils(self.params, step="final")
         self._load_schema()
-
-
 
         self.aws_provider()
 
@@ -160,7 +150,7 @@ class AwsTfImportStep2():
         ### create: resource "provider" "aws"
         resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
         resource_obj["version"] = "~> 2.0"
-        resource_obj["region"] = self.aws_az # should be variable
+        resource_obj["region"] = self.params.aws_region # should be variable
         self.tf_import_sh_list.append('terraform init ')
         return resource_obj
 
@@ -196,7 +186,7 @@ class AwsTfImportStep2():
         copy_files.append(self.file_utils.tf_state_file())
         copy_files.append(self.file_utils.tf_main_file())
         copy_files.append(self.file_utils.keys_folder())
-        self.file_utils.zip_final_folder(self.tenant_name,
+        self.file_utils.zip_final_folder(self.params.tenant_name,
                                              self.file_utils._temp_final_folder(),
                                              self.zip_folder,
                                              copy_files )

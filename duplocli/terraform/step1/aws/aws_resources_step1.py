@@ -1,12 +1,9 @@
 import boto3
 import json
-# from bson importtf json_util
 import datetime
 from collections import defaultdict
-# src/tenant_import/aws/aws_tf_import_step1.py
-from duplocli.terraform.aws.common.tf_utils import TfUtils
-from duplocli.terraform.aws.step1.aws_create_tfstate_step1 import AwsCreateTfstateStep1
-from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
+from duplocli.terraform.common.tf_utils import TfUtils
+from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 ### json from duplo api  ############
 # [
@@ -23,10 +20,10 @@ from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
 #     ...
 # ]
 
-class GetAwsObjectList:
+class AwsResourcesStep1:
     step = "step1"
     debug_print_out = False
-    debug_json = False
+    debug_json = True
     create_key_pair = False
     #
     aws_obj_list = []
@@ -34,19 +31,23 @@ class GetAwsObjectList:
     resources_unique_ids =[]
     mapping_aws_keys_to_tf_keys = []
 
+    #
+    aws_vpc_list = {}
+
     def __init__(self, params):
         self.params = params
 
         tenant_name = params.tenant_name
         aws_az = params.aws_region
 
-        self.utils = TfUtils(params, step=self.step)
-        self.file_utils = TfFileUtils(params, step=self.step)
+        self.utils = TfUtils(params, step=params.step)
+        self.file_utils = TfFileUtils(params, step=params.step, step_type=params.step_type)
         self.aws_az = aws_az
         #tenant
         self.tenant_name = tenant_name
         self.tenant_id = self.utils.get_tenant_id(tenant_name)
         self._load_mapping_aws_keys_to_tf_keys()
+        self.file_utils._ensure_folder(self.file_utils._log_folder())
 
     #### public methods #######
     def get_tenant_resources(self):
@@ -61,6 +62,17 @@ class GetAwsObjectList:
         self._aws_s3_bucket()
         self._aws_elasticache_cluster()
         return  self.aws_obj_list
+
+    def get_infra_resources(self):
+        self.aws_obj_list = []
+        self.aws_sg_list = []
+        self.resources_unique_ids = []
+        self._get_vpc_list()
+        self._aws_vpc()
+        # self._aws_subnet()
+        # self._aws_route_table()
+        self.file_utils.print_json( self.aws_obj_list)
+        return self.aws_obj_list
 
     def get_tenant_key_pair_list(self):
         awsclient = boto3.client('ec2')
@@ -93,6 +105,146 @@ class GetAwsObjectList:
             self.file_utils.print_json(aws_objs)
         return aws_objs
 
+
+    ########## get_infra_resources START ##############################
+    ########## get_infra_resources START ##############################
+    ########## get_infra_resources START ##############################
+    def _aws_vpc(self):
+        awsclient = boto3.client('ec2')
+        response = awsclient.describe_vpcs()
+        if self.debug_json:
+            self.file_utils.save_json_to_log("aws_vpc.json", response)
+        aws_objs = []
+        for instance in response["Vpcs"]:
+            _id = instance['VpcId']
+            is_default = instance['IsDefault']
+            if is_default or self._is_default_vpc(_id) :
+                self.aws_resource("aws_default_vpc", instance, tf_variable_id="aws-default-" + _id, tf_import_id= _id)
+                print("**** aws import infra step1 : aws_default_vpc :", _id)
+            elif 'Tags' not in instance:
+                self.aws_resource("aws_vpc", instance, tf_variable_id="aws-" + _id, tf_import_id= _id)
+                print("**** aws import infra step1 : aws_vpc :", _id)
+            else:
+                self.aws_resource("aws_vpc", instance, tf_variable_id="duplo-" + _id, tf_import_id= _id)
+                print("**** aws import infra step1 : aws_vpc :", _id)
+            aws_objs.append(instance)
+            awsobject = boto3.resource('ec2').Vpc(_id)
+
+            # aws_default_network_acl
+            # aws_default_route_table
+            # aws_default_security_group
+            # aws_default_subnet
+            # aws_default_vpc
+            # aws_default_vpc_dhcp_options
+            internet_gateways = list(awsobject.internet_gateways.all())
+            self._aws_internet_gateways(internet_gateways, is_default, instance)
+
+            network_acls = list(awsobject.network_acls.all())
+            self._aws_network_acls(network_acls, is_default, instance)
+
+            network_interfaces = list(awsobject.network_interfaces.all())
+            self._aws_network_interfaces(network_interfaces, is_default, instance)
+
+            route_tables = list(awsobject.route_tables.all())
+            self._aws_route_tables(route_tables, is_default, instance)
+
+            security_groups = list(awsobject.security_groups.all())
+            self._aws_security_groups(security_groups, is_default, instance)
+
+            subnets = list(awsobject.subnets.all())
+            self._aws_subnets(subnets, is_default, instance)
+
+            # accepted_vpc_peering_connections = list(awsobject.accepted_vpc_peering_connections.all())
+            # requested_vpc_peering_connections = list(awsobject.requested_vpc_peering_connections.all())
+
+            # print("internet_gateways", internet_gateways)
+            # accepted_vpc_peering_connections
+            # instances
+            # internet_gateways
+            # network_acls
+            # network_interfaces
+            # requested_vpc_peering_connections
+            # route_tables
+            # security_groups
+            # subnets
+
+        if len(aws_objs) == 0:
+            print("**** aws import infra step1 : aws_vpc / aws_default_vpc :", "NOT_FOUND ANY")
+        if self.debug_print_out:
+            self.file_utils.print_json(aws_objs)
+        return self
+
+    def _aws_internet_gateways(self, objects, is_default, vpc):
+        # terraform import aws_internet_gateway.gw igw-c0a643a9  === id
+        for object in objects:
+            _id = object.internet_gateway_id
+            self.aws_resource("aws_internet_gateway", vpc, tf_variable_id=_id, tf_import_id=_id)
+            print("**** aws import infra step1 : aws_internet_gateway :", _id)
+
+
+    def _aws_network_acls(self, objects, is_default, vpc):
+        # terraform import aws_internet_gateway.gw igw-c0a643a9  === id
+        for object in objects:
+            _id = object.network_acl_id
+            if is_default:
+                self.aws_resource("aws_default_network_acl", vpc, tf_variable_id=_id, tf_import_id=_id)
+                print("**** aws import infra step1 : aws_default_network_acl :", _id)
+            else:
+                self.aws_resource("aws_network_acl", vpc, tf_variable_id=_id, tf_import_id=_id)
+                print("**** aws import infra step1 : aws_network_acl :", _id)
+
+    def _aws_network_interfaces(self, objects, is_default, vpc):
+        # terraform import aws_network_interface.gw igw-c0a643a9  === id
+        for object in objects:
+            _id = object.network_interface_id
+            self.aws_resource("aws_network_interface", vpc, tf_variable_id=_id, tf_import_id=_id)
+            print("**** aws import infra step1 : aws_network_interface :", _id)
+
+    def _aws_route_tables(self, objects, is_default, vpc):
+        # terraform import aws_internet_gateway.gw igw-c0a643a9  === id
+        for object in objects:
+            _id = object.route_table_id
+            if is_default:
+                self.aws_resource("aws_default_route_table", vpc, tf_variable_id=_id, tf_import_id=_id)
+                print("**** aws import infra step1 : aws_default_route_table :", _id)
+            else:
+                self.aws_resource("aws_route_table", vpc, tf_variable_id=_id, tf_import_id=_id)
+                print("**** aws import infra step1 : aws_route_table :", _id)
+            for route in object.routes:
+                _cidr_block  = route.destination_cidr_block
+                if _cidr_block is None:
+                    _cidr_block = route.destination_ipv6_cidr_block
+                _route_id="{}_{}".format(_id, _cidr_block)
+                self.aws_resource("aws_route", vpc, tf_variable_id=_route_id, tf_import_id= _route_id)
+                print("**** aws import infra step1 : aws_route :", _route_id)
+            # aws_objs.append(instance)
+
+    def _aws_security_groups(self, objects, is_default, vpc):
+        for object in objects:
+            _id = object.group_id
+            _name = object.group_name
+            if is_default:
+                self.aws_resource("aws_default_security_group", vpc, tf_variable_id=_name, tf_import_id=_id, skip_if_exists=True)
+                print("**** aws import infra step1 : aws_security_group :", _id)
+            else:
+                self.aws_resource("aws_security_group", vpc, tf_variable_id=_name, tf_import_id=_id, skip_if_exists=True)
+                print("**** aws import infra step1 : aws_security_group :", _id)
+
+    def _aws_subnets(self, objects, is_default, vpc):
+        for object in objects:
+            _id = object.subnet_id
+            if is_default:
+                self.aws_resource("aws_default_subnet", vpc, tf_variable_id=_id, tf_import_id=_id,
+                                  skip_if_exists=True)
+                print("**** aws import infra step1 : aws_security_group :", _id)
+            else:
+                self.aws_resource("aws_subnet", vpc, tf_variable_id=_id, tf_import_id=_id,
+                                  skip_if_exists=True)
+                print("**** aws import infra step1 : aws_security_group :", _id)
+
+    ########## get_tenant_resources START ##############################
+    ########## get_tenant_resources START ##############################
+    ########## get_tenant_resources START ##############################
     ### private: methods to get individual resource for tenant ###
     def _aws_s3_bucket(self):
         awsclient = boto3.client('s3')
@@ -265,6 +417,11 @@ class GetAwsObjectList:
             self.file_utils.print_json(aws_objs)
         return self
 
+
+    ########## get_tenant_resources  END ##############################
+    ########## get_tenant_resources  END ##############################
+    ########## get_tenant_resources  END ##############################
+
     ########### helpers ###########
     def aws_resource(self, tf_resource_type, aws_obj, tf_variable_id=None, tf_import_id=None , skip_if_exists=False):
         # unique tf variable name
@@ -280,9 +437,12 @@ class GetAwsObjectList:
         # validate name and syncid
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
             raise Exception("aws_resource 'tf_variable_id' 'tf_import_id' must be provided")
+
         # make sure you have unique tf_id .... since we are using array in place of hashtable
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
+        tf_resource_var_name =  tf_resource_var_name.strip()
+        tf_resource_var_name=  tf_resource_var_name.replace(".","-").replace("/","-")
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
@@ -296,7 +456,32 @@ class GetAwsObjectList:
         self.resources_unique_ids.append(tf_id)
         return tf_resource
 
-    ############ vdrify if object has securityGroup from tenant ##########
+    ############ get default vpc ##########
+
+    def _get_vpc_list(self):
+        if len(self.aws_vpc_list) > 0:
+            return self.aws_vpc_list
+        awsclient = boto3.client('ec2')
+        response = awsclient.describe_vpcs()
+        for instance in response["Vpcs"]:
+            _id = instance['VpcId']
+            is_default = instance['IsDefault']
+            if is_default:
+                self.aws_vpc_list["default"] = _id
+                self.aws_vpc_list[_id] = "default"
+            else:
+                self.aws_vpc_list[_id] = "duplo"
+        return self.aws_vpc_list
+
+    def _is_default_vpc(self, vpcId):
+        return self.aws_vpc_list["default"] == vpcId
+
+    def _get_vpc(self, vpcId):
+        return self.aws_vpc_list[vpcId]
+
+
+    ############ verify if object has securityGroup from tenant ##########
+
     def _get_aws_security_groups_for_tenant(self):
         if len(self.aws_sg_list) > 0:
             return self.aws_sg_list
@@ -349,8 +534,8 @@ class GetAwsObjectList:
         ############ aws_to_tf_state_sync_id ##########
 
 ######### main #######
-if __name__ == '__main__':
-    file_utils = TfFileUtils(step="step1")
-    api = GetAwsObjectList()
-    json = api.get_tenant_resources()
-    file_utils.print_json(json)
+# if __name__ == '__main__':
+#     file_utils = TfFileUtils(step="step1")
+#     api = GetAwsObjectList()
+#     json = api.get_tenant_resources()
+#     file_utils.print_json(json)

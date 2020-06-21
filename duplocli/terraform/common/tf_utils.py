@@ -6,10 +6,8 @@ import psutil
 
 class TfUtils:
 
-    def __init__(self, params, step="step1"):
+    def __init__(self, params):
         self.params = params
-        self.step = step
-        # self.file_utils = TfFileUtils(step)
 
     #######
     def get_tenant_id(self, tenant_name):
