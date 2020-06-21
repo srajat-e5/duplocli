@@ -4,8 +4,8 @@ import psutil
 import shutil
 import time, sys
 from datetime import date, timedelta, datetime
-from duplocli.terraform.aws.common.tf_utils import TfUtils
-from duplocli.terraform.aws.common.tf_file_utils import TfFileUtils
+from duplocli.terraform.common.tf_utils import TfUtils
+from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 class BackupImportFolders:
     def __init__(self , backup_settings_json="import_tf_backup_settings_default.json", region_name=None):

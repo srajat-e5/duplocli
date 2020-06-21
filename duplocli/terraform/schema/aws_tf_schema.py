@@ -2,8 +2,8 @@ import sys
 import json
 import datetime
 
-from duplocli.terraform.aws.common.tf_utils import TfUtils
-from duplocli.terraform.aws.schema.aws_tf_resource_schema import AwsTfResourceSchema
+from duplocli.terraform.common.tf_utils import TfUtils
+from duplocli.terraform.schema.aws_tf_resource_schema import AwsTfResourceSchema
 
 class AwsTfSchema:
     tfschema={}
@@ -12,7 +12,8 @@ class AwsTfSchema:
     tf_resource_list_inited = False
     debug = False
 
-    def __init__(self, params, json_file):
+    def __init__(self,  params, json_file, provider_type='aws'):
+        self.provider_type = provider_type
         self.params = params
         self.utils = TfUtils(self.params)
         with open(json_file) as f:
