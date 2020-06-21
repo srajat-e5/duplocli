@@ -221,4 +221,3 @@ class AzureImportParameters(ImportParametersBase):
                     "aws_region"]
         super.__init__( AzureImportParameters, parameters)
         self.provider ="azure"
- 
