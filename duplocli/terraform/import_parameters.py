@@ -207,3 +207,18 @@ class AwsImportParameters(ImportParametersBase):
         self.create_work_file_paths()
         self.fix_os()
 
+
+class AzureImportParameters(ImportParametersBase):
+
+    def __init__(self):
+        parameters = ["tenant_name" ,
+                    "import_name" ,
+                    "zip_file_path" ,
+                    "params_json_file_path",
+                    "download_aws_keys",
+                    "tenant_id",
+                    "api_token",
+                    "url",
+                    "aws_region"]
+        super.__init__( AzureImportParameters, parameters)
+        self.provider ="azure"
