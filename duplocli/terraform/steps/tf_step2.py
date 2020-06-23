@@ -1,15 +1,14 @@
 import boto3
 import os
 from duplocli.terraform.common.tf_utils import TfUtils
-from duplocli.terraform.schema.aws_tf_schema import AwsTfSchema
+from duplocli.terraform.schema.tf_schema import TfSchema
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 import shutil
 import psutil
 
-class TfImportStep2():
+class TfImportStep2:
 
     is_allow_none = True
-
     # aws_tf_schema
     aws_tf_schema = {}
     state_dict = {}
@@ -23,24 +22,26 @@ class TfImportStep2():
 
     def __init__(self, params):
         self.params = params
+        aws_az = params.aws_region
+        tenant_name = params.tenant_name
+
         self.utils = TfUtils(params)
+        self.aws_az = aws_az
+        self.tenant_name = params.tenant_name
+        self.tenant_id = self.utils.get_tenant_id(tenant_name)
         ####
         # file_utils for steps
         self.file_utils = TfFileUtils(self.params)
-        self.file_utils_step1 = TfFileUtils(self.params, step="step1")
-        self.file_utils_final = TfFileUtils(self.params, step="final")
         self._load_schema()
-
         self.aws_provider()
 
     #######
-    def execute_step(self):
-        self._empty_output()
+    def execute(self):
         self.process()
         self._create_tf_state()
 
     def process(self):
-        self._state_file_or_default()
+        self._load_tf_state_file()
         self._zip_folder_or_default()
         # self.utils.print_json(self.state_dict, sort_keys=False)
         if "resources" in  self.state_dict:
@@ -53,24 +54,16 @@ class TfImportStep2():
 
     ####### load json files
     def _load_schema(self):
-        self.aws_tf_schema = AwsTfSchema(self.params, self.file_utils.aws_tf_schema_file())
+        self.aws_tf_schema = TfSchema(self.params)
 
     def _load_tf_state_file(self):
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
 
     def _zip_folder_or_default(self):
         self.zip_folder = self.file_utils.zip_folder()
         return self.zip_folder
 
-    def _state_file_or_default(self):
-        if self.params.state_file is not None:
-            if psutil.WINDOWS:
-                self.state_read_from_file = self.params.state_file.replace("/", "\\")
-            else:
-                self.state_read_from_file = self.params.state_file
-        else:
-            self.state_read_from_file = self.file_utils_step1.tf_state_file()
-        self._load_tf_state_file()
 
 
     #############
@@ -150,7 +143,7 @@ class TfImportStep2():
         ### create: resource "provider" "aws"
         resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
         resource_obj["version"] = "~> 2.0"
-        resource_obj["region"] = self.params.aws_region # should be variable
+        resource_obj["region"] = self.aws_az # should be variable
         self.tf_import_sh_list.append('terraform init ')
         return resource_obj
 
@@ -174,25 +167,7 @@ class TfImportStep2():
 
 
     ##### manage files and state ##############
-    def _empty_output(self):
-        self.file_utils.empty_temp_folder()
-        self.file_utils_final.ensure_empty_temp_folder(self.file_utils.zip_folder())
-
-    def _copy_final(self):
-        self._zip_folder_or_default()
-        self.file_utils.ensure_empty_temp_folder(self.file_utils._temp_final_folder())
-        # self.file_utils.ensure_empty_temp_folder(self.zip_folder)
-        copy_files=[]
-        copy_files.append(self.file_utils.tf_state_file())
-        copy_files.append(self.file_utils.tf_main_file())
-        copy_files.append(self.file_utils.keys_folder())
-        self.file_utils.zip_final_folder(self.params.tenant_name,
-                                             self.file_utils._temp_final_folder(),
-                                             self.zip_folder,
-                                             copy_files )
     def _create_tf_state(self):
-        # self._empty_output()
-        ## save files
         self._plan()
         self.file_utils.save_state_file(self.state_dict)
         self.file_utils.save_main_file(self.main_tf_json_dict)
@@ -200,8 +175,6 @@ class TfImportStep2():
         self.file_utils.save_tf_run_script()
         ## execute script
         self.file_utils.create_state(self.file_utils.tf_run_script())
-        self._copy_final()
-
 
 
     def _plan(self):

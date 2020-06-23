@@ -1,39 +1,38 @@
 
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
-from duplocli.terraform.schema.aws_tf_schema import AwsTfSchema
+from duplocli.terraform.schema.tf_schema import TfSchema
 import requests
 import os 
 import psutil
 
 
-class AwsCreateTfstateStep1 :
+class TfImportStep1 :
 
-    step = "step1"
     aws_tf_schema = {}
-    mapping_aws_keys_to_tf_keys = []
     main_tf_json_dict = {"resource":{}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
 
     def __init__(self,  params):
         self.params = params
-        self.step=self.params.step
-        self.aws_az = params.aws_region
         self.utils = TfUtils(params)
-        #file_utils for steps
         self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
         self._load_schema()
 
-    ############ execute_step public api ##########
-    def execute_step(self,  aws_obj_list=[]):
-        self._aws_provider()
+    ############ execute_step public resources ##########
+    def execute(self,  aws_obj_list=[]):
+        self.provider()
         self._aws_resources(aws_obj_list)
         self._create_tf_state()
         return self.file_utils.tf_main_file()
 
-    ############ download_key public api ##########
+    ############ download_key public resources ##########
     def download_key(self,  aws_obj_list=[] ):
+        if self.params.provider != 'aws':
+            print(" SKIP ", self.params.provider, " key download_keys ")
+            return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), "")
+
         # download_aws_keys = self.params.download_aws_keys
         url = self.params.url
         tenant_id = self.params.tenant_id
@@ -45,14 +44,13 @@ class AwsCreateTfstateStep1 :
             #aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
             key_name = aws_key_pair_instance['key_name']
             instanceId = aws_key_pair_instance['instanceId']
-            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(url
-                                                                , tenant_id
-                                                                , instanceId)
+            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(url   , tenant_id  , instanceId)
             headers = {"Authorization": "Bearer {0}".format( api_token )}
             response = requests.get(endpoint,   headers=headers)
             self.file_utils.save_key_file(key_name, response.content )
             print("**** aws import step1 : save_key_file ", key_name, instanceId)
         return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), self.file_utils.keys_folder())
+
 
     ############ aws tf resources ##########
     # aws_resources
@@ -98,17 +96,36 @@ class AwsCreateTfstateStep1 :
         return self.resources_dict[tf_resource_type]
 
     def _load_schema(self):
-        self.aws_tf_schema = AwsTfSchema(self.params, self.file_utils.aws_tf_schema_file())
+        self.aws_tf_schema = TfSchema(self.params)
 
     ############ aws_provider ##########
-    def _aws_provider(self):
+    def provider(self):
+        if self.params.provider == "aws":
+            self.aws_provider()
+        elif self.params.provider == "azurerm":
+            self.azurerm_provider()
+        # elif self.params.provider =="gcp":
+        #     pass
+        else:
+            self.aws_provider()
+
+    def azurerm_provider(self):
+        tf_resource_type = "provider"
+        tf_resource_var_name = "azurerm"
+        resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
+        resource_obj["version"] = "=2.0.0"
+        self.tf_import_sh_list.append('terraform init ')
+        return resource_obj
+
+    def aws_provider(self):
         tf_resource_type = "provider"
         tf_resource_var_name = "aws"
         resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
         resource_obj["version"] = "~> 2.0"
-        resource_obj["region"] = self.aws_az
+        resource_obj["region"] = self.params.aws_region  # should be variable
         self.tf_import_sh_list.append('terraform init ')
         return resource_obj
+
     def _base_provider(self, tf_resource_type, tf_resource_var_name):
         resource_obj = {}
         resource_obj[tf_resource_var_name] = {}
@@ -116,11 +133,7 @@ class AwsCreateTfstateStep1 :
         return resource_obj[tf_resource_var_name]
 
     ############ main.tf.json + script + generate state ##########
-    def _empty_output(self):
-        self.file_utils.empty_temp_folder()
-
     def _create_tf_state(self):
-        # self._empty_output()
         ## save files
         self._plan()
         self.file_utils.save_main_file(self.main_tf_json_dict)
@@ -131,15 +144,15 @@ class AwsCreateTfstateStep1 :
         self.rm_aws_security_group_rule_tf_bug()
 
     def _plan(self):
-        ### create: terraform plan ...
-        # bug in tf -> creates extra aws_security_group_rule... remove aws_security_group_rule first.
-        # self.tf_import_sh_list.append(
-        #     'terraform state list | grep aws_security_group_rule | xargs terraform state rm; terraform plan')
-
         self.tf_import_sh_list.append( "terraform plan")
 
     ############ main.tf.json + script + generate state ##########
     def rm_aws_security_group_rule_tf_bug(self):
+
+        if self.params.provider != 'aws':
+            print(" SKIP ", self.params.provider, " rm_aws_security_group_rule_tf_bug ")
+            return
+
         main_resources= self.main_tf_json_dict['resource']
         aws_security_group_rules=[]
         object_type_bug="aws_security_group_rule" # #aws_security_group

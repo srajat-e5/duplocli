@@ -14,7 +14,7 @@ from common import getCloudResources
 def apigateway(ctx):
     pass
 
-@apigateway.command('create-api')
+@apigateway.command('create-resources')
 @click.option('--name', '-n', default='', help='Name of the lambda function')
 @click.option('--lambdaa', '-l', default='', help='Name of the lambda function to link this to')
 @click.pass_obj
@@ -30,7 +30,7 @@ def apigateway_add(ctx, name, lambdaa):
     createApiGatewayApi(token, url, tenantId, jsondata)
     printSuccess('Created ApiGateway {} .. It will available in about a min'.format(name))
 
-@apigateway.command('delete-api')
+@apigateway.command('delete-resources')
 @click.option('--name', '-n', default='', help='Name of the lambda function')
 @click.pass_obj
 def apigateway_add(ctx, name):
@@ -55,4 +55,4 @@ def apigateway_list_functions(ctx):
                 found = "true"        
     
     if not found:
-        print("There no api gateway resourcs in the tenant. create one with create-api command")
+        print("There no resources gateway resourcs in the tenant. create one with create-resources command")

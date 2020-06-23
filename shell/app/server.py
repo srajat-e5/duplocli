@@ -127,7 +127,7 @@ def authorize_user(duplo_sso_token):
     duplo_userinfo_response = requests.get(duplo_auth_url + "/admin/GetTenantConfigData/" + tenant_id, headers=duplo_auth_headers)
     userinfo = {}
     if duplo_userinfo_response.status_code == 200:
-        print("Userinfo api success response", duplo_userinfo_response.json())
+        print("Userinfo resources success response", duplo_userinfo_response.json())
         is_allowed = True
 
     return is_allowed

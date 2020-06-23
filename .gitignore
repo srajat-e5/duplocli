@@ -34,6 +34,8 @@ log/
 .idea/
 duplo_api_json_test.json
 backup_settings_auth_service.json
+json_import_tf_parameters_auth_sevice.json
+json_tf_backup_settings_auth_service.json
 params.json
 
 

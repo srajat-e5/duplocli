@@ -1,23 +1,29 @@
 import sys
 import json
 import datetime
-
+import os
 from duplocli.terraform.common.tf_utils import TfUtils
-from duplocli.terraform.schema.aws_tf_resource_schema import AwsTfResourceSchema
+from duplocli.terraform.schema.tf_resource_schema import TfResourceSchema
 
-class AwsTfSchema:
+class TfSchema:
     tfschema={}
-    provider_type = 'aws'
     tf_resource_list = {}
     tf_resource_list_inited = False
     debug = False
-
-    def __init__(self,  params, json_file, provider_type='aws'):
-        self.provider_type = provider_type
+    def __init__(self,  params ):
         self.params = params
         self.utils = TfUtils(self.params)
+        json_file  = self.get_schema_file()
         with open(json_file) as f:
             self.tfschema = json.load(f)
+
+    def get_schema_file(self):
+        # json_file_prefix="json_aws_tf_schema.json"
+        json_file = "json_{0}_tf_schema.json".format(self.params.provider)
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
+        if not os.path.exists(json_path):
+            raise Exception("schema {0} not found".format(json_path))
+        return json_path
 
     ######## debug  ########
     def get_tf_resource_names_list(self):
@@ -33,12 +39,12 @@ class AwsTfSchema:
 
 
     def get_schema_raw(self, tf_obj_name):
-        return self.tfschema['provider_schemas'][self.provider_type]['resource_schemas'][tf_obj_name]
+        return self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'][tf_obj_name]
 
     def get_tf_resource_list(self):
         if not self.tf_resource_list_inited:
             #load once and catch
-            for tf_obj_name, tf_object in self.tfschema['provider_schemas'][self.provider_type]['resource_schemas'].items():
+            for tf_obj_name, tf_object in self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'].items():
                 self.get_tf_resource(tf_obj_name)
             self.tf_resource_list_inited = True
         return self.tf_resource_list
@@ -70,7 +76,7 @@ class AwsTfSchema:
 
     def _process_root(self, tf_obj_name):
         tf_object = self.get_schema_raw(tf_obj_name)
-        tf_resource = AwsTfResourceSchema(tf_obj_name, tf_object)
+        tf_resource = TfResourceSchema(tf_obj_name, tf_object)
         self._process_attributes(tf_resource)
         if 'block_types' in  tf_resource.tf_object['block']:
             self._process_blocks_nested(tf_resource)
@@ -138,7 +144,7 @@ class AwsTfSchema:
             block_types = tf_resource.tf_object['block']['block_types']
             for tf_obj_name_nested, tf_object_nested in block_types.items():
                 # print("**** SCHEMA: _process_blocks_nested******* ", tf_obj_name_nested, "*********** start")
-                tf_resource_child = AwsTfResourceSchema(tf_obj_name_nested, tf_object_nested)
+                tf_resource_child = TfResourceSchema(tf_obj_name_nested, tf_object_nested)
                 self._process_attributes(tf_resource_child)
                 self._process_spec_for_nested(tf_resource_child, tf_object_nested)
                 tf_resource.nested_block[tf_obj_name_nested] = tf_resource_child
@@ -169,39 +175,20 @@ class AwsTfSchema:
 
 
 #
-# ##### test ##########
+# # ##### test ##########
+# from duplocli.terraform.import_parameters import AwsImportParameters
 # def main1():
-#     awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
+#     params = AwsImportParameters()
+#     params.provider="azurerm"
+#     awsParseSchema = TfSchema(params)
 #     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
-#     awsParseSchema.save_json(data_dict_tf_resource_list, '../data/duplo_aws_tf_schema.json')
+#     awsParseSchema.save_json(data_dict_tf_resource_list, "../data/duplo_{0}_tf_schema.json".format(params.provider))
 #     print(json.dumps(data_dict_tf_resource_list))
-#
-#     tf_resource_list = awsParseSchema.get_tf_resource_list()
 #
 #     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
 #     print(json.dumps(tf_resource_names_list))
-#     awsParseSchema.utils.save_to_json("../data/aws_tf_resource_names_list.json", tf_resource_names_list)
-#
-#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].non_computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested))
-#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].non_computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_web_acl'].nested_block['default_action'].computed))
-#
-#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].non_computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested))
-#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].non_computed))
-#     print(json.dumps(tf_resource_list['aws_wafregional_rule_group'].nested_block['activated_rule'].computed))
-#
-# def main():
-#     awsParseSchema = AwsTfSchema('../data/aws_tf_schema.json')
-#     schema=awsParseSchema.get_tf_resource("aws_security_group")
-#     print(json.dumps(schema.data_dict()))
+#     awsParseSchema.save_json(tf_resource_names_list, "../data/{0}_resources.json".format(params.provider))
 #
 # if __name__ == '__main__':
 #     main1()
-#     # main()
-#     # main()
 #
-# ######## ####

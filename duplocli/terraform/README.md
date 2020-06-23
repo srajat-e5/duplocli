@@ -132,15 +132,23 @@ pip install -r requirements.txt
     * may be you need to look at conflicting additional optional attributes. by. running "terraform plan".
     
  
-
-### params
+ ### praram sample ?
+ --import_name "my_test" 
+ --infra  "yes"
+ --tenant_name "compliance" 
+ --aws_region "us-west-2" 
+ --download_aws_keys "yes" 
+ --url "https://incloud.duplocloud.net" 
+ --tenant_id "xxxx-2033-4c52-80a6-b21d94129e5a" 
+ --api_token "-sxxxxNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdTUtAuhI88sIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"
+  
 {
   "tenant_name": "compliance",
   "aws_region":"us-west-2",
   "download_aws_keys": "yes",
   "url": "https://incloud.duplocloud.net",
   "tenant_id": "xxxxxxx-2033-4c52-80a6-b21d94129e5a",
-   "api_token": "-sBAAAAlNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdTUtAuhI88sIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"
+   "api_token": "-sxxxxlNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdTUtAuhI88sIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"
 }
 python python tf_import.py \
---tenant_name "compliance" --aws_region "us-west-2" --download_aws_keys "yes" --url "https://incloud.duplocloud.net" --tenant_id "3c763ce2-2033-4c52-80a6-b21d94129e5a" --api_token "AQAAANCMnd8BFdERjHoAwE_Cl-sBAAAAlNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdTUtAuhI88sIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"
+--tenant_name "compliance" --aws_region "us-west-2" --download_aws_keys "yes" --url "https://incloud.duplocloud.net" --tenant_id "xxx-2033-4c52-80a6-b21d94129e5a" --api_token "AQAAANCMnd8BFdERjHoAwE_Cl-sBAAAAlNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdxxxxxxIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"

@@ -8,17 +8,21 @@ from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 class BackupImportFolders:
-    def __init__(self , backup_settings_json="import_tf_backup_settings_default.json", region_name=None):
+    def __init__(self, params, backup_settings_json=None, region_name=None):
+        self.params = params
         self.region_name = region_name
         if self.region_name is None:
             self.region_name = os.environ['AWS_DEFAULT_REGION']
         if self.region_name is None:
             raise Exception('AWS_DEFAULT_REGION is not set.')
 
-        self.file_utils = TfFileUtils(None, step="step1", set_temp_and_zip_folders=False)
+        self.file_utils = TfFileUtils(params)
         self.params = self.file_utils.load_json_file(backup_settings_json)
-        self.import_root_folder = os.path.join(self.params['import_root_folder'], "terraform")
-        self.backup_root_folder = os.path.join(self.params['backup_root_folder'], "terraform")
+        self.import_root_folder = self.params['import_root_folder']
+        self.backup_root_folder = self.params['backup_root_folder']
+        # self.import_root_folder = os.path.join(self.params['import_root_folder'], "terraform")
+        # self.backup_root_folder = os.path.join(self.params['backup_root_folder'], "terraform")
+
 
     def backup_folders(self):
         if self.params['backup_enable'] == "yes" :
@@ -82,13 +86,13 @@ class BackupImportFolders:
 
     def _get_backup_files_for_tenant(self, tenant):
         backup_folder  = self._get_backup_folder_for_tenant(tenant)
-        backup_files = set(os.listdir(backup_folder))
+        backup_files = self.filter_DS_Store(set(os.listdir(backup_folder)))
         return backup_files
 
     def _get_import_folders_for_tenant(self, tenant):
         import_folder = os.path.join(self.import_root_folder, tenant)
         self.file_utils._ensure_folder(import_folder)
-        import_folders = set(os.listdir(import_folder))
+        import_folders = self.filter_DS_Store(set(os.listdir(import_folder)))
         # #filter folders older than 1 day
         # import_folders_to_bckup=[]
         # now = time.time()
@@ -102,9 +106,18 @@ class BackupImportFolders:
         for tenant in tenants:
             self._get_backup_folder_for_tenant(tenant)
 
+    def filter_DS_Store(self, tenant_list):
+        tenants = []
+        for tenant in tenant_list:
+            if ".DS_Store" == tenant:
+                pass
+            else:
+                tenants.append(tenant)
+        return tenants
+
     def _get_tenants(self):
         tenants = set(os.listdir(self.import_root_folder))
-        return tenants
+        return self.filter_DS_Store(tenants)
 
 
 

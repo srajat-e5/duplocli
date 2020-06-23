@@ -19,8 +19,10 @@ arg_params = {
     }
 
 
-def get_help(attr_names):
+def get_help(attr_names, provider):
     help_str = []
+    help_str.append("Terraform provider: "+ provider)
+    help_str.append("")
     help_str.append("Terraform import parameters help")
     help_str.append("")
     help_str.append("")
@@ -30,7 +32,7 @@ def get_help(attr_names):
     help_str.append("   AND parameters in terraform_import_json ")
     help_str.append("        ->   override  parameters in ENV variables")
     help_str.append("   AND parameters in ENV variables")
-    help_str.append("       ->   override default values (import_tf_parameters_default.json)")
+    help_str.append("       ->   override default values (json_import_tf_parameters_default.json)")
     help_str.append("")
     help_str.append("")
     help_str.append("parameters in argument")
@@ -72,7 +74,7 @@ def get_help(attr_names):
 class ImportParametersBase:
     step_type = "infra"
     step = "step1"
-    default_params_path = "duplocli/terraform/import_tf_parameters_default.json"
+    default_params_path = "duplocli/terraform/json_import_tf_parameters_default.json"
 
     def __init__(self, attr_names):
         self.attr_names=attr_names
@@ -90,7 +92,7 @@ class ImportParametersBase:
 
     ######## ####  from parsed args ######## ####
     def get_parser(self):
-        help = get_help(self.attr_names)
+        help = get_help(self.attr_names, self.provider)
         parser = argparse.ArgumentParser(description="Download Terraform state files.", usage=help)
         for attr_name in self.attr_names:
             parser.add_argument('-'+ arg_params[attr_name]['short_name'],
@@ -159,7 +161,7 @@ class ImportParametersBase:
             if parameters[required_field] is None:
                 fields=",".join(required_fields)
                 print("missing required_fields = " + parameters)
-                print(self.get_help())
+                print(get_help(self.attr_names, self.provider))
                 raise Exception("missing required_fields = " +fields)
 
     # mostly static
@@ -194,7 +196,7 @@ class ImportParametersBase:
 
 
 class AwsImportParameters(ImportParametersBase):
-
+    provider = "aws"
     def __init__(self):
         parameters = ["tenant_name" ,
                     "import_name" ,
@@ -222,7 +224,7 @@ class AwsImportParameters(ImportParametersBase):
 
 
 class AzureImportParameters(ImportParametersBase):
-
+    provider = "azure"
     def __init__(self):
         parameters = ["tenant_name" ,
                     "import_name" ,
@@ -234,4 +236,21 @@ class AzureImportParameters(ImportParametersBase):
                     "url",
                     "aws_region"]
         super.__init__( AzureImportParameters, parameters)
-        self.provider ="azure"
+        self.provider = "azure"
+
+
+
+class GcpImportParameters(ImportParametersBase):
+    provider = "gcp"
+    def __init__(self):
+        parameters = ["tenant_name" ,
+                    "import_name" ,
+                    "zip_file_path" ,
+                    "params_json_file_path",
+                    "download_aws_keys",
+                    "tenant_id",
+                    "api_token",
+                    "url",
+                    "aws_region"]
+        super.__init__( AzureImportParameters, parameters)
+        self.provider ="gcp"

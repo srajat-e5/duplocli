@@ -8,15 +8,12 @@ import shutil
 class TfFileUtils:
     _tf_file_name = "main.tf.json"
     _tf_state_file_name = "terraform.tfstate"
-    _mapping_keys_file_suffix = "mapping_keys_to_tf_keys.json"
     _schema_file_suffix = "tf_schema.json"
     _tf_import_script_prefix = "tf_import_script"  # .bat .sh
     _tf_run_script_prefix = "run"  # .bat .sh
     root_folder = "duplocli/terraform/"
 
     def __init__(self, params, step="step1", step_type="infra"):
-        self._mapping_keys_file_name=  "{0}_{1}".format(params.provider, self._mapping_keys_file_suffix)
-        self._schema_file_name = "{0}_{1}".format(params.provider, self._schema_file_suffix)
         self.params = params
         if psutil.WINDOWS:
             self.root_folder = self.root_folder.replace("/", "\\")
@@ -31,6 +28,8 @@ class TfFileUtils:
     #######
     def tf_state_file(self):
         return os.path.join(self.work_folder(), self._tf_state_file_name)
+    def tf_state_file_srep1(self):
+        return os.path.join(self.work_folder_for_step("step1"), self._tf_state_file_name)
 
     def tf_main_file(self):
         return os.path.join(self.work_folder(), self._tf_file_name)
@@ -40,12 +39,6 @@ class TfFileUtils:
 
     def tf_run_script(self):
         return os.path.join(self.work_folder(), self._script_file_name(self._tf_run_script_prefix))
-
-    def mapping_aws_keys_to_tf_keys_file(self):
-        return os.path.join(self.data_folder(), self._mapping_keys_file_name)
-
-    def aws_tf_schema_file(self):
-        return os.path.join(self.data_folder(), self._schema_file_name)
 
     def log_file(self):
         log_file_name = "import-{0}-{1}.log".format(self.params.step_type, self.params.step)
@@ -83,7 +76,6 @@ class TfFileUtils:
         return file_path
 
     def _folder_temp_sub_folder(self, step, step_type):
-        print( "_folder_temp_sub_folder", os.path.join(self.params.temp_folder_path, step, step_type))
         return os.path.join(self.params.temp_folder_path, step, step_type)
 
     ### ### utils  ### ###
@@ -186,14 +178,21 @@ class TfFileUtils:
 
 
     ##########
-    def copy_to_final_folder(self, final_folder , copy_files):
+
+
+    def copy_to_final_folder(self, final_folder, copy_files):
         self._ensure_folder(self.final_folder())
         for copy_file in copy_files:
             src_name = os.path.basename(copy_file)
-            dest_path = os.path.join(final_folder, src_name)
             if os.path.isdir(copy_file):
+                dest_path = os.path.join(final_folder, src_name)
                 shutil.copytree(copy_file, dest_path)
             else:
+                dirname = os.path.basename(os.path.dirname(copy_file))
+                final_sub_folder = os.path.join(final_folder, dirname)
+                if not os.path.exists(final_sub_folder):
+                    self._ensure_folder(final_sub_folder)
+                dest_path = os.path.join(final_sub_folder, src_name)
                 shutil.copy(copy_file, dest_path)
 
     def zip_final_folder(self, tenant, final_folder, zip_folder, copy_files):
