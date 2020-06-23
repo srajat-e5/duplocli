@@ -207,7 +207,6 @@ class AwsImportParameters(ImportParametersBase):
         self.create_work_file_paths()
         self.fix_os()
 
-
 class AzureImportParameters(ImportParametersBase):
 
     def __init__(self):
@@ -222,3 +221,4 @@ class AzureImportParameters(ImportParametersBase):
                     "aws_region"]
         super.__init__( AzureImportParameters, parameters)
         self.provider ="azure"
+ 

@@ -13,3 +13,4 @@ if __name__ == '__main__':
     params_resovler.parsed_args(parsed_args)
     params_resovler.validate()
     main(params_resovler)
+
