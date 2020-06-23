@@ -40,14 +40,14 @@ class AwsResourcesStep1:
         tenant_name = params.tenant_name
         aws_az = params.aws_region
 
-        self.utils = TfUtils(params, step=params.step)
+        self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params, step=params.step, step_type=params.step_type)
         self.aws_az = aws_az
         #tenant
         self.tenant_name = tenant_name
         self.tenant_id = self.utils.get_tenant_id(tenant_name)
         self._load_mapping_aws_keys_to_tf_keys()
-        self.file_utils._ensure_folder(self.file_utils._log_folder())
+
 
     #### public methods #######
     def get_tenant_resources(self):

@@ -65,17 +65,19 @@ def get_help(attr_names):
     help_str.append(" ")
     help_str.append(" ")
 
-    return "".join(help_str, "\n")
+    return "\n".join(help_str)
 
 
 
 class ImportParametersBase:
     step_type = "infra"
     step = "step1"
+    default_params_path = "duplocli/terraform/import_tf_parameters_default.json"
 
     def __init__(self, attr_names):
         self.attr_names=attr_names
-
+        if psutil.WINDOWS:
+            self.default_params_path = self.default_params_path.replace("/", "\\")
     def set_step_type(self, step_type):
         self.step_type = step_type
 
@@ -91,12 +93,13 @@ class ImportParametersBase:
         help = get_help(self.attr_names)
         parser = argparse.ArgumentParser(description="Download Terraform state files.", usage=help)
         for attr_name in self.attr_names:
-            parser.add_argument('-'+ self.arg_params[attr_name]['short_name'],
+            parser.add_argument('-'+ arg_params[attr_name]['short_name'],
                                 '--'+attr_name, action='store', dest=attr_name)
         return parser
 
-    def parsed_args(self, parsed_args, default_params="import_tf_parameters_default.json"):
-        parameters = self.file_utils.load_json_file(default_params)
+    def parsed_args(self, parsed_args):
+        self.file_utils = TfFileUtils(self)
+        parameters = self.file_utils.load_json_file(self.default_params_path)
         print("########## default parameters ########## ")
         for key in parameters:
             print(" default parameter values", key, parameters[key])
@@ -123,19 +126,25 @@ class ImportParametersBase:
                 print(" override parameter by passed in arguments ", key, val)
                 parameters[key] = val
 
-        print("########## final parameters ########## ")
-        for key in parameters:
-            print("final", key, parameters[key])
-
         # set as attributes
         self.set_attributes(parameters)
+        self.create_work_file_paths()
+
+        print("########## final parameters ########## ")
+        parameters_cur = vars(self)
+        for key in parameters_cur:
+            print("final", key, getattr(self, key) )
+
+
         return parameters
+
     def set_attributes(self, parameters):
-        key_list = list(parameters.kyes())
+        key_list = list(parameters.keys())
         att_name_list = self.attr_names + key_list
         for att_name in att_name_list:
             value = self._from_dict(parameters, att_name)
             setattr(self, att_name, value)
+
     def _from_dict(self, parameters, key):
         if key in parameters:
             return parameters[key]
@@ -155,26 +164,32 @@ class ImportParametersBase:
 
     # mostly static
     def fix_os(self):
-        if psutil.WINDOWS:
-            self.zip_folder_path = self.zip_folder_path.replace("/", "\\")
-            self.temp_folder_path = self.temp_folder_path.replace("/", "\\")
-            self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
-        else:
-            self.zip_folder_path = self.zip_folder_path.replace("\\", "/")
-            self.temp_folder_path = self.temp_folder_path.replace("\\", "/")
-            self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
+       pass
 
     def create_work_file_paths(self):
         if self.import_name is None:
             now = datetime.datetime.now()
             now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
             self.import_name = now_str
+
+        self.parameters_default = self.file_utils.load_json_file(self.default_params_path)
         if self.parameters_default["temp_folder"] == self.temp_folder:
             self.temp_folder = os.path.join(self.temp_folder, self.tenant_name, self.import_name)
             self.zip_folder = os.path.join(self.temp_folder, "zip")
+
         if self.zip_file_path is None:
             self.zip_file_path = os.path.join(self.zip_folder, self.import_name)
 
+        self.temp_folder_path = self.temp_folder #?
+        self.zip_folder_path = self.zip_folder #?
+        # if psutil.WINDOWS:
+        #     self.zip_folder_path = self.zip_folder_path.replace("/", "\\")
+        #     self.temp_folder_path = self.temp_folder_path.replace("/", "\\")
+        #     self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
+        # else:
+        #     self.zip_folder_path = self.zip_folder_path.replace("\\", "/")
+        #     self.temp_folder_path = self.temp_folder_path.replace("\\", "/")
+        #     self.zip_folder_local_path = self.zip_folder_local_path.replace("/", "\\")
 
 
 
@@ -190,12 +205,12 @@ class AwsImportParameters(ImportParametersBase):
                     "api_token",
                     "url",
                     "aws_region"]
-        super.__init__( AwsImportParameters, parameters)
+        super(AwsImportParameters, self).__init__(parameters)
         self.provider ="aws"
 
 
     def validate(self):
-        super.validate()
+        super().validate()
 
         # validate params
         required_fields = ["tenant_name",  "aws_region"]
@@ -204,8 +219,7 @@ class AwsImportParameters(ImportParametersBase):
             required_fields=["url","tenant_id","api_token"]
             self._check_required_fields(required_fields)
 
-        self.create_work_file_paths()
-        self.fix_os()
+
 
 class AzureImportParameters(ImportParametersBase):
 

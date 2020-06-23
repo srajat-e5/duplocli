@@ -26,9 +26,9 @@ wheels/
 *.egg
 
 #terrafrom ignore folders
-work/*
+_temp/*
 dir/
-_temp/
+work/
 log/
 .DS_Store
 .idea/

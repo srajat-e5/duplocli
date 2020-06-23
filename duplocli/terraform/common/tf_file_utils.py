@@ -6,26 +6,20 @@ import psutil
 import shutil
 
 class TfFileUtils:
-
     _tf_file_name = "main.tf.json"
     _tf_state_file_name = "terraform.tfstate"
-
-    # data jsons aws_mapping_keys_to_tf_keys.json
     _mapping_keys_file_suffix = "mapping_keys_to_tf_keys.json"
     _schema_file_suffix = "tf_schema.json"
-
-    # data jsons
-
-
-    # scripts
     _tf_import_script_prefix = "tf_import_script"  # .bat .sh
     _tf_run_script_prefix = "run"  # .bat .sh
+    root_folder = "duplocli/terraform/"
 
     def __init__(self, params, step="step1", step_type="infra"):
         self._mapping_keys_file_name=  "{0}_{1}".format(params.provider, self._mapping_keys_file_suffix)
-        self._mapping_keys_file_name = "{0}_{1}".format(params.provider, self._schema_file_suffix)
-        self.params = params 
-
+        self._schema_file_name = "{0}_{1}".format(params.provider, self._schema_file_suffix)
+        self.params = params
+        if psutil.WINDOWS:
+            self.root_folder = self.root_folder.replace("/", "\\")
     ###  work folder
     def work_folder(self):
         return self._folder_temp_sub_folder(self.params.step, self.params.step_type)
@@ -42,10 +36,10 @@ class TfFileUtils:
         return os.path.join(self.work_folder(), self._tf_file_name)
 
     def tf_import_script(self):
-        return os.path.join(self.data_folder(), self._script_file_name(self._tf_import_script_prefix))
+        return os.path.join(self.work_folder(), self._script_file_name(self._tf_import_script_prefix))
 
     def tf_run_script(self):
-        return os.path.join(self.data_folder(), self._script_file_name(self._tf_run_script_prefix))
+        return os.path.join(self.work_folder(), self._script_file_name(self._tf_run_script_prefix))
 
     def mapping_aws_keys_to_tf_keys_file(self):
         return os.path.join(self.data_folder(), self._mapping_keys_file_name)
@@ -89,6 +83,7 @@ class TfFileUtils:
         return file_path
 
     def _folder_temp_sub_folder(self, step, step_type):
+        print( "_folder_temp_sub_folder", os.path.join(self.params.temp_folder_path, step, step_type))
         return os.path.join(self.params.temp_folder_path, step, step_type)
 
     ### ### utils  ### ###
@@ -135,6 +130,8 @@ class TfFileUtils:
 
     ######
     def _ensure_folders(self):
+        zip_external= os.path.dirname(self.params.zip_file_path)
+        self._ensure_folder(zip_external)
         self._ensure_folder(self.work_folder())
         self._ensure_folder(self.work_folder_for_step("step1"))
         self._ensure_folder(self.work_folder_for_step("step2"))
@@ -279,17 +276,17 @@ class TfFileUtils:
 
     ## folders
     def _temp_child_folder(self, sub_folder):
-        return os.path.join(self.temp_folder_path,sub_folder)
+        return os.path.join(self.params.temp_folder_path, sub_folder)
         # return "{0}{1}{2}".format(self.temp_folder_path, os.path.sep, sub_folder)
-
-    def work_folder(self):
-        return self._temp_child_folder(self.params.step)
+    #
+    # def work_folder(self):
+    #     return self._temp_child_folder(self.params.step)
 
     def keys_folder(self):
         return self._temp_child_folder("keys")
 
     def zip_folder(self):
-        return self.zip_folder_path #_temp_child_folder("zip")
+        return self.params.zip_folder_path #_temp_child_folder("zip")
 
     def final_folder(self):
         return self._temp_child_folder("final")

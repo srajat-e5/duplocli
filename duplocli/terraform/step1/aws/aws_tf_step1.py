@@ -20,7 +20,7 @@ class AwsCreateTfstateStep1 :
         self.params = params
         self.step=self.params.step
         self.aws_az = params.aws_region
-        self.utils = TfUtils(params, step=self.step)
+        self.utils = TfUtils(params)
         #file_utils for steps
         self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
         self._load_schema()
@@ -28,7 +28,6 @@ class AwsCreateTfstateStep1 :
     ############ execute_step public api ##########
     def execute_step(self,  aws_obj_list=[]):
         self._aws_provider()
-        self._empty_output()
         self._aws_resources(aws_obj_list)
         self._create_tf_state()
         return self.file_utils.tf_main_file()
