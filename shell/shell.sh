@@ -12,7 +12,7 @@ tenant_name=$(python /shell/parseurl.py $URL 'tenant_name')
 duplo_endpoint=$(python /shell/parseurl.py $URL 'duplo_endpoint')
 tenant_id=$(python /shell/parseurl.py $URL 'tenant_id')
 api_token=$(python /shell/parseurl.py $URL 'api_token')
-import_infra=$(python /shell/parseurl.py $URL 'import_infra')
+import_module=$(python /shell/parseurl.py $URL 'import_module')
 
 
 pod=$(python /shell/parseurl.py $URL 'pod')
@@ -27,7 +27,8 @@ elif [ -n "$TF" ]; then
     import_name="$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
     zip_file_path="/zip/$import_name"
     mkdir -p /zip
-    python tf_import_aws.py --import_infra import_infra --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
+    #NOTE: $import_module= infra or tenant, default is tenant
+    python tf_import_aws.py --import_module $import_module --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
      --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
     /bin/bash

@@ -15,7 +15,7 @@ arg_params = {
         "tenant_id": {"short_name":"t", "disc":"TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6"},
         "api_token": {"short_name":"a", "disc":"Duplo API Token"},
         "url": {"short_name":"u", "disc":"Duplo URL  e.g. https://msp.duplocloud.net"},
-        "import_infra": {"short_name": "y", "disc": "tenant will not be imported if import_infra=yes"},
+        "import_module": {"short_name": "m", "disc": "import_module=infra or tenant. default is tenant,"},
         "aws_region": {"short_name":"r", "disc":"AWSREGION  e.g. us-west2"}
     }
 
@@ -89,7 +89,7 @@ class ImportParametersBase:
 
     def modules(self):
         #here we can easily support multiple self.tenant_name list ... e.g. use comma separated self.tenant_name.
-        if self.import_infra == "yes":
+        if self.import_module == "infra":
             return ["infra"]
         else:
             return [self.tenant_name]
@@ -203,6 +203,7 @@ class AwsImportParameters(ImportParametersBase):
     provider = "aws"
     def __init__(self):
         parameters = ["tenant_name" ,
+                      "import_module",
                     "import_name" ,
                     "zip_file_path" ,
                     "params_json_file_path",
@@ -219,7 +220,7 @@ class AwsImportParameters(ImportParametersBase):
         super().validate()
 
         # validate params
-        if self.import_infra == "yes":
+        if self.import_module == "infra":
             pass
         else:
             required_fields = ["tenant_name", "aws_region"]
@@ -235,6 +236,7 @@ class AzureImportParameters(ImportParametersBase):
     provider = "azure"
     def __init__(self):
         parameters = ["tenant_name" ,
+                      "import_module",
                     "import_name" ,
                     "zip_file_path" ,
                     "params_json_file_path",
@@ -252,6 +254,7 @@ class GcpImportParameters(ImportParametersBase):
     provider = "gcp"
     def __init__(self):
         parameters = ["tenant_name" ,
+                      "import_module",
                     "import_name" ,
                     "zip_file_path" ,
                     "params_json_file_path",
