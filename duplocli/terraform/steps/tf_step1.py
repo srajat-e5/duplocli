@@ -6,6 +6,9 @@ import requests
 import os 
 import psutil
 
+dummy_values = {
+    "cidr_block":"0.0.0.0"
+}
 
 class TfImportStep1 :
 
@@ -72,7 +75,10 @@ class TfImportStep1 :
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         for required_name in schema.required:
             # keep an eye --- we are neglecting datas type !
-            resource_obj[required_name] = "aa"
+            if required_name in dummy_values:
+                resource_obj[required_name] = dummy_values[required_name]
+            else:
+                resource_obj[required_name] = "aa"
         return resource_obj
 
     def _init_aws_resource(self, aws_obj):

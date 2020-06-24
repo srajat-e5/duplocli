@@ -6,7 +6,8 @@ from duplocli.terraform.steps.tf_step2 import TfImportStep2
 
 from duplocli.terraform.resources.aws_resources import AwsResources
 from duplocli.terraform.resources.azure_resources import AzureResources
-from duplocli.terraform.resources.google_resources import GcpResources
+from duplocli.terraform.resources.google_resources import GoogleResources
+from duplocli.terraform.resources.kubernetes_resources import  KubernetesResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 
@@ -113,8 +114,10 @@ class TfSteps:
     def _api(self):
         if self.params.provider == "azurerm":
             self.api = AzureResources(self.params)
-        elif self.params.provider == "gcp":
-            self.api = GcpResources(self.params)
+        elif self.params.provider == "google":
+            self.api = GoogleResources(self.params)
+        elif self.params.provider == "kubernetes":
+            self.api = KubernetesResources(self.params)
         elif self.params.provider == "aws":
             os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
             self.api = AwsResources(self.params)
