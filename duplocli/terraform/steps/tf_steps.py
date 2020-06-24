@@ -6,7 +6,7 @@ from duplocli.terraform.steps.tf_step2 import TfImportStep2
 
 from duplocli.terraform.resources.aws_resources import AwsResources
 from duplocli.terraform.resources.azure_resources import AzureResources
-from duplocli.terraform.resources.gcp_resources import GcpResources
+from duplocli.terraform.resources.google_resources import GcpResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 

@@ -251,7 +251,7 @@ class AzureImportParameters(ImportParametersBase):
 
 
 class GcpImportParameters(ImportParametersBase):
-    provider = "gcp"
+    provider = "google"
     def __init__(self):
         parameters = ["tenant_name" ,
                       "import_module",
@@ -264,4 +264,20 @@ class GcpImportParameters(ImportParametersBase):
                     "url",
                     "aws_region"]
         super.__init__( AzureImportParameters, parameters)
-        self.provider ="gcp"
+        self.provider ="google"
+
+class KubernetesImportParameters(ImportParametersBase):
+    provider = "kubernetes"
+    def __init__(self):
+        parameters = ["tenant_name" ,
+                      "import_module",
+                    "import_name" ,
+                    "zip_file_path" ,
+                    "params_json_file_path",
+                    "download_aws_keys",
+                    "tenant_id",
+                    "api_token",
+                    "url",
+                    "aws_region"]
+        super.__init__( AzureImportParameters, parameters)
+        self.provider ="kubernetes"

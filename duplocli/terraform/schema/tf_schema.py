@@ -174,21 +174,20 @@ class TfSchema:
         f.close()
 
 
-#
-# # ##### test ##########
-# from duplocli.terraform.import_parameters import AwsImportParameters
-# def main1():
-#     params = AwsImportParameters()
-#     params.provider="azurerm"
-#     awsParseSchema = TfSchema(params)
-#     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
-#     awsParseSchema.save_json(data_dict_tf_resource_list, "../data/duplo_{0}_tf_schema.json".format(params.provider))
-#     print(json.dumps(data_dict_tf_resource_list))
-#
-#     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
-#     print(json.dumps(tf_resource_names_list))
-#     awsParseSchema.save_json(tf_resource_names_list, "../data/{0}_resources.json".format(params.provider))
-#
-# if __name__ == '__main__':
-#     main1()
-#
+
+# ##### test ##########
+from duplocli.terraform.tf_import_parameters import AwsImportParameters
+def main1():
+    params = AwsImportParameters()
+    params.provider="kubernetes"
+    awsParseSchema = TfSchema(params)
+    data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
+    awsParseSchema.save_json(data_dict_tf_resource_list, "../data/duplo_{0}_tf_schema.json".format(params.provider))
+    print(json.dumps(data_dict_tf_resource_list))
+
+    tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
+    print(json.dumps(tf_resource_names_list))
+    awsParseSchema.save_json(tf_resource_names_list, "../data/{0}_resources.json".format(params.provider))
+
+if __name__ == '__main__':
+    main1()
