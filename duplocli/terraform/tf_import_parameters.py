@@ -250,7 +250,7 @@ class AzureImportParameters(ImportParametersBase):
 
 
 
-class GcpImportParameters(ImportParametersBase):
+class GoogleImportParameters(ImportParametersBase):
     provider = "google"
     def __init__(self):
         parameters = ["tenant_name" ,

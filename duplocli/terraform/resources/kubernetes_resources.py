@@ -21,7 +21,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 # ]
 
 
-class AzureResources:
+class KubernetesResources:
     debug_print_out = False
     debug_json = True
     create_key_pair = False
@@ -33,7 +33,7 @@ class AzureResources:
 
     #
     tf_cloud_vpc_list = {}
-    log_resource_text = "**** azure import step1 : "
+    log_resource_text = "**** Kubernetes import step1 : "
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)
