@@ -2,6 +2,7 @@
   "zip_folder": "work/output/zip",
   "temp_folder": "work/output",
 
+  "import_infra": "no",
   "tenant_name": null,
   "aws_region":null,
 

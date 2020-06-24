@@ -15,6 +15,7 @@ arg_params = {
         "tenant_id": {"short_name":"t", "disc":"TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6"},
         "api_token": {"short_name":"a", "disc":"Duplo API Token"},
         "url": {"short_name":"u", "disc":"Duplo URL  e.g. https://msp.duplocloud.net"},
+        "import_infra": {"short_name": "y", "disc": "tenant will not be imported if import_infra=yes"},
         "aws_region": {"short_name":"r", "disc":"AWSREGION  e.g. us-west2"}
     }
 
@@ -88,7 +89,10 @@ class ImportParametersBase:
 
     def modules(self):
         #here we can easily support multiple self.tenant_name list ... e.g. use comma separated self.tenant_name.
-        return ["infra", self.tenant_name]
+        if self.import_infra == "yes":
+            return ["infra"]
+        else:
+            return [self.tenant_name]
 
     ######## ####  from parsed args ######## ####
     def get_parser(self):
@@ -215,8 +219,12 @@ class AwsImportParameters(ImportParametersBase):
         super().validate()
 
         # validate params
-        required_fields = ["tenant_name",  "aws_region"]
-        self._check_required_fields(required_fields)
+        if self.import_infra == "yes":
+            pass
+        else:
+            required_fields = ["tenant_name", "aws_region"]
+            self._check_required_fields(required_fields)
+
         if self.download_aws_keys == "yes":
             required_fields=["url","tenant_id","api_token"]
             self._check_required_fields(required_fields)
