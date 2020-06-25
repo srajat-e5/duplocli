@@ -93,6 +93,7 @@ class ImportParametersBase:
             return ["infra"]
         else:
             return [self.tenant_name]
+        # return return ["infra", self.tenant_name]
 
     ######## ####  from parsed args ######## ####
     def get_parser(self):

@@ -135,25 +135,25 @@ class AwsResources:
             # aws_default_vpc
             # aws_default_vpc_dhcp_options
 
-            # ########  temp comment   ########
-            # internet_gateways = list(awsobject.internet_gateways.all())
-            # self._aws_internet_gateways(internet_gateways, is_default, instance)
-            #
+            ########  temp comment   ########
+            internet_gateways = list(awsobject.internet_gateways.all())
+            self._aws_internet_gateways(internet_gateways, is_default, instance)
+
             network_acls = list(awsobject.network_acls.all())
             self._aws_network_acls(network_acls, is_default, instance)
-            #
-            # network_interfaces = list(awsobject.network_interfaces.all())
-            # self._aws_network_interfaces(network_interfaces, is_default, instance)
-            #
-            # route_tables = list(awsobject.route_tables.all())
-            # self._aws_route_tables(route_tables, is_default, instance)
-            #
-            # security_groups = list(awsobject.security_groups.all())
-            # self._aws_security_groups(security_groups, is_default, instance)
-            #
-            # subnets = list(awsobject.subnets.all())
-            # self._aws_subnets(subnets, is_default, instance)
-            # ########  temp comment   ########
+
+            network_interfaces = list(awsobject.network_interfaces.all())
+            self._aws_network_interfaces(network_interfaces, is_default, instance)
+
+            route_tables = list(awsobject.route_tables.all())
+            self._aws_route_tables(route_tables, is_default, instance)
+
+            security_groups = list(awsobject.security_groups.all())
+            self._aws_security_groups(security_groups, is_default, instance)
+
+            subnets = list(awsobject.subnets.all())
+            self._aws_subnets(subnets, is_default, instance)
+            ########  temp comment   ########
 
             # accepted_vpc_peering_connections = list(awsobject.accepted_vpc_peering_connections.all())
             # requested_vpc_peering_connections = list(awsobject.requested_vpc_peering_connections.all())
