@@ -67,3 +67,19 @@
 
 ## 4 use case: Co-exists duplo and terraform provisioning.
     * you can run use case (2), but in tf file remove the duplo signature.
+
+
+
+
+# all export 
+   * infra + all tenant 
+# Infra
+## 1. use case === create external infra level -sg and use in tenant
+ * export infra - tf and state file without objects created by Tenant scope.
+ * edit this terraform, a management security group. (use case for infra as module)
+ * export tenant terraform (tf and state), edit this terraform to refence =  management security group.
+## 2. use case === duplicate a tenant and infra in different region with different name.
+ * export infra - tf and state file without objects created by Tenant scope.
+ * rename infra name (vpc, subnet, region) and execute.  (use case for infra as module)
+ * export tenant terrform (tf and state), edit this terraform to refence = infra  (vpc, subnet, region).
+
