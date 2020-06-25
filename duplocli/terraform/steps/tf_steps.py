@@ -85,7 +85,7 @@ class TfSteps:
             self.file_utils._ensure_folders()
 
     def post_execute(self):
-        self.zip_import()
+        self._zip()
         # backup and s3 sync
         terraform_folder = os.path.join("duplocli", "terraform")
         import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "import_tf_backup_settings_auth_service.json")
@@ -96,11 +96,11 @@ class TfSteps:
         eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
         eackupImportFolders.backup_folders()
 
-    def zip_import(self):
+    def _zip(self):
         copy_files = []
         for module in self.params.modules():
             self.params.set_step_type(module)
-            self.params.set_step("step1")
+            self.params.set_step("step2")
             copy_files.append(self.file_utils.tf_state_file())
             copy_files.append(self.file_utils.tf_main_file())
         copy_files.append(self.file_utils.keys_folder())
