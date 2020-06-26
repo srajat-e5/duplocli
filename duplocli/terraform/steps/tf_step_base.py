@@ -22,6 +22,12 @@ class TfImportStepBase :
         self.params = params
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
+
+        self.aws_tf_schema = {}
+        self.main_tf_json_dict = {"resource": {}}
+        self.resources_dict = self.main_tf_json_dict["resource"]
+        self.tf_import_sh_list = []
+
         self._load_schema()
         self.provider()
 
@@ -31,7 +37,6 @@ class TfImportStepBase :
         self.aws_tf_schema = TfSchema(self.params)
 
     def _get_or_create_tf_resource_type_root(self, tf_resource_type):
-        #get parent for the resource
         if tf_resource_type not in self.resources_dict:
             self.resources_dict[tf_resource_type] = {}
         return self.resources_dict[tf_resource_type]
@@ -42,11 +47,9 @@ class TfImportStepBase :
         self.file_utils.save_main_file(self.main_tf_json_dict)
         self.file_utils.save_tf_import_script(self.tf_import_sh_list)
         self.file_utils.save_tf_run_script()
-        ## execute script
         self.file_utils.create_state(self.file_utils.tf_run_script())
 
     def _plan(self):
-        ## needed : terraform init and terraform plan
         self.tf_import_sh_list.append('terraform init ')
         self.tf_import_sh_list.append('terraform plan ')
 

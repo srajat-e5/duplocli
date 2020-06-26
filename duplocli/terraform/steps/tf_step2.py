@@ -22,10 +22,12 @@ class TfImportStep2(TfImportStepBase):
     def _tf_resources(self):
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
+        # self.file_utils.print_json(self.state_dict)
         if "resources" in  self.state_dict:
             resources = self.state_dict['resources']
         else:
             resources = self.state_dict['resource']
+        # self.file_utils.print_json(resources)
         for resource in resources:
             self._tf_resource(resource)
         return self.main_tf_json_dict
@@ -33,6 +35,8 @@ class TfImportStep2(TfImportStepBase):
     #############
     def _tf_resource(self, resource):
         tf_resource_type = resource["type"]
+        # if tf_resource_type =="aws_default_route_table":
+        #     print(tf_resource_type)
         tf_resource_var_name = resource["name"]
         print("**** aws import step2 : ", tf_resource_type, "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes']
