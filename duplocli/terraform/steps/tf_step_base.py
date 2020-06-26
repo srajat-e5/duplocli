@@ -6,10 +6,6 @@ import requests
 import os
 import psutil
 
-dummy_values = {
-    "cidr_block":"0.0.0.0/0",
-    "ipv6_cidr_block":"0.0.0.0/0"
-}
 
 class TfImportStepBase :
 
