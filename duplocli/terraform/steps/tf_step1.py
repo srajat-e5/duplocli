@@ -44,8 +44,8 @@ class TfImportStep1(TfImportStepBase):
             if required_name in dummy_values:
                 resource_obj[required_name] = dummy_values[required_name]
             else:
-                # keep an eye --- we are neglecting datas type ! until we get error ?
-                resource_obj[required_name] = "aa"
+                # keep an eye --- we are neglecting data types ! until we get error ?
+                resource_obj[required_name] = "xxxx"
         return resource_obj
 
     def _init_tf_resource(self, aws_obj):

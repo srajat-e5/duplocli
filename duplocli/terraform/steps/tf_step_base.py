@@ -13,12 +13,10 @@ class TfImportStepBase :
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
-
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
-
         self.aws_tf_schema = {}
         self.main_tf_json_dict = {"resource": {}}
         self.resources_dict = self.main_tf_json_dict["resource"]
@@ -91,7 +89,7 @@ class TfImportStepBase :
     def rm_aws_security_group_rule_tf_bug(self):
 
         if self.params.provider != 'aws':
-            print(" SKIP ", self.params.provider, " rm_aws_security_group_rule_tf_bug ")
+            print(self.file_utils.stage_prefix(), " SKIP ", self.params.provider, " rm_aws_security_group_rule_tf_bug ")
             return
 
         main_resources = self.main_tf_json_dict['resource']
@@ -115,7 +113,7 @@ class TfImportStepBase :
                     # resources.remove(resource)
                     resources_to_del.append(resource)
                 else:
-                    print("name skip ", name)
+                    print(self.file_utils.stage_prefix(), "name skip ", name)
         for resource in resources_to_del:  # list
             resources.remove(resource)
         # save
@@ -125,7 +123,7 @@ class TfImportStepBase :
     ############ download_key public resources ##########
     def download_key(self,  aws_obj_list=[] ):
         if self.params.provider != 'aws':
-            print(" SKIP ", self.params.provider, " key download_keys ")
+            print(self.file_utils.stage_prefix(), " SKIP ", self.params.provider, " key download_keys ")
             return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), "")
 
         # download_aws_keys = self.params.download_aws_keys
@@ -143,7 +141,7 @@ class TfImportStepBase :
             headers = {"Authorization": "Bearer {0}".format( api_token )}
             response = requests.get(endpoint,   headers=headers)
             self.file_utils.save_key_file(key_name, response.content )
-            print("**** aws import step1 : save_key_file ", key_name, instanceId)
+            print(self.file_utils.stage_prefix(), " save_key_file ", key_name, instanceId)
         return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), self.file_utils.keys_folder())
 
 

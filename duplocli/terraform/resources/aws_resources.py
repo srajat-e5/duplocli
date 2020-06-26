@@ -32,7 +32,7 @@ class AwsResources:
 
     #
     aws_vpc_list = {}
-    log_resource_text = "**** aws import step1 : "
+
     def __init__(self, params):
         self.params = params
 
@@ -90,7 +90,7 @@ class AwsResources:
                     key_name = instance["KeyName"]
                     if "Platform" in instance and instance["Platform"] == 'windows':
                         platform = instance["Platform"]
-                        print(self.log_resource_text, "get_key_pair_list platform is ", platform, name )
+                        print(self.file_utils.stage_prefix(), "get_key_pair_list platform is ", platform, name )
                         #skip?
                     if key_name not in key_names:
                         aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
@@ -98,7 +98,7 @@ class AwsResources:
                         key_names.append(key_name)
                         # self.file_utils.print_json(aws_obj)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "get_key_pair_list  :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "get_key_pair_list  :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return aws_objs
@@ -118,13 +118,13 @@ class AwsResources:
             is_default = instance['IsDefault']
             if is_default or self._is_default_vpc(_id) :
                 self.aws_resource("aws_default_vpc", instance, tf_variable_id="aws-default-" + _id, tf_import_id= _id)
-                print(self.log_resource_text, "aws_default_vpc :", _id)
+                print(self.file_utils.stage_prefix(), "aws_default_vpc :", _id)
             elif 'Tags' not in instance:
                 self.aws_resource("aws_vpc", instance, tf_variable_id="aws-" + _id, tf_import_id= _id)
-                print(self.log_resource_text, "aws_vpc :", _id)
+                print(self.file_utils.stage_prefix(), "aws_vpc :", _id)
             else:
                 self.aws_resource("aws_vpc", instance, tf_variable_id="duplo-" + _id, tf_import_id= _id)
-                print(self.log_resource_text, "aws_vpc :", _id)
+                print(self.file_utils.stage_prefix(), "aws_vpc :", _id)
             aws_objs.append(instance)
             awsobject = boto3.resource('ec2').Vpc(_id)
 
@@ -170,7 +170,7 @@ class AwsResources:
             # subnets
 
         if len(aws_objs) == 0:
-            print(self.log_resource_text, "aws_vpc / aws_default_vpc :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_vpc / aws_default_vpc :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -180,7 +180,7 @@ class AwsResources:
         for object in objects:
             _id = object.internet_gateway_id
             self.aws_resource("aws_internet_gateway", vpc, tf_variable_id=_id, tf_import_id=_id)
-            print(self.log_resource_text, "aws_internet_gateway :", _id)
+            print(self.file_utils.stage_prefix(), "aws_internet_gateway :", _id)
 
 
     def _aws_network_acls(self, objects, is_default, vpc):
@@ -189,17 +189,17 @@ class AwsResources:
             _id = object.network_acl_id
             if is_default:
                 self.aws_resource("aws_default_network_acl", vpc, tf_variable_id=_id, tf_import_id=_id)
-                print(self.log_resource_text, "aws_default_network_acl :", _id)
+                print(self.file_utils.stage_prefix(), "aws_default_network_acl :", _id)
             else:
                 self.aws_resource("aws_network_acl", vpc, tf_variable_id=_id, tf_import_id=_id)
-                print(self.log_resource_text, "aws_network_acl :", _id)
+                print(self.file_utils.stage_prefix(), "aws_network_acl :", _id)
 
     def _aws_network_interfaces(self, objects, is_default, vpc):
         # terraform import aws_network_interface.gw igw-c0a643a9  === id
         for object in objects:
             _id = object.network_interface_id
             self.aws_resource("aws_network_interface", vpc, tf_variable_id=_id, tf_import_id=_id)
-            print(self.log_resource_text, "aws_network_interface :", _id)
+            print(self.file_utils.stage_prefix(), "aws_network_interface :", _id)
 
     def _aws_route_tables(self, objects, is_default, vpc):
         # terraform import aws_internet_gateway.gw igw-c0a643a9  === id
@@ -207,17 +207,17 @@ class AwsResources:
             _id = object.route_table_id
             if is_default:
                 self.aws_resource("aws_default_route_table", vpc, tf_variable_id=_id, tf_import_id=_id)
-                print(self.log_resource_text, "aws_default_route_table :", _id)
+                print(self.file_utils.stage_prefix(), "aws_default_route_table :", _id)
             else:
                 self.aws_resource("aws_route_table", vpc, tf_variable_id=_id, tf_import_id=_id)
-                print(self.log_resource_text, "aws_route_table :", _id)
+                print(self.file_utils.stage_prefix(), "aws_route_table :", _id)
             for route in object.routes:
                 _cidr_block  = route.destination_cidr_block
                 if _cidr_block is None:
                     _cidr_block = route.destination_ipv6_cidr_block
                 _route_id="{}_{}".format(_id, _cidr_block)
                 self.aws_resource("aws_route", vpc, tf_variable_id=_route_id, tf_import_id= _route_id)
-                print(self.log_resource_text, "aws_route :", _route_id)
+                print(self.file_utils.stage_prefix(), "aws_route :", _route_id)
             # aws_objs.append(instance)
 
     def _aws_security_groups(self, objects, is_default, vpc):
@@ -227,10 +227,10 @@ class AwsResources:
             if _name.find('duplo') ==0 : # skip will be handled by tenant
                 if is_default:
                     self.aws_resource("aws_default_security_group", vpc, tf_variable_id=_name, tf_import_id=_id, skip_if_exists=True)
-                    print(self.log_resource_text, "aws_security_group :", _id)
+                    print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
                 else:
                     self.aws_resource("aws_security_group", vpc, tf_variable_id=_name, tf_import_id=_id, skip_if_exists=True)
-                    print(self.log_resource_text, "aws_security_group :", _id)
+                    print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
 
     def _aws_subnets(self, objects, is_default, vpc):
         for object in objects:
@@ -238,11 +238,11 @@ class AwsResources:
             if is_default:
                 self.aws_resource("aws_default_subnet", vpc, tf_variable_id=_id, tf_import_id=_id,
                                   skip_if_exists=True)
-                print(self.log_resource_text, "aws_security_group :", _id)
+                print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
             else:
                 self.aws_resource("aws_subnet", vpc, tf_variable_id=_id, tf_import_id=_id,
                                   skip_if_exists=True)
-                print(self.log_resource_text, "aws_security_group :", _id)
+                print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
 
     ########## get_tenant_resources START ##############################
     ########## get_tenant_resources START ##############################
@@ -260,10 +260,10 @@ class AwsResources:
             if aws_name.startswith(self.tenant_id+"-"):
                 self.aws_resource("aws_s3_bucket", instance, tf_variable_id=aws_name, tf_import_id=aws_name, skip_if_exists=True)
                 aws_objs.append(instance)
-                print(self.log_resource_text, "aws_s3_bucket :", instance['Name'])
+                print(self.file_utils.stage_prefix(), "aws_s3_bucket :", instance['Name'])
             #todo: resolve tenant specific
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_s3_bucket :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_s3_bucket :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -284,9 +284,9 @@ class AwsResources:
                 self.aws_resource("aws_db_instance", instance, tf_variable_id=aws_name, tf_import_id=aws_name,
                                   skip_if_exists=True)
                 aws_objs.append(instance)
-                print(self.log_resource_text, "aws_db_instance :", instance['DBInstanceIdentifier'], aws_name,  arn)
+                print(self.file_utils.stage_prefix(), "aws_db_instance :", instance['DBInstanceIdentifier'], aws_name,  arn)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_db_instance :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_db_instance :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -310,17 +310,17 @@ class AwsResources:
                     self.aws_resource("aws_instance", instance, tf_variable_id=aws_name, tf_import_id=aws_name,
                                       skip_if_exists=True)
                     aws_objs.append(instance)
-                    print(self.log_resource_text, "aws_instance :", tenant_name_ec2, name, aws_name)
+                    print(self.file_utils.stage_prefix(), "aws_instance :", tenant_name_ec2, name, aws_name)
                     ######## aws_key_pair
                     key_name = instance["KeyName"]
                     if self.create_key_pair:
                         self.aws_resource("aws_key_pair", instance, tf_variable_id=key_name, tf_import_id=key_name , skip_if_exists=True)
                     else:
-                        print(self.log_resource_text, " : SKIP create aws_key_pair :", key_name, "as self.create_key_pair=", self.create_key_pair)
+                        print(self.file_utils.stage_prefix(), " : SKIP create aws_key_pair :", key_name, "as self.create_key_pair=", self.create_key_pair)
                     aws_objs.append(instance)
-                    print(self.log_resource_text, "aws_key_pair :" , key_name)
+                    print(self.file_utils.stage_prefix(), "aws_key_pair :" , key_name)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_instance :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_instance :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -337,7 +337,7 @@ class AwsResources:
             if self.tenant_id == name :
                 self.aws_resource("aws_iam_role", instance, tf_variable_id=name, tf_import_id=name, skip_if_exists=True)
                 arn = self.utils.getVal(instance, "Arn")
-                print(self.log_resource_text, "aws_iam_role :" ,name, arn)
+                print(self.file_utils.stage_prefix(), "aws_iam_role :" ,name, arn)
                 aws_objs.append(instance)
                 role = iam.Role(name)
                 attached_policies =  list(role.attached_policies.all())
@@ -349,7 +349,7 @@ class AwsResources:
                     ip_data = {'name':ip_name, 'role_name':ip_role_name }
                     self.aws_resource("aws_iam_role_policy", ip_data, tf_variable_id = ip_name, tf_import_id=ip_sync_id)
                     aws_objs.append(ip_data)
-                    print(self.log_resource_text, "aws_iam_role_policy:", ip_role_name, ip_sync_id)
+                    print(self.file_utils.stage_prefix(), "aws_iam_role_policy:", ip_role_name, ip_sync_id)
                 for attached_policy in attached_policies:
                     arn = attached_policy.arn
                     policy_name = arn.split("/").pop()
@@ -357,9 +357,9 @@ class AwsResources:
                     data = {'PolicyName': policy_name, 'RoleName': name, 'arn': arn}
                     self.aws_resource("aws_iam_role_policy_attachment", data, tf_variable_id=policy_name, tf_import_id=sync_id)
                     aws_objs.append(data)
-                    print(self.log_resource_text, "aws_iam_role_policy_attachment :", policy_name, sync_id)
+                    print(self.file_utils.stage_prefix(), "aws_iam_role_policy_attachment :", policy_name, sync_id)
         if len(aws_objs) ==0 :
-            print(self.self.log_resource_text, "aws_iam_role, aws_iam_role_policy, aws_iam_role_policy_attachment :", "NOT_FOUND ANY")
+            print(self.self.file_utils.stage_prefix(), "aws_iam_role, aws_iam_role_policy, aws_iam_role_policy_attachment :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -376,10 +376,10 @@ class AwsResources:
             # print( "1", group_name, group_id)
             if  group_name == self.tenant_id or group_name.startswith(self.tenant_id+"-"):
                 self.aws_resource("aws_security_group", instance, tf_variable_id=group_name, tf_import_id=group_id,  skip_if_exists=True)
-                print(self.log_resource_text, "aws_security_group :" ,group_name, group_id)
+                print(self.file_utils.stage_prefix(), "aws_security_group :" ,group_name, group_id)
                 aws_objs.append(instance)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_security_group :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_security_group :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -397,10 +397,10 @@ class AwsResources:
                 aws_name = instance['InstanceProfileName']
                 self.aws_resource("aws_iam_instance_profile", instance, tf_variable_id=aws_name, tf_import_id=aws_name,
                                   skip_if_exists=True)
-                print(self.log_resource_text, "aws_iam_instance_profile :" , InstanceProfileName, InstanceProfileId)
+                print(self.file_utils.stage_prefix(), "aws_iam_instance_profile :" , InstanceProfileName, InstanceProfileId)
                 aws_objs.append(instance)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_iam_instance_profile :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_iam_instance_profile :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -418,9 +418,9 @@ class AwsResources:
                 securityGroupId = securityGroup['SecurityGroupId']
                 if self._is_security_group_from_tenant(securityGroupId):
                     self.aws_resource("aws_elasticache_cluster", instance, tf_variable_id=cacheClusterId, tf_import_id=cacheClusterId,  skip_if_exists=True )
-                    print(self.log_resource_text, "aws_elasticache_cluster :", cacheClusterId)
+                    print(self.file_utils.stage_prefix(), "aws_elasticache_cluster :", cacheClusterId)
         if len(aws_objs) ==0 :
-            print(self.log_resource_text, "aws_iam_instance_profile :", "NOT_FOUND ANY")
+            print(self.file_utils.stage_prefix(), "aws_iam_instance_profile :", "NOT_FOUND ANY")
         if self.debug_print_out:
             self.file_utils.print_json(aws_objs)
         return self
@@ -444,7 +444,7 @@ class AwsResources:
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
-                print(self.log_resource_text, "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(tf_resource_type,tf_resource_var_name, tf_id))
+                print(self.file_utils.stage_prefix(), "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(tf_resource_type,tf_resource_var_name, tf_id))
                 return
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
         # create array

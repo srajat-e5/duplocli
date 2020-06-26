@@ -17,6 +17,10 @@ class TfFileUtils:
         self.params = params
         if psutil.WINDOWS:
             self.root_folder = self.root_folder.replace("/", "\\")
+
+    def stage_prefix(self, msg=""):
+       return  "**** aws import {0} {1} {2}: ".format(self.step, self.step_type, msg)
+
     ###  work folder
     def work_folder(self):
         return self._folder_temp_sub_folder(self.params.step, self.params.step_type)
@@ -28,6 +32,7 @@ class TfFileUtils:
     #######
     def tf_state_file(self):
         return os.path.join(self.work_folder(), self._tf_state_file_name)
+
     def tf_state_file_srep1(self):
         return os.path.join(self.work_folder_for_step("step1"), self._tf_state_file_name)
 
@@ -59,7 +64,7 @@ class TfFileUtils:
         return os.path.join(self.params.temp_folder_path, "zip")
 
     def keys_folder(self):
-        return os.path.join(self.self.work_folder(), "keys")
+        return os.path.join(self.work_folder(), "keys")
 
     def final_folder(self):
         return os.path.join(self.params.temp_folder_path, "final")
@@ -122,7 +127,7 @@ class TfFileUtils:
 
     ######
     def _ensure_folders(self):
-        zip_external= os.path.dirname(self.params.zip_file_path)
+        zip_external = os.path.dirname(self.params.zip_file_path)
         self._ensure_folder(zip_external)
         self._ensure_folder(self.work_folder())
         self._ensure_folder(self.work_folder_for_step("step1"))
@@ -134,10 +139,7 @@ class TfFileUtils:
 
     #######
     def empty_all_folder(self):
-        self.recreate_folder(self.work_folder())  # step1 step2
-        # self.recreate_folder(self.keys_folder())
-        # self.recreate_folder(self.zip_folder()) #keep zip files
-        # self.recreate_folder(self.final_folder())
+        self.recreate_folder(self.work_folder())
         self._ensure_folders()
         print("DONE empty_all_folder")
 
@@ -174,8 +176,6 @@ class TfFileUtils:
         terraform_binary_folder = self._file_inwork_folder(".terraform")
         self.recreate_folder(terraform_binary_folder)
         print("****************  DONE empty_terraform_binary_folder **************** ")
-
-
 
     ##########
 

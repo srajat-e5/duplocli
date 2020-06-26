@@ -38,7 +38,7 @@ class TfImportStep2(TfImportStepBase):
         # if tf_resource_type =="aws_default_route_table":
         #     print(tf_resource_type)
         tf_resource_var_name = resource["name"]
-        print("**** aws import step2 : ", tf_resource_type, "=", tf_resource_var_name)
+        print(self.file_utils.stage_prefix(), tf_resource_type, "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
@@ -63,7 +63,7 @@ class TfImportStep2(TfImportStepBase):
                         resource_obj_dict.append(resource_obj_list)
                         self._process_dict(tf_resource_type, resource_obj_list, attribute_name, nested_item, schema)
                     elif isinstance(nested_item, list):
-                        print("_process_nested  is list list nested list ???? ", tf_resource_type, attribute_name)
+                        print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, attribute_name)
                         pass
                     else:
                         resource_obj_dict.append(nested_item)
@@ -122,7 +122,7 @@ class TfImportStep2(TfImportStepBase):
                     resource_obj.append(resource_obj_list)
                     self._process_dict(tf_resource_type, resource_obj_list,nested_atr_name,  nested_item,  schema)
                 elif isinstance(nested_item, list):
-                    print("_process_nested  is list list nested list ???? ", tf_resource_type,  nested_atr_name)
+                    print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type,  nested_atr_name)
                     pass
                 else:
                     resource_obj.append(nested_item)
