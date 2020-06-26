@@ -7,7 +7,7 @@ import os
 import psutil
 
 
-class TfImportStepBase :
+class BaseTfImportStep :
 
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}

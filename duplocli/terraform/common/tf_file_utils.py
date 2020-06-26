@@ -19,7 +19,7 @@ class TfFileUtils:
             self.root_folder = self.root_folder.replace("/", "\\")
 
     def stage_prefix(self, msg=""):
-       return  "**** aws import {0} {1} {2}: ".format(self.step, self.step_type, msg)
+       return  "**** aws import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type, msg)
 
     ###  work folder
     def work_folder(self):

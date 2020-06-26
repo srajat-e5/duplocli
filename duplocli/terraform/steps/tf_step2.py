@@ -1,6 +1,6 @@
-from duplocli.terraform.steps.tf_step_base import TfImportStepBase
+from duplocli.terraform.steps.base_tf_step import BaseTfImportStep
 
-class TfImportStep2(TfImportStepBase):
+class TfImportStep2(BaseTfImportStep):
 
     is_allow_none = True
     state_dict = {}

@@ -1,4 +1,4 @@
-from duplocli.terraform.steps.tf_step_base import TfImportStepBase
+from duplocli.terraform.steps.base_tf_step import BaseTfImportStep
 import requests
 
 # aws_resources
@@ -14,7 +14,7 @@ dummy_values = {
     "ipv6_cidr_block":"0.0.0.0/0"
 }
 
-class TfImportStep1(TfImportStepBase):
+class TfImportStep1(BaseTfImportStep):
 
     def __init__(self,  params):
        super(TfImportStep1, self).__init__(params)

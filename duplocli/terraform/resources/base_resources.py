@@ -21,36 +21,17 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 # ]
 
 
-class GoogleResources:
-    debug_print_out = False
-    debug_json = True
-    create_key_pair = False
+class BaseResources:
     #
     tf_cloud_obj_list = []
     tf_cloud_sg_list = []
     resources_unique_ids =[]
-    #
-    tf_cloud_vpc_list = {}
+
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params, step=params.step, step_type=params.step_type)
 
-    #### public methods #######
-    def get_tenant_resources(self):
-        self.tf_cloud_obj_list = []
-        return  self.tf_cloud_obj_list
-
-    def get_infra_resources(self):
-        self.tf_cloud_obj_list = []
-        self.tf_cloud_sg_list = []
-        self.resources_unique_ids = []
-        return self.tf_cloud_obj_list
-
-
-    ########## get_tenant_resources  END ##############################
-    ########## get_tenant_resources  END ##############################
-    ########## get_tenant_resources  END ##############################
 
     ########### helpers ###########
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None , skip_if_exists=False):
@@ -58,7 +39,7 @@ class GoogleResources:
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
             raise Exception("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided")
-
+        # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_resource_var_name =  tf_resource_var_name.strip()
