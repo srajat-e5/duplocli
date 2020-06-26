@@ -1,92 +1,46 @@
-import boto3
-import os
-from duplocli.terraform.common.tf_utils import TfUtils
-from duplocli.terraform.schema.tf_schema import TfSchema
-from duplocli.terraform.common.tf_file_utils import TfFileUtils
-import shutil
-import psutil
+from duplocli.terraform.steps.tf_step_base import TfImportStepBase
 
-class TfImportStep2:
+class TfImportStep2(TfImportStepBase):
 
     is_allow_none = True
-    # aws_tf_schema
-    aws_tf_schema = {}
     state_dict = {}
 
-    # main.tf.json
-    main_tf_json_dict = {"resource": {}}
-    resources_dict = main_tf_json_dict["resource"]
-
-    #tf_import_script.sh
-    tf_import_sh_list = []
-
     def __init__(self, params):
-        self.params = params
-        aws_az = params.aws_region
-        tenant_name = params.tenant_name
+        super(TfImportStep2, self).__init__(params)
 
-        self.utils = TfUtils(params)
-        self.aws_az = aws_az
-        self.tenant_name = params.tenant_name
-        self.tenant_id = self.utils.get_tenant_id(tenant_name)
-        ####
-        # file_utils for steps
-        self.file_utils = TfFileUtils(self.params)
-        self._load_schema()
-        self.aws_provider()
-
-    #######
     def execute(self):
-        self.process()
+        self._tf_resources()
         self._create_tf_state()
+        return self.file_utils.tf_main_file()
+    
+    ##### manage files and state ##############
+    def _create_tf_state(self):
+        self.file_utils.save_state_file(self.state_dict)
+        super()._create_tf_state()
 
-    def process(self):
-        self._load_tf_state_file()
-        self._zip_folder_or_default()
-        # self.utils.print_json(self.state_dict, sort_keys=False)
+    ######  TfImportStep2 ################################################
+    def _tf_resources(self):
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
         if "resources" in  self.state_dict:
             resources = self.state_dict['resources']
         else:
             resources = self.state_dict['resource']
         for resource in resources:
-            self._process_resource(resource)
+            self._tf_resource(resource)
         return self.main_tf_json_dict
 
-    ####### load json files
-    def _load_schema(self):
-        self.aws_tf_schema = TfSchema(self.params)
-
-    def _load_tf_state_file(self):
-        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
-        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-
-    def _zip_folder_or_default(self):
-        self.zip_folder = self.file_utils.zip_folder()
-        return self.zip_folder
-
-
-
     #############
-    def _process_resource(self, resource):
-
-        # print("**** aws import step2 : ", "=========================\n\n\n")
+    def _tf_resource(self, resource):
         tf_resource_type = resource["type"]
         tf_resource_var_name = resource["name"]
         print("**** aws import step2 : ", tf_resource_type, "=", tf_resource_var_name)
-        attributes = resource['instances'][0]['attributes'] # ??? WHY this is array?
-        # self.utils.print_json(attributes, sort_keys=False)
-
-        # if tf_resource_type in ["aws_network_acl", "aws_route_table"]:
-        #     pass
-        ### create: resource "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
+        attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
         tf_resource_type_root[tf_resource_var_name] = resource_obj
-
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
-        # self.utils.print_json(schema.data_dict(), sort_keys=False)
         for attribute_name, attribute  in attributes.items():
-            # print("**** aws import step2 : ", attribute_name)
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
@@ -132,12 +86,7 @@ class TfImportStep2:
                 pass
 
     def _process_dict(self, tf_resource_type, resource_obj, nested_atr_name, nested_atr, schema):
-        # if tf_resource_type in ["aws_network_acl", "aws_route_table"]:
-        #     pass
-        # if nested_atr_name in ["route", "routes"]:
-        #     print(nested_atr_name)
         for attribute_name, attribute in nested_atr.items():
-            # print("**** aws import step2 : ", attribute_name)
             is_nested = attribute_name in schema.nested
             is_computed = attribute_name in schema.computed
             if is_nested:
@@ -155,12 +104,7 @@ class TfImportStep2:
                 pass
 
     def _process_nested(self, tf_resource_type, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
-        # if tf_resource_type in ["aws_network_acl", "aws_route_table"]:
-        #     pass
-        # if nested_atr_name in ["route", "routes"]:
-        #     print(nested_atr_name)
         schema = schema_nested.nested_block[nested_atr_name]
-        # print("**** aws import step2 : ", "_process_nested", schema.data_dict())
         if isinstance(nested_atr, dict):
             resource_obj = {}
             resource_obj_parent[nested_atr_name] = resource_obj
@@ -181,17 +125,11 @@ class TfImportStep2:
 
 
     def _process_nested_orig(self, tf_resource_type, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
-        # if tf_resource_type in ["aws_network_acl", "aws_route_table"]:
-        #     pass
-        # if nested_atr_name in ["route"]:
-        #     pass
         schema = schema_nested.nested_block[nested_atr_name]
-        # print("**** aws import step2 : ", "_process_nested", schema.data_dict())
         if isinstance(nested_atr, dict):
             resource_obj = {}
             resource_obj_parent[nested_atr_name] = resource_obj
             for attribute_name, attribute in nested_atr.items():
-                # print("**** aws import step2 : ", attribute_name)
                 is_nested = attribute_name in schema.nested
                 is_computed = attribute_name in schema.computed
                 if is_nested:
@@ -210,50 +148,3 @@ class TfImportStep2:
         elif isinstance(nested_atr, list):
             resource_obj = []
             resource_obj_parent[nested_atr_name] = resource_obj
-
-    ######
-    def aws_provider(self):
-        ### "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        tf_resource_type = "provider"
-        tf_resource_var_name = "aws"
-        ### create: resource "provider" "aws"
-        resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
-        resource_obj["version"] = "~> 2.0"
-        resource_obj["region"] = self.aws_az # should be variable
-        self.tf_import_sh_list.append('terraform init ')
-        return resource_obj
-
-        # automate sync
-
-    def _base_provider(self, tf_resource_type, tf_resource_var_name):
-        ### create: resource "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        resource_obj = {}
-        resource_obj[tf_resource_var_name] = {}
-        self.main_tf_json_dict[tf_resource_type] = resource_obj
-        # self.utils.print_json( self.main_tf_json_dict)
-        return resource_obj[tf_resource_var_name]
-
-    def _get_or_create_tf_resource_type_root(self, tf_resource_type):
-        ### create: resource "TF_RESOURCE_TYPE" "TF_RESOURCE_VAR_NAME"
-        if tf_resource_type in self.resources_dict:
-            return self.resources_dict[tf_resource_type]
-        else:
-            self.resources_dict[tf_resource_type] = {}
-            return self.resources_dict[tf_resource_type]
-
-
-    ##### manage files and state ##############
-    def _create_tf_state(self):
-        self._plan()
-        self.file_utils.save_state_file(self.state_dict)
-        self.file_utils.save_main_file(self.main_tf_json_dict)
-        self.file_utils.save_tf_import_script(self.tf_import_sh_list)
-        self.file_utils.save_tf_run_script()
-        ## execute script
-        self.file_utils.create_state(self.file_utils.tf_run_script())
-
-
-    def _plan(self):
-        ## needed : terraform init and terraform plan
-        self.tf_import_sh_list.append('terraform init ')
-        self.tf_import_sh_list.append('terraform plan ')
