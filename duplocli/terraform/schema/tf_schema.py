@@ -124,7 +124,7 @@ class TfSchema:
                         # if not "optional" in opts:
                         #     tf_resource.computed.append(attrname)
                         # el
-                        if  not self.utils.is_native_type(type) :
+                        if  not self.is_native_type(type) :
                             tf_resource.non_computed.append(attrname)
                         else:
                             tf_resource.computed.append(attrname)
@@ -173,7 +173,15 @@ class TfSchema:
         f.write(resp_json)
         f.close()
 
-
+    ###
+    def is_native_type(self, object):
+        try:
+            # json.dumps(object): todo?
+            type_b = isinstance(object, (list, tuple, set, dict))
+            return not type_b
+        except TypeError:
+            print ("Can't convert", object)
+            return True
 
 # ##### test ##########
 from duplocli.terraform.tf_import_parameters import AwsImportParameters

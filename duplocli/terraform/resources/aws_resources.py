@@ -92,6 +92,7 @@ class AwsResources(BaseResources):
     ########## get_infra_resources START ##############################
     ########## get_infra_resources START ##############################
     ########## get_infra_resources START ##############################
+
     def _aws_vpc(self):
         awsclient = boto3.client('ec2')
         response = awsclient.describe_vpcs()
@@ -233,6 +234,7 @@ class AwsResources(BaseResources):
     ########## get_tenant_resources START ##############################
     ########## get_tenant_resources START ##############################
     ### private: methods to get individual resource for tenant ###
+
     def _aws_s3_bucket(self):
         awsclient = boto3.client('s3')
         response = awsclient.list_buckets()
