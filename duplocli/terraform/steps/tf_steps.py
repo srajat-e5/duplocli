@@ -14,6 +14,7 @@ from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolder
 import os
 class TfSteps:
     only_step2 = False
+    only_step1 = True
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
@@ -22,54 +23,83 @@ class TfSteps:
     ######### modules == tenant, infra or all customer objects ######
     def execute(self):
         ##  debug time
-        if self.only_step2:
+        if self.only_step1 or self.only_step2 :
             for module in self.params.modules():  # infra and tenants in modules to export
                 self.params.set_step_type(module)
-                self._step2_tf_main()
+                if self.only_step1:
+                    self._step1_tf_state()
+                else:
+                    self._step2_tf_main()
             return [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
+
         ###
         self.pre_execute()
         for module in self.params.modules(): # infra and tenants in modules to export
             self.module_execute(module)
         self.post_execute()
         return  [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
+
+
     def module_execute(self, module):
         self.params.set_step_type(module)
-        if module == 'infra':
-            self._step1_tf_infra()
-        else:
-            self._step1_tf_tenant()
+        self._step1_tf_state()
         self._step2_tf_main()
 
     ######### steps ######
-    def _step1_tf_infra(self):
-        print("\n====== execute_infra_step1 ====== START")
+
+    def _step1_tf_state(self):
         self.params.set_step("step1")
+        print("\n")
+        print(self.file_utils.stage_prefix(), "step1_tf_state")
+        #step1
         api = self._api()
-        tenant_resources = api.get_infra_resources()
-        print(tenant_resources)
+        if self.params.module == 'infra':
+            cloud_resources = api.get_tenant_resources()
+        else:
+            cloud_resources = api.get_infra_resources()
+        #step2
+        print(cloud_resources)
         self.step1 = self._step1()
-        self.step1.execute(tenant_resources)
-        #download_aws_keys
-        if self.params.download_aws_keys == 'yes':
-            print(" ====== execute_infra_step1 download_key ====== \n")
-            tenant_key_pairs = api.get_tenant_key_pair_list()
-            self.step1.download_key(tenant_key_pairs)
+        self.step1.execute(cloud_resources)
+        # download_aws_keys
+        if self.params.module == 'infra':
+            pass
+        else:
+            if self.params.download_aws_keys == 'yes':
+                print(" ====== execute_infra_step1 download_key ====== \n")
+                tenant_key_pairs = api.get_tenant_key_pair_list()
+                self.step1.download_key(tenant_key_pairs)
         print(" ====== execute_infra_step1 ====== DONE\n")
 
-    def _step1_tf_tenant(self):
-        self.params.set_step("step1")
-        print("\n====== execute_tenant_step1 ====== START")
-        api = self._api()
-        tenant_resources = api.get_tenant_resources()
-        self.step1 = self._step1()
-        self.step1.execute(tenant_resources)
-        #download_aws_keys
-        if self.params.download_aws_keys == 'yes':
-            print(" ====== execute_tenant_step1 download_key ====== \n")
-            tenant_key_pairs = api.get_tenant_key_pair_list()
-            self.step1.download_key(tenant_key_pairs)
-        print(" ====== execute_tenant_step1 ====== DONE\n")
+    #
+    # def _step1_tf_infra(self):
+    #     print("\n====== execute_infra_step1 ====== START")
+    #     self.params.set_step("step1")
+    #     api = self._api()
+    #     tenant_resources = api.get_infra_resources()
+    #     print(tenant_resources)
+    #     self.step1 = self._step1()
+    #     self.step1.execute(tenant_resources)
+    #     #download_aws_keys
+    #     if self.params.download_aws_keys == 'yes':
+    #         print(" ====== execute_infra_step1 download_key ====== \n")
+    #         tenant_key_pairs = api.get_tenant_key_pair_list()
+    #         self.step1.download_key(tenant_key_pairs)
+    #     print(" ====== execute_infra_step1 ====== DONE\n")
+    #
+    # def _step1_tf_tenant(self):
+    #     self.params.set_step("step1")
+    #     print("\n====== execute_tenant_step1 ====== START")
+    #     api = self._api()
+    #     tenant_resources = api.get_tenant_resources()
+    #     self.step1 = self._step1()
+    #     self.step1.execute(tenant_resources)
+    #     #download_aws_keys
+    #     if self.params.download_aws_keys == 'yes':
+    #         print(" ====== execute_tenant_step1 download_key ====== \n")
+    #         tenant_key_pairs = api.get_tenant_key_pair_list()
+    #         self.step1.download_key(tenant_key_pairs)
+    #     print(" ====== execute_tenant_step1 ====== DONE\n")
 
     def _step2_tf_main(self):
         self.params.set_step("step2")

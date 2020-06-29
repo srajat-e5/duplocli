@@ -39,33 +39,3 @@ class TfUtils:
 
     def def_value(self):
         return ""
-
-
-
-# def getValChildArray(self, inst, key, keychild):
-    #     try:
-    #         for instance in inst[key]:
-    #             val = self.getVal(instance, keychild)
-    #             if val != "":
-    #                 return val
-    #     except:
-    #         return ""
-    # def getValCild(self, inst, key, keych9ild):
-    #     try:
-    #         return inst[key][keych9ild]
-    #     except:
-    #         return ""
-    #
-    # def getValJson(self, inst, key):
-    #     try:
-    #         return json.dumps(inst[key], sort_keys=True,
-    #               indent=1,
-    #               default=self.default)
-    #     except:
-    #         return ""
-    #
-    # def getValChild(self, inst, key, keychild):
-    #     try:
-    #         return inst[key][keychild]
-    #     except:
-    #         return ""

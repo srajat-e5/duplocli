@@ -81,17 +81,29 @@ class ImportParametersBase:
         self.attr_names=attr_names
         if psutil.WINDOWS:
             self.default_params_path = self.default_params_path.replace("/", "\\")
+
     def set_step_type(self, step_type):
         self.step_type = step_type
+        self.module = step_type
 
     def set_step(self, step):
         self.step = step
 
     def modules(self):
         #here we can easily support multiple self.tenant_name list ... e.g. use comma separated self.tenant_name.
+        self.tenants = [self.tenant_name]
+        self.tenant_ids = [self.tenant_id]
         if self.import_module == "infra":
             return ["infra"]
+        elif self.import_module == "all":
+            tenants = self.tenant_name.split(",")
+            tenant_ids = self.tenant_id.split(",")
+            tenants.append("infra")
+            tenant_ids.append("infra")
+            self.tenants = tenants
+            self.tenant_ids = tenant_ids
         else:
+            # default
             return [self.tenant_name]
         # return ["infra", self.tenant_name]
 
