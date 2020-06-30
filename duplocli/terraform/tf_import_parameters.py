@@ -4,14 +4,20 @@ import datetime
 import argparse
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
+# app params for all providers = aws/azure
+arg_params = {
+    "tenant_name": {"short_name": "n", "disc": "Tenant Name e.g. webdev"},
+    "import_name": {"short_name": "i", "disc": "zip file path to save imported terraform files in zip format "},
+    "zip_file_path": {"short_name": "o", "disc": "zip file path to save imported terraform files in zip format"},
+    "params_json_file_path": {"short_name": "j", "disc": "All params passed in single JSON file"},
+    "download_aws_keys": {"short_name": "k", "disc": "Aws keypair=yes/no, private key used for ssh into EC2 servers"},
+    "tenant_id": {"short_name": "t", "disc": "TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6"},
+    "api_token": {"short_name": "a", "disc": "Duplo API Token"},
+    "url": {"short_name": "u", "disc": "Duplo URL  e.g. https://msp.duplocloud.net"},
+    "import_module": {"short_name": "m", "disc": "import_module=infra or tenant. default is tenant,"},
+    "aws_region": {"short_name": "r", "disc": "AWSREGION  e.g. us-west2"}
+}
 ####################### ImportParametersBase #############################################################
-class TfModule:
-    def __init__(self, is_tenant, is_key_download, name, tenant_id, tenant_token):
-        self.is_tenant = is_tenant
-        self.is_key_download = is_key_download
-        self.name = name
-        self.tenant_id = tenant_id
-        self.tenant_token = tenant_token
 
 class ImportParametersBase:
     provider = ""
@@ -134,19 +140,7 @@ class KubernetesImportParameters(ImportParametersBase):
 ####################### params #############################################################
 ####################### params #############################################################
 ####################### params #############################################################
-# app params for all providers = aws/azure
-arg_params = {
-    "tenant_name": {"short_name": "n", "disc": "Tenant Name e.g. webdev"},
-    "import_name": {"short_name": "i", "disc": "zip file path to save imported terraform files in zip format "},
-    "zip_file_path": {"short_name": "o", "disc": "zip file path to save imported terraform files in zip format"},
-    "params_json_file_path": {"short_name": "j", "disc": "All params passed in single JSON file"},
-    "download_aws_keys": {"short_name": "k", "disc": "Aws keypair=yes/no, private key used for ssh into EC2 servers"},
-    "tenant_id": {"short_name": "t", "disc": "TenantId e.g. 97a833a4-2662-4e9c-9867-222565ec5cb6"},
-    "api_token": {"short_name": "a", "disc": "Duplo API Token"},
-    "url": {"short_name": "u", "disc": "Duplo URL  e.g. https://msp.duplocloud.net"},
-    "import_module": {"short_name": "m", "disc": "import_module=infra or tenant. default is tenant,"},
-    "aws_region": {"short_name": "r", "disc": "AWSREGION  e.g. us-west2"}
-}
+
 def get_help(params):
     attr_names = params.attr_names
     provider = params.provider
@@ -200,9 +194,19 @@ def get_help(params):
 
     return "\n".join(help_str)
 
+####################### TfModule #############################################################
+class TfModule:
+    def __init__(self, is_tenant, is_key_download, name, tenant_id, tenant_token):
+        self.is_tenant = is_tenant
+        self.is_key_download = is_key_download
+        self.name = name
+        self.tenant_id = tenant_id
+        self.tenant_token = tenant_token
+
 ####################### TfArgsHelper #############################################################
 ####################### TfArgsHelper #############################################################
 ####################### TfArgsHelper #############################################################
+
 class TfArgsHelper:
 
     def __init__(self, params):
