@@ -24,7 +24,7 @@ class ImportParametersBase:
     step_type = "infra"
     step = "step1"
     default_params_path = "duplocli/terraform/json_import_tf_parameters_default.json"
-
+    is_tenant_id_needed = False
     def __init__(self, attr_names):
         self.attr_names = attr_names
         if psutil.WINDOWS:
@@ -38,7 +38,7 @@ class ImportParametersBase:
         self.step = step
 
     def get_parser(self):
-        self.parser = TfArgsHelper(self.attr_names, self.provider)
+        self.parser = TfArgsHelper(self)
         return self.parser.get_parser()
 
     def parsed_args(self, parsed_args):
@@ -215,14 +215,14 @@ class TfArgsHelper:
     def get_parser(self, ):
         help = get_help(self.params)
         parser = argparse.ArgumentParser(description="Download Terraform state files.", usage=help)
-        for attr_name in self.attr_names:
-            parser.add_argument('-' + self.arg_params[attr_name]['short_name'],
+        for attr_name in self.params.attr_names:
+            parser.add_argument('-' + arg_params[attr_name]['short_name'],
                                 '--' + attr_name, action='store', dest=attr_name)
         return parser
 
     def parsed_args(self, parsed_args):
         self.file_utils = TfFileUtils(self)
-        parameters = self.file_utils.load_json_file(self.default_params_path)
+        parameters = self.file_utils.load_json_file(self.params.default_params_path)
         #
         print("########## default parameters ########## ")
         for key in parameters:
@@ -261,10 +261,10 @@ class TfArgsHelper:
 
     def _set_attributes(self, parameters):
         key_list = list(parameters.keys())
-        att_name_list = self.attr_names + key_list
+        att_name_list = self.params.attr_names + key_list
         for att_name in att_name_list:
             value = self._from_dict(parameters, att_name)
-            setattr(self, att_name, value)
+            setattr(self.params, att_name, value)
 
     def _from_dict(self, parameters, key):
         if key in parameters:
@@ -272,27 +272,26 @@ class TfArgsHelper:
         return None
 
     def _create_work_file_paths(self):
-        if self.import_name is None:
+        params = self.params
+        if params.import_name is None:
             now = datetime.datetime.now()
             now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
-            self.import_name = now_str
-
-        self.parameters_default = self.file_utils.load_json_file(self.default_params_path)
-        if self.parameters_default["temp_folder"] == self.temp_folder:
-            self.temp_folder = os.path.join(self.temp_folder, self.tenant_name, self.import_name)
-            self.zip_folder = os.path.join(self.temp_folder, "zip")
-
-        if self.zip_file_path is None:
-            self.zip_file_path = os.path.join(self.zip_folder, self.import_name)
-
-        self.temp_folder_path = self.temp_folder
-        self.zip_folder_path = self.zip_folder
+            params.import_name = now_str
+        params.parameters_default = self.file_utils.load_json_file(params.default_params_path)
+        if params.parameters_default["temp_folder"] == params.temp_folder:
+            params.temp_folder = os.path.join(params.temp_folder, params.tenant_name, params.import_name)
+            params.zip_folder = os.path.join(params.temp_folder, "zip")
+        if params.zip_file_path is None:
+            params.zip_file_path = os.path.join(params.zip_folder, params.import_name)
+        params.temp_folder_path = params.temp_folder
+        params.zip_folder_path = params.zip_folder
 
     ######## #### validate   ######## ####
 
     def validate_and_update_modules(self):
-        self.params.is_tenant_id_needed = (
-                    self.params.download_aws_keys == "yes")  # is tenant_id, api_token, url  are needed?
+        # is tenant_id, api_token, url  are needed?
+        if self.params.import_module not in ["infra", "all"] and self.params.download_aws_keys == "yes" :
+            self.params.is_tenant_id_needed = True
         # validate
         self._validate_download_keys()
         self._validate_tenants()
@@ -376,9 +375,9 @@ class TfArgsHelper:
     def _check_required_fields(self, required_fields):
         parameters = vars(self)
         for required_field in required_fields:
-            if parameters[required_field] is None or parameters[required_field] == "":
+            if required_field not in parameters or parameters[required_field] is None or parameters[required_field] == "":
                 fields = ",".join(required_fields)
-                print("Missing required_fields = " + parameters)
+                print("Missing required_fields = " + " ".join(parameters))
                 self._raise_error("Exception: Missing required_fields = " + fields)
 
 
