@@ -240,7 +240,7 @@ class TfFileUtils:
 
 
     def save_json_to_log(self, file_name, data_dict):
-        file_path= self._file_inlog_folder_json(file_name)
+        file_path = self._file_inlog_folder_json(file_name)
         self.save_to_json(file_path, data_dict)
 
     def save_to_json(self, file_name, data_dict):

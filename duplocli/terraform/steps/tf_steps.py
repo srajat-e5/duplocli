@@ -14,7 +14,7 @@ from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolder
 import os
 class TfSteps:
     only_step2 = False
-    only_step1 = True
+    only_step1 = False
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
@@ -22,6 +22,8 @@ class TfSteps:
 
     ######### modules == tenant, infra or all customer objects ######
     def execute(self):
+        self.pre_execute()
+
         ##  debug time
         if self.only_step1 or self.only_step2 :
             for module in self.params.modules():  # infra and tenants in modules to export
@@ -33,7 +35,7 @@ class TfSteps:
             return [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
 
         ###
-        self.pre_execute()
+        # execute
         for module in self.params.modules(): # infra and tenants in modules to export
             self.module_execute(module)
         self.post_execute()

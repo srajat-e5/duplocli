@@ -210,7 +210,7 @@ class AwsResources(BaseResources):
         for object in objects:
             _id = object.group_id
             _name = object.group_name
-            if _name.find('duplo') ==0 : # skip will be handled by tenant
+            if not 'duplo' in _name : # skip will be handled by tenant
                 if is_default:
                     self.tf_cloud_resource("aws_default_security_group", vpc, tf_variable_id=_name, tf_import_id=_id, skip_if_exists=True)
                     print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
