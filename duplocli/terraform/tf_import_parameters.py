@@ -33,6 +33,8 @@ class ImportParametersBase:
     def set_step_type(self, step_type):
         self.step_type = step_type
         self.module = step_type
+        if step_type in self.modules():
+            self.tf_module = self.tf_module(step_type)
 
     def set_step(self, step):
         self.step = step
