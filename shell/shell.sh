@@ -31,5 +31,30 @@ elif [ -n "$TF" ]; then
     python tf_import_aws.py --import_module $import_module --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
      --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
+    #s3 download url
+    s3_signed_url="`aws s3 presign s3://$EXPORT_BUCKET/$import_name.zip`"
+    echo ""
+    echo ""
+    echo ""
+    echo ""
+    echo ""
+    echo "******************************************************************************************************************"
+    echo "*******************PLEASE COPY s3 url to download the terrfrom file from s3 *******************"
+    echo "copy s3 download url => "
+    echo ""
+    echo ""
+    echo "$s3_signed_url"
+    echo ""
+    echo ""
+    echo "**************************************"
+    echo "Extract the zip file, cd into folder. And initialize terraform"
+    echo "run => "
+    echo "terraform init"
+    echo "Now you should be able to use terraform commands like terraform plan or show"
+    echo "**************************************"
+    echo ""
+    echo ""
+    echo ""
+
     /bin/bash
 fi
