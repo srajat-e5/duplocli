@@ -187,7 +187,7 @@ class TfSchema:
 from duplocli.terraform.tf_import_parameters import AwsImportParameters
 def main1():
     params = AwsImportParameters()
-    params.provider="kubernetes"
+    params.provider="helm"
     awsParseSchema = TfSchema(params)
     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
     awsParseSchema.save_json(data_dict_tf_resource_list, "../data/duplo_{0}_tf_schema.json".format(params.provider))

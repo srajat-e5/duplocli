@@ -57,6 +57,8 @@ class BaseTfImportStep :
             pass
         elif self.params.provider == "kubernetes":
             pass
+        elif self.params.provider == "helm":
+            pass
         else:
             self.aws_provider()
 

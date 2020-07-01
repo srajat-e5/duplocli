@@ -34,7 +34,7 @@ class ImportParametersBase:
         self.step_type = step_type
         self.module = step_type
         if step_type in self.modules():
-            self.tf_module = self.tf_module(step_type)
+            self.tf_module = self.get_tf_module(step_type)
 
     def set_step(self, step):
         self.step = step
@@ -52,7 +52,7 @@ class ImportParametersBase:
     def modules(self):
         return list(self.tf_modules.keys())
 
-    def tf_module(self, tenant_name):
+    def get_tf_module(self, tenant_name):
         return  self.tf_modules[tenant_name]
 
 ####################### AwsImportParameters #############################################################
@@ -115,7 +115,7 @@ class GoogleImportParameters(ImportParametersBase):
                       "api_token",
                       "url",
                       "aws_region"]
-        super.__init__(AzureImportParameters, parameters)
+        super.__init__(GoogleImportParameters, parameters)
         self.provider = "google"
 
 ####################### KubernetesImportParameters #############################################################
@@ -133,10 +133,26 @@ class KubernetesImportParameters(ImportParametersBase):
                       "api_token",
                       "url",
                       "aws_region"]
-        super.__init__(AzureImportParameters, parameters)
+        super.__init__(KubernetesImportParameters, parameters)
         self.provider = "kubernetes"
 
+####################### HelmImportParameters #############################################################
+class HelmImportParameters(ImportParametersBase):
+    provider = "helm"
 
+    def __init__(self):
+        parameters = ["tenant_name",
+                      "import_module",
+                      "import_name",
+                      "zip_file_path",
+                      "params_json_file_path",
+                      "download_aws_keys",
+                      "tenant_id",
+                      "api_token",
+                      "url",
+                      "aws_region"]
+        super.__init__(HelmImportParameters, parameters)
+        self.provider = "helm"
 
 
 ####################### params #############################################################

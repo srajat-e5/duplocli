@@ -1,0 +1,550 @@
+{
+  "format_version": "0.1",
+  "provider_schemas": {
+    "helm": {
+      "provider": {
+        "version": 0,
+        "block": {
+          "attributes": {
+            "debug": {
+              "type": "bool",
+              "description": "Debug indicates whether or not Helm is running in Debug mode.",
+              "optional": true
+            },
+            "helm_driver": {
+              "type": "string",
+              "description": "The backend storage driver. Values are: configmap, secret, memory, sql",
+              "optional": true
+            },
+            "plugins_path": {
+              "type": "string",
+              "description": "The path to the helm plugins directory",
+              "optional": true
+            },
+            "registry_config_path": {
+              "type": "string",
+              "description": "The path to the registry config file",
+              "optional": true
+            },
+            "repository_cache": {
+              "type": "string",
+              "description": "The path to the file containing cached repository indexes",
+              "optional": true
+            },
+            "repository_config_path": {
+              "type": "string",
+              "description": "The path to the file containing repository names and URLs",
+              "optional": true
+            }
+          },
+          "block_types": {
+            "kubernetes": {
+              "nesting_mode": "list",
+              "block": {
+                "attributes": {
+                  "client_certificate": {
+                    "type": "string",
+                    "description": "PEM-encoded client certificate for TLS authentication.",
+                    "optional": true
+                  },
+                  "client_key": {
+                    "type": "string",
+                    "description": "PEM-encoded client certificate key for TLS authentication.",
+                    "optional": true
+                  },
+                  "cluster_ca_certificate": {
+                    "type": "string",
+                    "description": "PEM-encoded root certificates bundle for TLS authentication.",
+                    "optional": true
+                  },
+                  "config_context": {
+                    "type": "string",
+                    "optional": true
+                  },
+                  "config_context_auth_info": {
+                    "type": "string",
+                    "optional": true
+                  },
+                  "config_context_cluster": {
+                    "type": "string",
+                    "optional": true
+                  },
+                  "config_path": {
+                    "type": "string",
+                    "description": "Path to the kube config file, defaults to ~/.kube/config",
+                    "optional": true
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "The hostname (in form of URI) of Kubernetes master.",
+                    "optional": true
+                  },
+                  "insecure": {
+                    "type": "bool",
+                    "description": "Whether server should be accessed without verifying the TLS certificate.",
+                    "optional": true
+                  },
+                  "load_config_file": {
+                    "type": "bool",
+                    "description": "Load local kubeconfig.",
+                    "optional": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "The password to use for HTTP basic authentication when accessing the Kubernetes master endpoint.",
+                    "optional": true
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Token to authenticate an service account",
+                    "optional": true
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The username to use for HTTP basic authentication when accessing the Kubernetes master endpoint.",
+                    "optional": true
+                  }
+                },
+                "block_types": {
+                  "exec": {
+                    "nesting_mode": "list",
+                    "block": {
+                      "attributes": {
+                        "api_version": {
+                          "type": "string",
+                          "required": true
+                        },
+                        "args": {
+                          "type": [
+                            "list",
+                            "string"
+                          ],
+                          "optional": true
+                        },
+                        "command": {
+                          "type": "string",
+                          "required": true
+                        },
+                        "env": {
+                          "type": [
+                            "map",
+                            "string"
+                          ],
+                          "optional": true
+                        }
+                      }
+                    },
+                    "max_items": 1
+                  }
+                }
+              },
+              "max_items": 1
+            }
+          }
+        }
+      },
+      "resource_schemas": {
+        "helm_release": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "atomic": {
+                "type": "bool",
+                "description": "If set, installation process purges chart on fail. The wait flag will be set automatically if atomic is used",
+                "optional": true
+              },
+              "chart": {
+                "type": "string",
+                "description": "Chart name to be installed. A path may be used.",
+                "required": true
+              },
+              "cleanup_on_fail": {
+                "type": "bool",
+                "description": "Allow deletion of new resources created in this upgrade when upgrade fails",
+                "optional": true
+              },
+              "create_namespace": {
+                "type": "bool",
+                "description": "Create the namespace if it does not exist",
+                "optional": true
+              },
+              "dependency_update": {
+                "type": "bool",
+                "description": "Run helm dependency update before installing the chart",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Add a custom description",
+                "optional": true
+              },
+              "devel": {
+                "type": "bool",
+                "description": "Use chart development versions, too. Equivalent to version '\u003e0.0.0-0'. If `version` is set, this is ignored",
+                "optional": true
+              },
+              "disable_crd_hooks": {
+                "type": "bool",
+                "description": "Prevent CRD hooks from, running, but run other hooks.  See helm install --no-crd-hook",
+                "optional": true
+              },
+              "disable_openapi_validation": {
+                "type": "bool",
+                "description": "If set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schema",
+                "optional": true
+              },
+              "disable_webhooks": {
+                "type": "bool",
+                "description": "Prevent hooks from running.",
+                "optional": true
+              },
+              "force_update": {
+                "type": "bool",
+                "description": "Force resource update through delete/recreate if needed.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "keyring": {
+                "type": "string",
+                "description": "Location of public keys used for verification. Used only if `verify` is true",
+                "optional": true
+              },
+              "lint": {
+                "type": "bool",
+                "description": "Run helm lint when planning",
+                "optional": true
+              },
+              "max_history": {
+                "type": "number",
+                "description": "Limit the maximum number of revisions saved per release. Use 0 for no limit",
+                "optional": true
+              },
+              "metadata": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "chart": "string",
+                      "name": "string",
+                      "namespace": "string",
+                      "revision": "number",
+                      "values": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Status of the deployed release.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Release name.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Namespace to install the release into.",
+                "optional": true
+              },
+              "recreate_pods": {
+                "type": "bool",
+                "description": "Perform pods restart during upgrade/rollback",
+                "optional": true
+              },
+              "render_subchart_notes": {
+                "type": "bool",
+                "description": "If set, render subchart notes along with the parent",
+                "optional": true
+              },
+              "replace": {
+                "type": "bool",
+                "description": "Re-use the given name, even if that name is already used. This is unsafe in production",
+                "optional": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Repository where to locate the requested chart. If is a URL the chart is installed without installing the repository.",
+                "optional": true
+              },
+              "repository_ca_file": {
+                "type": "string",
+                "description": "The Repositories CA File",
+                "optional": true
+              },
+              "repository_cert_file": {
+                "type": "string",
+                "description": "The repositories cert file",
+                "optional": true
+              },
+              "repository_key_file": {
+                "type": "string",
+                "description": "The repositories cert key file",
+                "optional": true
+              },
+              "repository_password": {
+                "type": "string",
+                "description": "Password for HTTP basic authentication",
+                "optional": true,
+                "sensitive": true
+              },
+              "repository_username": {
+                "type": "string",
+                "description": "Username for HTTP basic authentication",
+                "optional": true
+              },
+              "reset_values": {
+                "type": "bool",
+                "description": "When upgrading, reset the values to the ones built into the chart",
+                "optional": true
+              },
+              "reuse_values": {
+                "type": "bool",
+                "description": "When upgrading, reuse the last release's values and merge in any overrides. If 'reset_values' is specified, this is ignored",
+                "optional": true
+              },
+              "skip_crds": {
+                "type": "bool",
+                "description": "If set, no CRDs will be installed. By default, CRDs are installed if not already present",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of the release.",
+                "computed": true
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Time in seconds to wait for any individual kubernetes operation.",
+                "optional": true
+              },
+              "values": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "List of values in raw yaml format to pass to helm.",
+                "optional": true
+              },
+              "verify": {
+                "type": "bool",
+                "description": "Verify the package before installing it.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specify the exact chart version to install. If this is not specified, the latest version is installed.",
+                "optional": true,
+                "computed": true
+              },
+              "wait": {
+                "type": "bool",
+                "description": "Will wait until all resources are in a ready state before marking the release as successful.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "postrender": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "binary_path": {
+                      "type": "string",
+                      "description": "The command binary path.",
+                      "required": true
+                    }
+                  }
+                },
+                "max_items": 1
+              },
+              "set": {
+                "nesting_mode": "set",
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                }
+              },
+              "set_sensitive": {
+                "nesting_mode": "set",
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true,
+                      "sensitive": true
+                    }
+                  }
+                }
+              },
+              "set_string": {
+                "nesting_mode": "set",
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "helm_repository": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "ca_file": {
+                "type": "string",
+                "description": "Verify certificates of HTTPS-enabled servers using this CA bundle",
+                "optional": true
+              },
+              "cert_file": {
+                "type": "string",
+                "description": "Identify HTTPS client using this SSL certificate file",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "key_file": {
+                "type": "string",
+                "description": "Identify HTTPS client using this SSL key file",
+                "optional": true
+              },
+              "metadata": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "Status of the deployed release",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Chart repository name",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Password for HTTP basic authentication",
+                "optional": true,
+                "sensitive": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Chart repository URL",
+                "required": true
+              },
+              "username": {
+                "type": "string",
+                "description": "Username for HTTP basic authentication",
+                "optional": true
+              }
+            }
+          }
+        }
+      },
+      "data_source_schemas": {
+        "helm_repository": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "ca_file": {
+                "type": "string",
+                "description": "Verify certificates of HTTPS-enabled servers using this CA bundle",
+                "optional": true
+              },
+              "cert_file": {
+                "type": "string",
+                "description": "Identify HTTPS client using this SSL certificate file",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "key_file": {
+                "type": "string",
+                "description": "Identify HTTPS client using this SSL key file",
+                "optional": true
+              },
+              "metadata": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "Status of the deployed release",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Chart repository name",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Password for HTTP basic authentication",
+                "optional": true,
+                "sensitive": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Chart repository URL",
+                "required": true
+              },
+              "username": {
+                "type": "string",
+                "description": "Username for HTTP basic authentication",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

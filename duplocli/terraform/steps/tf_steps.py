@@ -8,6 +8,7 @@ from duplocli.terraform.resources.aws_resources import AwsResources
 from duplocli.terraform.resources.azure_resources import AzureResources
 from duplocli.terraform.resources.google_resources import GoogleResources
 from duplocli.terraform.resources.kubernetes_resources import  KubernetesResources
+from duplocli.terraform.resources.helm_resources import HelmResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 
@@ -160,6 +161,8 @@ class TfSteps:
         elif self.params.provider == "aws":
             os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
             self.api = AwsResources(self.params)
+        elif self.params.provider == "helm":
+            self.api = HelmResources(self.params)
         else:  # ? todo: error
             os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
             self.api = AwsResources(self.params)
