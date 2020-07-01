@@ -196,6 +196,7 @@ class AwsTfImportStep2():
         copy_files.append(self.file_utils.tf_state_file())
         copy_files.append(self.file_utils.tf_main_file())
         copy_files.append(self.file_utils.keys_folder())
+        copy_files.append(self.file_utils.tf_graph_file())
         self.file_utils.zip_final_folder(self.tenant_name,
                                              self.file_utils._temp_final_folder(),
                                              self.zip_folder,
@@ -216,5 +217,8 @@ class AwsTfImportStep2():
 
     def _plan(self):
         ## needed : terraform init and terraform plan
+        self.tf_import_sh_list.append('touch graph.svg ')
         self.tf_import_sh_list.append('terraform init ')
         self.tf_import_sh_list.append('terraform plan ')
+        self.tf_import_sh_list.append('terraform graph | dot -Tsvg > graph.svg ')
+

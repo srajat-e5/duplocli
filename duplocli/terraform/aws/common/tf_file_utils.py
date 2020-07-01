@@ -57,6 +57,8 @@ class TfFileUtils:
     # TEMP_FOLDER/step1/terraform.tfstate
     def tf_main_file(self):
         return self._file_in_temp_folder(self._tf_file_name)
+    def tf_graph_file(self):
+        return self._file_in_temp_folder("graph.svg")
     # log/step1_import.log
     def log_file(self):
         return self._file_in_log_folder("import")

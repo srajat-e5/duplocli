@@ -22,9 +22,13 @@ RUN ls -altR .
 RUN python3 -V
 RUN python -V
 
+RUN apt-get update &&  apt-get install -y graphviz
+ENV PATH=/usr/local/bin/dot:$PATH
 RUN pip install boto3
 RUN pip install requests
 RUN pip install psutil
+RUN pip install graphviz
+RUN pip install -r /duplocli/duplocli/terraform/requirements.txt
 
 RUN rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \
