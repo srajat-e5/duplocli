@@ -1,0 +1,41 @@
+#!/usr/bin/with-contenv bash
+
+#DUPLO_CHANGE: START
+echo "START********************* DOCKER RUN Firefox *********************START"
+sudo docker ps
+if [ $(sudo docker ps | grep firefox | wc -l) -gt 0 ]
+then
+    echo "**** Firefox is Running! "
+else
+    echo "**** Firefox is Not running!"
+    sudo docker run -d --name firefox -v /docker/appdata/firefox:/config --network host  jlesage/firefox:latest
+fi
+#sudo docker rm -f firefox
+#sudo docker run -d --name firefox -v /docker/appdata/firefox:/config --network host  jlesage/firefox:latest
+sudo docker ps
+echo "END********************** DOCKER RUN Firefox *********************END "
+#DUPLO_CHANGE: END
+
+if [ -n "${PASSWORD}" ]; then
+  AUTH="password"
+else
+  AUTH="none"
+  echo "starting with no password"
+fi
+
+if [ -z ${PROXY_DOMAIN+x} ]; then
+  PROXY_DOMAIN_ARG=""
+else
+  PROXY_DOMAIN_ARG="--proxy-domain=${PROXY_DOMAIN}"
+fi
+
+exec \
+	s6-setuidgid abc \
+		/usr/bin/code-server \
+			--bind-addr 0.0.0.0:8443 \
+			--user-data-dir /config/data \
+			--extensions-dir /config/extensions \
+			--disable-telemetry \
+			--auth "${AUTH}" \
+			"${PROXY_DOMAIN_ARG}" \
+			/config/workspace
