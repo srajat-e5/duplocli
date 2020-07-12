@@ -76,12 +76,31 @@ RUN apt-get update
 RUN apt-get install -y docker-ce docker-ce-cli containerd.io
 RUN pip install setuptools awscli
 
-
+#### zappa ####
+ENV LOCAL_PATH=/config/.local/bin
+ENV PATH=$LOCAL_PATH:$PATH
+# RUN usermod -s /bin/bash abc
+RUN apt-get update
+RUN apt-get install -y curl vim python3.7 python3.7-dev python3.7-distutils python3-venv  python3-pip
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+RUN update-alternatives --set python /usr/bin/python3.7
+RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py --force-reinstall && \
+    rm get-pip.py
+RUN apt install -y virtualenv
+RUN pip install virtualenv #?
+RUN pip3 install virtualenv #?
+RUN python3 -V
+RUN python -V
+RUN echo $PATH
 #### firefox ######
 #### firefox ######
 
 # add local files
 COPY /root /
+COPY bashrc  /config/.bashrc
+RUN chmod 755 /config/.bashrc
+RUN usermod -s /bin/bash abc
 
 ##
 RUN apt-get clean && \
@@ -93,7 +112,6 @@ rm -rf \
 #DUPLO_CHANGE:
 USER root
 RUN echo "abc  ALL=NOPASSWD: ALL" >> /etc/sudoers
-
 
 # ports and volumes
 EXPOSE 8443
