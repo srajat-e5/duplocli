@@ -57,9 +57,9 @@ class TfSteps:
         #step1
         api = self._api()
         if self.params.module == 'infra':
-            cloud_resources = api.get_tenant_resources()
-        else:
             cloud_resources = api.get_infra_resources()
+        else:
+            cloud_resources = api.get_tenant_resources()
         #step2
         print(cloud_resources)
         self.step1 = self._step1()
