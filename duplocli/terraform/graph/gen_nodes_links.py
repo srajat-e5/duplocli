@@ -139,9 +139,11 @@ class GenNodesLinks:
             dest_svd_ids = tf_resources_links[src_svd_id]
             for dest_svd_id in dest_svd_ids:
                 #{"source": "Napoleon", "target": "Myriel", "value": 1},
+                src_tf_resource =  tf_resources[src_svd_id]
+                module = src_tf_resource['module']
                 id = "svd_link_id_{0}".format(conuter_svd_id)
                 conuter_svd_id = conuter_svd_id + 1
-                link = {"source": src_svd_id, "target": dest_svd_id, "svd_link_id": id}
+                link = {"source": src_svd_id, "target": dest_svd_id, "svd_link_id": id, "group": module}
                 links.append(link)
         tf_graph["nodes"] = nodes
         tf_graph["links"] = links
