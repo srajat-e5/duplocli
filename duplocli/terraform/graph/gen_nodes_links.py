@@ -11,7 +11,7 @@ from duplocli.terraform.tf_import_parameters import AwsImportParameters
 
 class GenNodesLinks:
     tf_resources_merged = {}
-    tf_resources_to_id_merged = {}
+    tf_resources_var_to_ids_merged = {}
     tf_resources_links_merged = {}
     tf_graph_merged = {}
 
@@ -32,6 +32,9 @@ class GenNodesLinks:
                 tf_state_file =  os.path.join(graph_folder, "terraform.tfstate")
                 self.process_tfstate(tf_state_file, graph_folder_name)
 
+        #generate  one more time for cumulative 
+        self.create_nodes_and_links( self.tf_resources_merged, self.tf_resources_var_to_ids_merged, self.tf_resources_links_merged, self.tf_graph_merged)
+
         ##
         tf_resources_file = os.path.join(graph_root_folder, "tf_resources_file.json")
         tf_resources_to_id_file = os.path.join(graph_root_folder, "tf_resources_to_id.json")
@@ -39,7 +42,7 @@ class GenNodesLinks:
         tf_graph_file = os.path.join(graph_root_folder, "duplo_graph.json")
         ##
         self.file_utils.save_to_json(tf_resources_file, self.tf_resources_merged)
-        self.file_utils.save_to_json(tf_resources_to_id_file, self.tf_resources_to_id_merged)
+        self.file_utils.save_to_json(tf_resources_to_id_file, self.tf_resources_var_to_ids_merged)
         self.file_utils.save_to_json(tf_resources_links_file, self.tf_resources_links_merged)
         self.file_utils.save_to_json(tf_graph_file, self.tf_graph_merged)
 
@@ -93,7 +96,7 @@ class GenNodesLinks:
 
         # merge to global
         self.tf_resources_merged = self.merge_dict( self.tf_resources_merged, tf_resources)
-        self.tf_resources_to_id_merged = self.merge_dict(self.tf_resources_to_id_merged, tf_resources_var_to_ids)
+        self.tf_resources_var_to_ids_merged = self.merge_dict(self.tf_resources_var_to_ids_merged, tf_resources_var_to_ids)
         self.tf_resources_links_merged = self.merge_dict(self.tf_resources_links_merged, tf_resources_links)
         self.tf_graph_merged = self.merge_dict(self.tf_graph_merged, tf_graph)
 
