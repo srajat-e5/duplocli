@@ -185,8 +185,25 @@ class GenNodesLinks:
         graphData.tf_graph["nodes"] = nodes
         graphData.tf_graph["links"] = links
 
-    def create_parent_child(self, tf_resources, tf_resources_var_to_ids, tf_resources_links, tf_graph):
-        pass
+    def create_parent_child(self, graphData):
+        src_svd_ids = list(graphData.tf_resources_parent_links.keys())
+        tree_graph = {}
+        for src_svd_id in src_svd_ids:
+            self._create_parent_child(src_svd_id, tree_graph, graphData)
+
+    def _create_parent_child(self, src_svd_id, tree_graph,  graphData):
+        src_svd_ids = list(graphData.tf_resources_parent_links.keys())
+        tree_graph = {}
+        for src_svd_id in src_svd_ids:
+            child_svd_ids = graphData.tf_resources_parent_links[src_svd_id]
+            # value = len(child_svd_ids) #children
+            child_graph = {}
+            tree_graph['src_svd_id'] = child_graph
+            for child_svd_id in child_svd_ids:
+               if src_svd_id == src_svd_id_child:
+                   continue
+
+
 
 if __name__ == '__main__':
     params = AwsImportParameters()
