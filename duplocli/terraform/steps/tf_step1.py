@@ -21,6 +21,8 @@ class TfImportStep1(BaseTfImportStep):
 
     ############ execute_step public resources ##########
     def execute(self,  aws_obj_list=[]):
+        self.file_utils.save_to_json(self.file_utils.tf_resources_file(), aws_obj_list)
+        self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step2"), aws_obj_list)
         self._tf_resources(aws_obj_list)
         self._create_tf_state()
         return self.file_utils.tf_main_file()

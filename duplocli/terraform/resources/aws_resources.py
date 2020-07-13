@@ -57,6 +57,17 @@ class AwsResources(BaseResources):
         self.file_utils.print_json( self.tf_cloud_obj_list)
         return self.tf_cloud_obj_list
 
+    def get_infra_resources2(self):
+        self.tf_cloud_obj_list = []
+        self.tf_cloud_sg_list = []
+        self.resources_unique_ids = []
+        self._get_vpc_list()
+        self._aws_vpc()
+        # self._aws_subnet()
+        # self._aws_route_table()
+        self.file_utils.print_json( self.tf_cloud_obj_list)
+        return self.tf_cloud_obj_list
+
     def get_tenant_key_pair_list(self):
         awsclient = boto3.client('ec2')
         response = awsclient.describe_instances()
@@ -230,6 +241,43 @@ class AwsResources(BaseResources):
                                   skip_if_exists=True)
                 print(self.file_utils.stage_prefix(), "aws_security_group :", _id)
 
+    ########## _aws_instances START ##############################
+    ########## _aws_instances START ##############################
+    ########## _aws_instances START ##############################
+
+    def _aws_instances(self):
+        awsclient = boto3.client('ec2')
+        response = awsclient.describe_instances()
+        if self.debug_json:
+            self.file_utils.save_json_to_log("aws_instance._json", response)
+        aws_objs=[]
+        for reservation in response["Reservations"]:
+            for instance in reservation["Instances"]:
+                if "Tags" not in instance:
+                    continue
+                tags = self.utils.getHashFromArray(instance["Tags"])
+                tenant_name_ec2 =  self.utils.getVal(tags, "TENANT_NAME")
+                if self.params.tenant_name == tenant_name_ec2 :
+                    ######## aws_instance
+                    name = self.utils.getVal(tags, "Name")
+                    aws_name = instance['InstanceId']
+                    self.tf_cloud_resource("aws_instance", instance, tf_variable_id=aws_name, tf_import_id=aws_name,
+                                      skip_if_exists=True)
+                    aws_objs.append(instance)
+                    print(self.file_utils.stage_prefix(), "aws_instance :", tenant_name_ec2, name, aws_name)
+                    ######## aws_key_pair
+                    key_name = instance["KeyName"]
+                    if self.create_key_pair:
+                        self.tf_cloud_resource("aws_key_pair", instance, tf_variable_id=key_name, tf_import_id=key_name , skip_if_exists=True)
+                    else:
+                        print(self.file_utils.stage_prefix(), " : SKIP create aws_key_pair :", key_name, "as self.create_key_pair=", self.create_key_pair)
+                    aws_objs.append(instance)
+                    print(self.file_utils.stage_prefix(), "aws_key_pair :" , key_name)
+        if len(aws_objs) ==0 :
+            print(self.file_utils.stage_prefix(), "aws_instance :", "NOT_FOUND ANY")
+        if self.debug_print_out:
+            self.file_utils.print_json(aws_objs)
+        return self
     ########## get_tenant_resources START ##############################
     ########## get_tenant_resources START ##############################
     ########## get_tenant_resources START ##############################

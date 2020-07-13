@@ -24,8 +24,7 @@ class TfSteps:
     ######### modules == tenant, infra or all customer objects ######
     def execute(self):
         self.pre_execute()
-
-        ##  debug time
+        ##  debug
         if self.only_step1 or self.only_step2 :
             for module in self.params.modules():  # infra and tenants in modules to export
                 self.params.set_step_type(module)
@@ -34,16 +33,23 @@ class TfSteps:
                 else:
                     self._step2_tf_main()
             return [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
-
         ###
         # execute
         for module in self.params.modules(): # infra and tenants in modules to export
-            self.module_execute(module)
+            self._module_execute(module)
         self.post_execute()
         return  [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
 
 
-    def module_execute(self, module):
+    def _init_step1(self):
+        self.step1 = TfImportStep1(self.params)
+        return self.step1
+
+    def _init_step2(self):
+        self.step2 = TfImportStep2(self.params)
+        return self.step2
+
+    def _module_execute(self, module):
         self.params.set_step_type(module)
         self._step1_tf_state()
         self._step2_tf_main()
@@ -62,7 +68,7 @@ class TfSteps:
             cloud_resources = api.get_tenant_resources()
         #step2
         print(cloud_resources)
-        self.step1 = self._step1()
+        self.step1 = self._init_step1()
         self.step1.execute(cloud_resources)
         # download_aws_keys
         if self.params.module == 'infra':
@@ -74,40 +80,11 @@ class TfSteps:
                 self.step1.download_key(tenant_key_pairs)
         print(" ====== execute_infra_step1 ====== DONE\n")
 
-    #
-    # def _step1_tf_infra(self):
-    #     print("\n====== execute_infra_step1 ====== START")
-    #     self.params.set_step("step1")
-    #     api = self._api()
-    #     tenant_resources = api.get_infra_resources()
-    #     print(tenant_resources)
-    #     self.step1 = self._step1()
-    #     self.step1.execute(tenant_resources)
-    #     #download_aws_keys
-    #     if self.params.download_aws_keys == 'yes':
-    #         print(" ====== execute_infra_step1 download_key ====== \n")
-    #         tenant_key_pairs = api.get_tenant_key_pair_list()
-    #         self.step1.download_key(tenant_key_pairs)
-    #     print(" ====== execute_infra_step1 ====== DONE\n")
-    #
-    # def _step1_tf_tenant(self):
-    #     self.params.set_step("step1")
-    #     print("\n====== execute_tenant_step1 ====== START")
-    #     api = self._api()
-    #     tenant_resources = api.get_tenant_resources()
-    #     self.step1 = self._step1()
-    #     self.step1.execute(tenant_resources)
-    #     #download_aws_keys
-    #     if self.params.download_aws_keys == 'yes':
-    #         print(" ====== execute_tenant_step1 download_key ====== \n")
-    #         tenant_key_pairs = api.get_tenant_key_pair_list()
-    #         self.step1.download_key(tenant_key_pairs)
-    #     print(" ====== execute_tenant_step1 ====== DONE\n")
 
     def _step2_tf_main(self):
         self.params.set_step("step2")
         print("\n====== execute_step2 ====== START")
-        self.step2 = self._step2()
+        self.step2 = self._init_step2()
         self.step2.execute()
         print("temp_folder  ***** ", self.params.temp_folder)
         print("import_name  ***** ", self.params.import_name)
@@ -141,6 +118,7 @@ class TfSteps:
         for module in self.params.modules():
             self.params.set_step_type(module)
             self.params.set_step("step2")
+            copy_files.append(self.file_utils.tf_resources_file())
             copy_files.append(self.file_utils.tf_state_file())
             copy_files.append(self.file_utils.tf_main_file())
         copy_files.append(self.file_utils.keys_folder())
@@ -168,15 +146,4 @@ class TfSteps:
             self.api = AwsResources(self.params)
         return self.api
 
-    def _step1(self):
-        # if self.step1 is None:
-        #     self.step1 = TfImportStep1(self.params)
-        self.step1 = TfImportStep1(self.params)
-        return self.step1
-
-    def _step2(self):
-        # if self.step2 is None:
-        #     self.step2 = TfImportStep2(self.params)
-        self.step2 = TfImportStep2(self.params)
-        return self.step2
     ###############

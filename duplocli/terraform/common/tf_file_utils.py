@@ -7,6 +7,7 @@ import shutil
 
 class TfFileUtils:
     _tf_file_name = "main.tf.json"
+    _tf_resources_file_name = "resources.json"
     _tf_state_file_name = "terraform.tfstate"
     _schema_file_suffix = "tf_schema.json"
     _tf_import_script_prefix = "tf_import_script"  # .bat .sh
@@ -30,6 +31,12 @@ class TfFileUtils:
         return os.path.join(self.work_folder_for_step(step), self._tf_state_file_name)
 
     #######
+    def tf_resources_file(self):
+        return os.path.join(self.work_folder(), self._tf_resources_file_name)
+
+    def tf_resources_file_for_step(self, step):
+        return os.path.join(self.work_folder_for_step(step), self._tf_resources_file_name)
+
     def tf_state_file(self):
         return os.path.join(self.work_folder(), self._tf_state_file_name)
 

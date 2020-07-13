@@ -1,0 +1,9 @@
+{
+  "aws_vpc": {
+    "links": ["aws_subnet"]
+  },
+  "aws_route_table": {
+    "links": ["aws_route", ]
+  },
+
+}

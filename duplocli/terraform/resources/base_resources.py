@@ -52,7 +52,8 @@ class BaseResources:
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
         # create array
         tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
-                       "tf_import_id": tf_resource_type_sync_id}
+                       "tf_import_id": tf_resource_type_sync_id,
+                       "module": self.file_utils.params.module}
         self.tf_cloud_obj_list.append(tf_resource)
         self.resources_unique_ids.append(tf_id)
         return tf_resource
