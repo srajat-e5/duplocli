@@ -13,11 +13,24 @@ class GraphData:
     tf_resources_var_to_ids = {}
     tf_resources_links = {}
     tf_resources_parent_links = {}
+    tf_tree_ids = {}
     tf_tree = {}
     tf_graph = {}
+    tf_tree_children = []
+    def __init__(self, module):
+        self.module = module
+        self.tf_tree_children = []
+        self.tf_tree = {
+            "name":module,
+            "data":{},
+            "children": self.tf_tree_children
+        }
+
+
+
 
 class GenNodesLinks:
-    graphData_all = GraphData()
+    graphData_all = GraphData("duplo")
     tf_modules = {}
     tf_module_counter = 1
 
@@ -68,12 +81,14 @@ class GenNodesLinks:
         tf_resources_parent_links_file = os.path.join(graph_folder, "tf_resources_parent_links_file.json")
         tf_tree_file = os.path.join(graph_folder, "duplo_tree.json")
         tf_graph_file = os.path.join(graph_folder, "duplo_graph.json")
+        tf_tree_ids_file = os.path.join(graph_folder, "tf_tree_ids_file.json")
         ##
         self.file_utils.save_to_json(tf_resources_file, graphData.tf_resources)
         self.file_utils.save_to_json(tf_resources_to_id_file, graphData.tf_resources_var_to_ids)
         self.file_utils.save_to_json(tf_resources_links_file, graphData.tf_resources_links)
         self.file_utils.save_to_json(tf_resources_parent_links_file, graphData.tf_resources_parent_links)
         self.file_utils.save_to_json(tf_tree_file, graphData.tf_tree)
+        self.file_utils.save_to_json(tf_tree_ids_file, graphData.tf_tree_ids)
         self.file_utils.save_to_json(tf_graph_file, graphData.tf_graph)
 
     def process_tfstate(self, tf_state_file, graph_folder_name):
@@ -86,7 +101,8 @@ class GenNodesLinks:
         # tf_resources_var_to_ids = {}
         # tf_resources_links = {}
         # tf_graph = {}
-        graphData = GraphData()
+        graphData = GraphData(graph_folder_name)
+
         self.tf_modules[graph_folder_name] = self.tf_module_counter
         self.tf_module_counter = self.tf_module_counter + 1
         for resource in resources:
@@ -189,12 +205,35 @@ class GenNodesLinks:
     def create_parent_child(self, graphData):
         parent_svd_ids = list(graphData.tf_resources_links.keys())
         processed_ids=[]
+        processed_item_ids = []
         for parent_svd_id in parent_svd_ids:
-            self._create_parent_child(parent_svd_id, graphData.tf_tree, processed_ids, graphData)
+            # self._create_parent_child_tree_ids(parent_svd_id, graphData.tf_tree_ids, processed_ids, graphData)
+            self._create_parent_child_tree(parent_svd_id, graphData.tf_tree_children, processed_item_ids, graphData)
 
         # self.file_utils.print_json(graphData.tf_tree)
 
-    def _create_parent_child(self, parent_svd_id, parent_tree_graph, processed_ids, graphData):
+    def _create_parent_child_tree(self, parent_svd_id, parent_tf_tree_children, processed_ids, graphData):
+        if parent_svd_id in processed_ids:
+            print("parent_svd_id already processed ", parent_svd_id)
+            return
+        processed_ids.append(parent_svd_id)
+        if parent_svd_id not in graphData.tf_resources_links:
+            print("parent_svd_id no children ", parent_svd_id)
+            return
+
+        svd_ids = graphData.tf_resources_links[parent_svd_id]
+        print(len(svd_ids), "_create_parent_child", parent_svd_id, ",".join(svd_ids))
+        tree_graph_children=[]
+        tree_graph = {
+            "name": parent_svd_id,
+            "data": graphData.tf_resources[parent_svd_id],
+            "children": tree_graph_children
+        }
+        parent_tf_tree_children.append(tree_graph)
+        for svd_id in svd_ids:
+            self._create_parent_child_tree(svd_id, tree_graph_children, processed_ids, graphData)
+
+    def _create_parent_child_tree_ids(self, parent_svd_id, parent_tree_graph, processed_ids, graphData):
         if parent_svd_id  in processed_ids:
             print("parent_svd_id already processed ", parent_svd_id)
             return
@@ -208,23 +247,7 @@ class GenNodesLinks:
         tree_graph = {}
         parent_tree_graph[parent_svd_id] = tree_graph
         for svd_id in svd_ids:
-            self._create_parent_child(svd_id, tree_graph, processed_ids,  graphData)
-
-
-    # def create_parent_child(self, graphData):
-    #     src_svd_ids = list(graphData.tf_resources_parent_links.keys())
-    #
-    #     for src_svd_id in src_svd_ids:
-    #         self._create_parent_child(src_svd_id, graphData.tf_tree, graphData)
-    #
-    #     # self.file_utils.print_json(graphData.tf_tree)
-    #
-    # def _create_parent_child(self, parent_svd_id, parent_tree_graph,  graphData):
-    #     svd_ids = graphData.tf_resources_parent_links[parent_svd_id]
-    #     tree_graph = {}
-    #     parent_tree_graph[parent_svd_id] = tree_graph
-    #     for svd_id in svd_ids:
-    #         self._create_parent_child(svd_id, tree_graph, graphData)
+            self._create_parent_child_tree_ids(svd_id, tree_graph, processed_ids,  graphData)
 
 
 
