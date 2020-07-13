@@ -18,12 +18,18 @@ class GenNodesLinks:
         self.params = params
         self.file_utils = TfFileUtils(params, step=self.params.step, step_type=self.params.step_type)
 
+    def merge_dict(self, dict1, dict2):
+        res = {**dict1, **dict2}
+        return res
+
     def process_dir(self, graph_root_folder):
         self.graph_root_folder = graph_root_folder
         graph_folders = set(os.listdir(graph_root_folder))
-        for graph_folder in graph_folders:
-            tf_state_file =  os.path.join(graph_root_folder, graph_folder, "terraform.tfstate")
-            self.process_tfstate(tf_state_file)
+        for graph_folder_name in graph_folders:
+            graph_folder =  os.path.join(graph_root_folder, graph_folder_name)
+            if os.path.isdir(graph_folder):
+                tf_state_file =  os.path.join(graph_folder, "terraform.tfstate")
+                self.process_tfstate(tf_state_file)
         ##
         tf_resources_file = os.path.join(graph_root_folder, "tf_resources_file.json")
         tf_resources_to_id_file = os.path.join(graph_root_folder, "tf_resources_to_id.json")
@@ -38,7 +44,7 @@ class GenNodesLinks:
         resources = state_dict['resources']
 
         tf_resources={}
-        tf_resources_to_id = {}
+        tf_resources_var_to_ids = {}
         tf_resources_links = {}
 
         for resource in resources:
@@ -46,16 +52,23 @@ class GenNodesLinks:
             tf_resource['type']=resource['type']
             tf_resource['name'] = resource['name']
             tf_resource['provider'] = resource['provider']
-            tf_resource['var_name'] = "{0}.{1}".format(resource['type'], resource['name'])
+            #
             attributes = resource['instances'][0]['attributes']
             tf_resource['attributes'] = attributes
-            tf_resource['id'] = attributes['id']
-            tf_resources[tf_resource['id']] = tf_resource
-            tf_resources_to_id[tf_resource['var_name']] = tf_resource['id']
-            print("resource",tf_resource['var_name'], tf_resource['id'] )
+            #
+            var_name = "{0}.{1}".format(resource['type'], resource['name'])
+            id = attributes['id']
+            tf_resource['id'] = id
+            tf_resource['var_name'] = var_name
+            #
+            tf_resources[var_name] = tf_resource
+            if id not in tf_resources_var_to_ids:
+                tf_resources_var_to_ids[id] = []
+            tf_resources_var_to_ids[id].append(var_name)
+            print("resource",var_name, id, tf_resources_var_to_ids[id])
 
         # links
-        self.find_links(tf_resources, tf_resources_to_id, tf_resources_links)
+        self.find_links(tf_resources, tf_resources_var_to_ids, tf_resources_links)
         ##
         graph_folder = os.path.dirname(tf_state_file)
         tf_resources_file = os.path.join(graph_folder, "tf_resources_file.json")
@@ -63,34 +76,41 @@ class GenNodesLinks:
         tf_resources_links_file = os.path.join(graph_folder, "tf_resources_links.json")
         ##
         self.file_utils.save_to_json(tf_resources_file, tf_resources)
-        self.file_utils.save_to_json(tf_resources_to_id_file, tf_resources_to_id)
+        self.file_utils.save_to_json(tf_resources_to_id_file, tf_resources_var_to_ids)
         self.file_utils.save_to_json(tf_resources_links_file, tf_resources_links)
         # merge to global
         self.tf_resources_merged = self.merge_dict( self.tf_resources_merged, tf_resources)
-        self.tf_resources_to_id_merged = self.merge_dict(self.tf_resources_to_id_merged, tf_resources_to_id)
+        self.tf_resources_to_id_merged = self.merge_dict(self.tf_resources_to_id_merged, tf_resources_var_to_ids)
         self.tf_resources_links_merged = self.merge_dict(self.tf_resources_links_merged, tf_resources_links)
 
 
         print("")
 
-    def merge_dict(self, dict1, dict2):
-        res = {**dict1, **dict2}
-        return res
-    def find_links(self, tf_resources, tf_resources_to_id, tf_resources_links):
-        tf_resource_ids = list(tf_resources.keys())
-        for tf_resource_id in tf_resource_ids:
-            self.find_link(tf_resource_id, tf_resources, tf_resources_to_id, tf_resources_links)
 
-    def find_link(self, tf_resource_id_src, tf_resources, tf_resources_to_id, tf_resources_links):
-        tf_resource_ids = list(tf_resources.keys())
-        for tf_resource_id in tf_resource_ids:
-            if tf_resource_id_src != tf_resource_id:
-                tf_resources_dest = tf_resources[tf_resource_id]
-                str_dest = json.dumps(tf_resources_dest)
-                if "\"{0}\"".format(tf_resource_id_src)  in str_dest:
-                    if tf_resource_id_src not in tf_resources_links:
-                        tf_resources_links[tf_resource_id_src] = []
-                    tf_resources_links[tf_resource_id_src].append(tf_resource_id)
+    def find_links(self, tf_resources, tf_resources_var_to_ids, tf_resources_links):
+        tf_resource_var_names = list(tf_resources.keys())
+        for tf_resource_var_name in tf_resource_var_names:
+            self.find_link(tf_resource_var_name, tf_resources, tf_resources_var_to_ids, tf_resources_links)
+
+    def find_link(self, tf_resource_var_name_src, tf_resources, tf_resources_var_to_ids, tf_resources_links):
+        tf_resource_var_names = list(tf_resources.keys())
+        for tf_resource_var_name in tf_resource_var_names:
+            if tf_resource_var_name_src == tf_resource_var_name:
+                continue #skip this one
+
+            #skip if id is duplicate object?
+            tf_resource_src = tf_resources[tf_resource_var_name_src]
+            tf_resource_var_names_src = tf_resources_var_to_ids[tf_resource_src['id']]
+            if tf_resource_var_name in tf_resource_var_names_src:
+                continue  # skip this one
+            # check if id in this ojbect
+            tf_resource_dest = tf_resources[tf_resource_var_name]
+            dest_str = json.dumps(tf_resource_dest)
+            src_id = tf_resource_src['id']
+            if "\"{0}\"".format(src_id)  in dest_str:
+                if tf_resource_var_name_src not in tf_resources_links:
+                    tf_resources_links[tf_resource_var_name_src] = []
+                tf_resources_links[tf_resource_var_name_src].append(tf_resource_var_name)
 
 
 
