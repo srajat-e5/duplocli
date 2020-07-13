@@ -5,11 +5,13 @@ from flask_cors import CORS
 from flask_session import Session
 import os
 import uuid
+from datetime import datetime
+
 
 app = Flask(__name__)
 SESSION_COOKIE_NAME = 'duplo_auth_proxy_session'
 SESSION_TYPE = 'filesystem'
-SESSION_FILE_DIR = '/project/flask_cookie'
+SESSION_FILE_DIR = '/flaskapp/flask_cookie'
 secret = os.environ.get('FLASK_APP_SECRET') if os.environ.get('FLASK_APP_SECRET') else str(uuid.uuid4())
 SECRET_KEY = secret.encode()
 
