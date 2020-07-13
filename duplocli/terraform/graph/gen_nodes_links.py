@@ -25,6 +25,18 @@ class GenNodesLinks:
         res = {**dict1, **dict2}
         return res
 
+    def create_icons(self, main_file):
+        state_dict = self.file_utils.load_json_file(main_file)
+        resources = state_dict['resource']
+        resources_names = list(resources.keys())
+        src = '/Users/brighu/__pg/d3pg/duplo/icons'
+        dest = '/Users/brighu/__pg/d3pg/duplo/icons2'
+        src_icons = set(os.listdir(src))
+        for resources_name in resources_names:
+            dest_icon = os.path.join(dest, resources_name+".png")
+            src_icon =  os.path.join(src, src_icons.pop())
+            os.rename(src_icon, dest_icon)
+
     def process_dir(self, graph_root_folder):
         self.graph_root_folder = graph_root_folder
         graph_folders = set(os.listdir(graph_root_folder))
@@ -75,7 +87,8 @@ class GenNodesLinks:
             #
             var_name = "{0}.{1}".format(resource['type'], resource['name'])
             id = attributes['id']
-            tf_resource['id'] = id
+            tf_resource['aws_id'] = id
+            tf_resource['id'] = var_name
             tf_resource['var_name'] = var_name
             tf_resource['svd_id'] = var_name
             #
@@ -123,13 +136,13 @@ class GenNodesLinks:
 
             #skip if id is duplicate object?
             tf_resource_src = tf_resources[tf_resource_var_name_src]
-            tf_resource_var_names_src = tf_resources_var_to_ids[tf_resource_src['id']]
+            tf_resource_var_names_src = tf_resources_var_to_ids[tf_resource_src['aws_id']]
             if tf_resource_var_name in tf_resource_var_names_src:
                 continue  # skip this one
             # check if id in this ojbect
             tf_resource_dest = tf_resources[tf_resource_var_name]
             dest_str = json.dumps(tf_resource_dest)
-            src_id = tf_resource_src['id']
+            src_id = tf_resource_src['aws_id']
             if "\"{0}\"".format(src_id)  in dest_str:
                 if tf_resource_var_name_src not in tf_resources_links:
                     tf_resources_links[tf_resource_var_name_src] = []
@@ -165,6 +178,9 @@ if __name__ == '__main__':
     params.module = "graph"
     graph_utils = GenNodesLinks(params)
     graph_utils.process_dir("/Users/brighu/_duplo_code/duplocli/work/graph")
+    graph_utils.create_icons("/Users/brighu/_duplo_code/duplocli/work/graph/infra/main.tf.json")
+
+
     # graph_utils.process_tfstate("/Users/brighu/_duplo_code/duplocli/work/graph/infra/terraform.tfstate")
 
 
