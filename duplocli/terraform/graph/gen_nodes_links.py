@@ -187,7 +187,7 @@ class GenNodesLinks:
 
 
     def create_parent_child(self, graphData):
-        parent_svd_ids = list(graphData.tf_resources_parent_links.keys())
+        parent_svd_ids = list(graphData.tf_resources_links.keys())
         processed_ids=[]
         for parent_svd_id in parent_svd_ids:
             self._create_parent_child(parent_svd_id, graphData.tf_tree, processed_ids, graphData)
@@ -199,11 +199,11 @@ class GenNodesLinks:
             print("parent_svd_id already processed ", parent_svd_id)
             return
         processed_ids.append(parent_svd_id)
-        if parent_svd_id not in graphData.tf_resources_parent_links:
+        if parent_svd_id not in graphData.tf_resources_links:
             print("parent_svd_id no children ", parent_svd_id)
             return
 
-        svd_ids = graphData.tf_resources_parent_links[parent_svd_id]
+        svd_ids = graphData.tf_resources_links[parent_svd_id]
         print( len(svd_ids), "_create_parent_child", parent_svd_id, ",".join(svd_ids))
         tree_graph = {}
         parent_tree_graph[parent_svd_id] = tree_graph
