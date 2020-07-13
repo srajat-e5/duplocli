@@ -9,7 +9,6 @@ COPY app /flaskapp/app
 COPY uwsgi.ini /etc/uwsgi/uwsgi.ini
 COPY requirements.txt /flaskapp/requirements.txt
 RUN pip install uwsgi
-# RUN apt-get install uwsgi-plugin-python
 
 RUN pip install -r /flaskapp/requirements.txt
 RUN pip install supervisor
