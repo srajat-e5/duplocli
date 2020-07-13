@@ -23,8 +23,6 @@ class GenNodesLinks:
         res = {**dict1, **dict2}
         return res
 
-
-
     def process_dir(self, graph_root_folder):
         self.graph_root_folder = graph_root_folder
         graph_folders = set(os.listdir(graph_root_folder))
@@ -32,8 +30,7 @@ class GenNodesLinks:
             graph_folder =  os.path.join(graph_root_folder, graph_folder_name)
             if os.path.isdir(graph_folder):
                 tf_state_file =  os.path.join(graph_folder, "terraform.tfstate")
-                self.process_tfstate(tf_state_file)
-
+                self.process_tfstate(tf_state_file, graph_folder_name)
 
         ##
         tf_resources_file = os.path.join(graph_root_folder, "tf_resources_file.json")
@@ -46,7 +43,9 @@ class GenNodesLinks:
         self.file_utils.save_to_json(tf_resources_links_file, self.tf_resources_links_merged)
         self.file_utils.save_to_json(tf_graph_file, self.tf_graph_merged)
 
-    def process_tfstate(self, tf_state_file):
+    def process_tfstate(self, tf_state_file, graph_folder_name):
+        print("")
+        print("START ****** process tf_module: " , graph_folder_name, tf_state_file)
         state_dict = self.file_utils.load_json_file(tf_state_file)
         resources = state_dict['resources']
 
@@ -60,6 +59,7 @@ class GenNodesLinks:
             tf_resource['type']=resource['type']
             tf_resource['name'] = resource['name']
             tf_resource['provider'] = resource['provider']
+            tf_resource['module'] = graph_folder_name
             #
             attributes = resource['instances'][0]['attributes']
             tf_resource['attributes'] = attributes
@@ -97,9 +97,8 @@ class GenNodesLinks:
         self.tf_resources_links_merged = self.merge_dict(self.tf_resources_links_merged, tf_resources_links)
         self.tf_graph_merged = self.merge_dict(self.tf_graph_merged, tf_graph)
 
-
+        print("DONE ****** process tf_module: ", graph_folder_name, tf_state_file)
         print("")
-
 
     def find_links(self, tf_resources, tf_resources_var_to_ids, tf_resources_links, tf_graph):
         tf_resource_var_names = list(tf_resources.keys())
