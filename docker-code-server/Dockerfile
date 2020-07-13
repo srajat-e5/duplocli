@@ -97,3 +97,23 @@ RUN echo "abc  ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 # ports and volumes
 EXPOSE 8443
+
+
+#SSO nginx reverse proxy changes
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends libatlas-base-dev gfortran nginx supervisor
+
+COPY flaskapp/supervisor.conf /etc/supervisor/conf.d/
+COPY flaskapp/nginx.conf /etc/nginx/nginx.conf
+COPY flaskapp/app /flaskapp/app
+COPY flaskapp/uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY flaskapp/requirements.txt /flaskapp/requirements.txt
+RUN pip install uwsgi
+RUN pip install -r /flaskapp/requirements.txt
+
+RUN useradd --no-create-home nginx
+RUN rm /etc/nginx/sites-enabled/default
+#RUN rm -r /root/.cache
+RUN mkdir -m 777 -p /flaskapp/flask_cookie
+
+CMD [ "supervisord", "-n" ]
