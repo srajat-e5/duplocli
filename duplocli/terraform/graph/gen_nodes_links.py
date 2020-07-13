@@ -13,6 +13,7 @@ class GraphData:
     tf_resources_var_to_ids = {}
     tf_resources_links = {}
     tf_resources_parent_links = {}
+    tf_tree = {}
     tf_graph = {}
 
 class GenNodesLinks:
@@ -52,19 +53,28 @@ class GenNodesLinks:
 
         #generate  one more time for cumulative 
         self.create_nodes_and_links( self.graphData_all)
+        self.create_parent_child(self.graphData_all)
 
         ##
-        tf_resources_file = os.path.join(graph_root_folder, "tf_resources_file.json")
-        tf_resources_to_id_file = os.path.join(graph_root_folder, "tf_resources_to_id.json")
-        tf_resources_links_file = os.path.join(graph_root_folder, "tf_resources_links.json")
-        tf_resources_parent_links_file = os.path.join(graph_root_folder, "tf_resources_parent_links_file.json")
-        tf_graph_file = os.path.join(graph_root_folder, "duplo_graph.json")
+        self.save_graph_data(graph_root_folder, self.graphData_all)
+
+
+
+    def save_graph_data(self, graph_folder, graphData):
         ##
-        self.file_utils.save_to_json(tf_resources_file, self.graphData_all.tf_resources )
-        self.file_utils.save_to_json(tf_resources_to_id_file, self.graphData_all.tf_resources_var_to_ids)
-        self.file_utils.save_to_json(tf_resources_links_file, self.graphData_all.tf_resources_links)
-        self.file_utils.save_to_json(tf_resources_parent_links_file, self.graphData_all.tf_resources_parent_links)
-        self.file_utils.save_to_json(tf_graph_file, self.graphData_all.tf_graph)
+        tf_resources_file = os.path.join(graph_folder, "tf_resources_file.json")
+        tf_resources_to_id_file = os.path.join(graph_folder, "tf_resources_to_id.json")
+        tf_resources_links_file = os.path.join(graph_folder, "tf_resources_links.json")
+        tf_resources_parent_links_file = os.path.join(graph_folder, "tf_resources_parent_links_file.json")
+        tf_tree_file = os.path.join(graph_folder, "duplo_tree.json")
+        tf_graph_file = os.path.join(graph_folder, "duplo_graph.json")
+        ##
+        self.file_utils.save_to_json(tf_resources_file, graphData.tf_resources)
+        self.file_utils.save_to_json(tf_resources_to_id_file, graphData.tf_resources_var_to_ids)
+        self.file_utils.save_to_json(tf_resources_links_file, graphData.tf_resources_links)
+        self.file_utils.save_to_json(tf_resources_parent_links_file, graphData.tf_resources_parent_links)
+        self.file_utils.save_to_json(tf_tree_file, graphData.tf_tree)
+        self.file_utils.save_to_json(tf_graph_file, graphData.tf_graph)
 
     def process_tfstate(self, tf_state_file, graph_folder_name):
         print("")
@@ -79,8 +89,6 @@ class GenNodesLinks:
         graphData = GraphData()
         self.tf_modules[graph_folder_name] = self.tf_module_counter
         self.tf_module_counter = self.tf_module_counter + 1
-
-
         for resource in resources:
             tf_resource = {}
             tf_resource['type']=resource['type']
@@ -107,20 +115,11 @@ class GenNodesLinks:
 
         # links
         self.find_links(graphData)
-        ##
-        graph_folder = os.path.dirname(tf_state_file)
-        tf_resources_file = os.path.join(graph_folder, "tf_resources_file.json")
-        tf_resources_to_id_file = os.path.join(graph_folder, "tf_resources_to_id.json")
-        tf_resources_links_file = os.path.join(graph_folder, "tf_resources_links.json")
-        tf_resources_parent_links_file = os.path.join(graph_folder, "tf_resources_parent_links_file.json")
-        tf_graph_file = os.path.join(graph_folder, "duplo_graph.json")
+        self.create_parent_child(graphData)
 
         ##
-        self.file_utils.save_to_json(tf_resources_file, graphData.tf_resources)
-        self.file_utils.save_to_json(tf_resources_to_id_file, graphData.tf_resources_var_to_ids)
-        self.file_utils.save_to_json(tf_resources_links_file, graphData.tf_resources_links)
-        self.file_utils.save_to_json(tf_resources_parent_links_file, graphData.tf_resources_parent_links)
-        self.file_utils.save_to_json(tf_graph_file, graphData.tf_graph)
+        graph_folder = os.path.dirname(tf_state_file)
+        self.save_graph_data(graph_folder, graphData)
 
         # merge to global
         self.graphData_all.tf_resources = self.merge_dict( self.graphData_all.tf_resources, graphData.tf_resources)
@@ -137,6 +136,7 @@ class GenNodesLinks:
         for tf_resource_var_name in tf_resource_var_names:
             self.find_link(tf_resource_var_name, graphData)
         self.create_nodes_and_links(graphData)
+
 
     def find_link(self, tf_resource_var_name_src, graphData):
         tf_resource_var_names = list(graphData.tf_resources.keys())
@@ -187,21 +187,18 @@ class GenNodesLinks:
 
     def create_parent_child(self, graphData):
         src_svd_ids = list(graphData.tf_resources_parent_links.keys())
-        tree_graph = {}
-        for src_svd_id in src_svd_ids:
-            self._create_parent_child(src_svd_id, tree_graph, graphData)
 
-    def _create_parent_child(self, src_svd_id, tree_graph,  graphData):
-        src_svd_ids = list(graphData.tf_resources_parent_links.keys())
-        tree_graph = {}
         for src_svd_id in src_svd_ids:
-            child_svd_ids = graphData.tf_resources_parent_links[src_svd_id]
-            # value = len(child_svd_ids) #children
-            child_graph = {}
-            tree_graph['src_svd_id'] = child_graph
-            for child_svd_id in child_svd_ids:
-               if src_svd_id == src_svd_id_child:
-                   continue
+            self._create_parent_child(src_svd_id, graphData.tf_tree, graphData)
+
+        # self.file_utils.print_json(graphData.tf_tree)
+
+    def _create_parent_child(self, parent_svd_id, parent_tree_graph,  graphData):
+        svd_ids = graphData.tf_resources_parent_links[parent_svd_id]
+        tree_graph = {}
+        parent_tree_graph[parent_svd_id] = tree_graph
+        for svd_id in svd_ids:
+            self._create_parent_child(svd_id, tree_graph, graphData)
 
 
 
