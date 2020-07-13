@@ -14,6 +14,8 @@ class GenNodesLinks:
     tf_resources_var_to_ids_merged = {}
     tf_resources_links_merged = {}
     tf_graph_merged = {}
+    tf_modules = {}
+    tf_module_counter = 1
 
     def __init__(self, params):
         self.params = params
@@ -56,6 +58,9 @@ class GenNodesLinks:
         tf_resources_var_to_ids = {}
         tf_resources_links = {}
         tf_graph = {}
+        self.tf_modules[graph_folder_name] = self.tf_module_counter
+        self.tf_module_counter = self.tf_module_counter + 1
+
 
         for resource in resources:
             tf_resource = {}
@@ -63,6 +68,7 @@ class GenNodesLinks:
             tf_resource['name'] = resource['name']
             tf_resource['provider'] = resource['provider']
             tf_resource['module'] = graph_folder_name
+            tf_resource['group'] = self.tf_modules[graph_folder_name]
             #
             attributes = resource['instances'][0]['attributes']
             tf_resource['attributes'] = attributes
@@ -137,13 +143,16 @@ class GenNodesLinks:
         for src_svd_id in src_svd_ids:
             # need some config as it could nd parent or child
             dest_svd_ids = tf_resources_links[src_svd_id]
+            value = len(dest_svd_ids)
             for dest_svd_id in dest_svd_ids:
                 #{"source": "Napoleon", "target": "Myriel", "value": 1},
                 src_tf_resource =  tf_resources[src_svd_id]
                 module = src_tf_resource['module']
                 id = "svd_link_id_{0}".format(conuter_svd_id)
                 conuter_svd_id = conuter_svd_id + 1
-                link = {"source": src_svd_id, "target": dest_svd_id, "svd_link_id": id, "group": module}
+                group = self.tf_modules[module]
+                link = {"source": src_svd_id, "target": dest_svd_id, "value":value
+                    , "svd_link_id": id, "group":group, "module": module}
                 links.append(link)
         tf_graph["nodes"] = nodes
         tf_graph["links"] = links
