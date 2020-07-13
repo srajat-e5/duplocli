@@ -12,6 +12,7 @@ class GraphData:
     tf_resources = {}
     tf_resources_var_to_ids = {}
     tf_resources_links = {}
+    tf_resources_parent_links = {}
     tf_graph = {}
 
 class GenNodesLinks:
@@ -28,6 +29,7 @@ class GenNodesLinks:
         return res
 
     def create_icons(self, main_file):
+        #select random images and name them to aws_resouce.png
         state_dict = self.file_utils.load_json_file(main_file)
         resources = state_dict['resource']
         resources_names = list(resources.keys())
@@ -55,11 +57,13 @@ class GenNodesLinks:
         tf_resources_file = os.path.join(graph_root_folder, "tf_resources_file.json")
         tf_resources_to_id_file = os.path.join(graph_root_folder, "tf_resources_to_id.json")
         tf_resources_links_file = os.path.join(graph_root_folder, "tf_resources_links.json")
+        tf_resources_parent_links_file = os.path.join(graph_root_folder, "tf_resources_parent_links_file.json")
         tf_graph_file = os.path.join(graph_root_folder, "duplo_graph.json")
         ##
         self.file_utils.save_to_json(tf_resources_file, self.graphData_all.tf_resources )
         self.file_utils.save_to_json(tf_resources_to_id_file, self.graphData_all.tf_resources_var_to_ids)
         self.file_utils.save_to_json(tf_resources_links_file, self.graphData_all.tf_resources_links)
+        self.file_utils.save_to_json(tf_resources_parent_links_file, self.graphData_all.tf_resources_parent_links)
         self.file_utils.save_to_json(tf_graph_file, self.graphData_all.tf_graph)
 
     def process_tfstate(self, tf_state_file, graph_folder_name):
@@ -108,18 +112,21 @@ class GenNodesLinks:
         tf_resources_file = os.path.join(graph_folder, "tf_resources_file.json")
         tf_resources_to_id_file = os.path.join(graph_folder, "tf_resources_to_id.json")
         tf_resources_links_file = os.path.join(graph_folder, "tf_resources_links.json")
+        tf_resources_parent_links_file = os.path.join(graph_folder, "tf_resources_parent_links_file.json")
         tf_graph_file = os.path.join(graph_folder, "duplo_graph.json")
 
         ##
         self.file_utils.save_to_json(tf_resources_file, graphData.tf_resources)
         self.file_utils.save_to_json(tf_resources_to_id_file, graphData.tf_resources_var_to_ids)
         self.file_utils.save_to_json(tf_resources_links_file, graphData.tf_resources_links)
+        self.file_utils.save_to_json(tf_resources_parent_links_file, graphData.tf_resources_parent_links)
         self.file_utils.save_to_json(tf_graph_file, graphData.tf_graph)
 
         # merge to global
         self.graphData_all.tf_resources = self.merge_dict( self.graphData_all.tf_resources, graphData.tf_resources)
         self.graphData_all.tf_resources_var_to_ids = self.merge_dict(self.graphData_all.tf_resources_var_to_ids, graphData.tf_resources_var_to_ids)
         self.graphData_all.tf_resources_links = self.merge_dict(self.graphData_all.tf_resources_links, graphData.tf_resources_links)
+        self.graphData_all.tf_resources_parent_links = self.merge_dict(self.graphData_all.tf_resources_parent_links, graphData.tf_resources_parent_links)
         self.graphData_all.tf_graph= self.merge_dict(self.graphData_all.tf_graph, graphData.tf_graph)
 
         print("DONE ****** process tf_module: ", graph_folder_name, tf_state_file)
@@ -147,9 +154,14 @@ class GenNodesLinks:
             dest_str = json.dumps(tf_resource_dest)
             src_id = tf_resource_src['aws_id']
             if "\"{0}\"".format(src_id)  in dest_str:
+                #parent holds childs
                 if tf_resource_var_name_src not in graphData.tf_resources_links:
                     graphData.tf_resources_links[tf_resource_var_name_src] = []
                 graphData.tf_resources_links[tf_resource_var_name_src].append(tf_resource_var_name)
+                #rever realtionship -- child holds parent
+                if tf_resource_var_name not in graphData.tf_resources_parent_links:
+                    graphData.tf_resources_parent_links[tf_resource_var_name] = []
+                graphData.tf_resources_parent_links[tf_resource_var_name].append(tf_resource_var_name_src)
 
     def create_nodes_and_links(self, graphData):
         nodes =  list(graphData.tf_resources.values())
