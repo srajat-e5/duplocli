@@ -10,6 +10,8 @@ from duplocli.terraform.tf_import_parameters import AwsImportParameters
 
 
 class GenNodesLinks:
+    tf_resources_all = {}
+    tf_resources_to_id_all = {}
 
     def __init__(self, params):
         self.params = params
@@ -36,20 +38,38 @@ class GenNodesLinks:
             tf_resources_to_id[tf_resource['var_name']] = tf_resource['id']
             print("resource",tf_resource['var_name'], tf_resource['id'] )
 
+        tf_resources_links = {}
+        self.find_links(tf_resources, tf_resources_to_id, tf_resources_links)
         ##
         graph_folder = os.path.dirname(tf_state_file)
         ##
         tf_resources_file = os.path.join(graph_folder, "tf_resources_file.json")
         tf_resources_to_id_file = os.path.join(graph_folder, "tf_resources_to_id.json")
+        tf_resources_links_file = os.path.join(graph_folder, "tf_resources_links.json")
         ##
         self.file_utils.save_to_json(tf_resources_file, tf_resources)
         self.file_utils.save_to_json(tf_resources_to_id_file, tf_resources_to_id)
-        # tf_resources = {}
-        # tf_resources_to_id = {}
+        self.file_utils.save_to_json(tf_resources_links_file, tf_resources_links)
 
         print("")
 
-    def find_links(self, ):
+    def find_links(self, tf_resources, tf_resources_to_id, tf_resources_links):
+        tf_resource_ids = list(tf_resources.keys())
+        for tf_resource_id in tf_resource_ids:
+            self.find_link(tf_resource_id, tf_resources, tf_resources_to_id, tf_resources_links)
+
+    def find_link(self, tf_resource_id_src, tf_resources, tf_resources_to_id, tf_resources_links):
+        tf_resource_ids = list(tf_resources.keys())
+        for tf_resource_id in tf_resource_ids:
+            if tf_resource_id_src != tf_resource_id:
+                tf_resources_dest = tf_resources[tf_resource_id]
+                str_dest = json.dumps(tf_resources_dest)
+                if "\"{0}\"".format(tf_resource_id_src)  in str_dest:
+                    if tf_resource_id_src not in tf_resources_links:
+                        tf_resources_links[tf_resource_id_src] = []
+                    tf_resources_links[tf_resource_id_src].append(tf_resource_id)
+
+
 
 if __name__ == '__main__':
     params = AwsImportParameters()
