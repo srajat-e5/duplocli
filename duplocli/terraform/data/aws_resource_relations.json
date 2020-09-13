@@ -1,0 +1,14 @@
+{
+  "aws_vpc": {
+    "links": ["aws_route_table", "aws_default_subnet", "aws_subnet"]
+  },
+  "aws_subnet": {
+    "links": ["aws_network_interface"]
+  },
+  "aws_route_table": {
+    "links": ["aws_route"  ]
+  },
+  "ws_network_interface": {
+    "links": ["aws_security_group" ]
+  }
+}

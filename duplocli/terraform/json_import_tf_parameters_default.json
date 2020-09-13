@@ -1,0 +1,16 @@
+{
+  "zip_folder": "work/output/zip",
+  "temp_folder": "work/output",
+  "import_module": "tenant",
+
+  "tenant_name": null,
+  "aws_region":null,
+
+  "state_file": null,
+  "zip_file_path": null,
+
+  "download_aws_keys": "no",
+  "url": null,
+  "tenant_id": null,
+  "api_token": null
+}
