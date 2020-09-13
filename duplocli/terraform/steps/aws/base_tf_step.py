@@ -1,4 +1,3 @@
-
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.schema.tf_schema import TfSchema
@@ -8,6 +7,7 @@ import psutil
 
 
 class AwsBaseTfImportStep :
+
 
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}
@@ -49,26 +49,7 @@ class AwsBaseTfImportStep :
 
     ############ provider ##########
     def provider(self):
-        if self.params.provider == "aws":
-            self.aws_provider()
-        elif self.params.provider == "azurerm":
-            self.azurerm_provider()
-        elif self.params.provider == "google":
-            pass
-        elif self.params.provider == "kubernetes":
-            pass
-        elif self.params.provider == "helm":
-            pass
-        else:
-            self.aws_provider()
-
-    def azurerm_provider(self):
-        tf_resource_type = "provider"
-        tf_resource_var_name = "azurerm"
-        resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
-        resource_obj["version"] = "=2.0.0"
-        self.tf_import_sh_list.append('terraform init ')
-        return resource_obj
+        self.aws_provider()
 
     def aws_provider(self):
         tf_resource_type = "provider"
@@ -84,7 +65,6 @@ class AwsBaseTfImportStep :
         resource_obj[tf_resource_var_name] = {}
         self.main_tf_json_dict[tf_resource_type] = resource_obj
         return resource_obj[tf_resource_var_name]
-
 
     ############ helper  ##########
 

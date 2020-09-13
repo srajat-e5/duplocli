@@ -1,4 +1,4 @@
-from duplocli.terraform.steps.base_tf_step import BaseTfImportStep
+from duplocli.terraform.steps.azurerm.base_tf_step import AzureBaseTfImportStep
 import requests
 
 # aws_resources
@@ -14,10 +14,10 @@ dummy_values = {
     "ipv6_cidr_block":"0.0.0.0/0"
 }
 
-class TfImportStep1(BaseTfImportStep):
+class AzurermTfImportStep1(AzureBaseTfImportStep):
 
     def __init__(self,  params):
-       super(TfImportStep1, self).__init__(params)
+       super(AzurermTfImportStep1, self).__init__(params)
 
     ############ execute_step public resources ##########
     def execute(self,  aws_obj_list=[]):
@@ -27,6 +27,8 @@ class TfImportStep1(BaseTfImportStep):
         self._create_tf_state()
         return self.file_utils.tf_main_file()
 
+    def get_tenant_key_pair_list(self):
+        return None
     ############ main.tf.json + script + generate state ##########
     def _create_tf_state(self):
         super()._create_tf_state()
@@ -60,6 +62,7 @@ class TfImportStep1(BaseTfImportStep):
         self.tf_import_sh_list.append(
             'terraform import "' + tf_resource_type + '.' + tf_resource_var_name + '"  "' + tf_resource_type_sync_id + '"')
         return resource_obj
+
 
 
 

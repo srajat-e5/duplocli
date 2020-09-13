@@ -4,11 +4,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.steps.aws.tf_step1 import AwsTfImportStep1
 from duplocli.terraform.steps.aws.tf_step2 import AwsTfImportStep2
 
-from duplocli.terraform.resources.aws_resources import AwsResources
-from duplocli.terraform.resources.azure_resources import AzureResources
-from duplocli.terraform.resources.google_resources import GoogleResources
-from duplocli.terraform.resources.kubernetes_resources import  KubernetesResources
-from duplocli.terraform.resources.helm_resources import HelmResources
+from duplocli.terraform.steps.aws.aws_resources import AwsResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 
@@ -130,20 +126,7 @@ class AwsTfSteps:
 
     ###############
     def _api(self):
-        if self.params.provider == "azurerm":
-            self.api = AzureResources(self.params)
-        elif self.params.provider == "google":
-            self.api = GoogleResources(self.params)
-        elif self.params.provider == "kubernetes":
-            self.api = KubernetesResources(self.params)
-        elif self.params.provider == "aws":
-            os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
-            self.api = AwsResources(self.params)
-        elif self.params.provider == "helm":
-            self.api = HelmResources(self.params)
-        else:  # ? todo: error
-            os.environ['AWS_DEFAULT_REGION'] = self.params.aws_region
-            self.api = AwsResources(self.params)
+        self.api = AwsResources(self.params)
         return self.api
 
     ###############

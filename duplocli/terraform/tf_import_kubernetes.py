@@ -1,10 +1,10 @@
 from duplocli.terraform.tf_import_parameters import KubernetesImportParameters
 
-from duplocli.terraform.steps.tf_steps import TfSteps
+from duplocli.terraform.steps.kubernetes.tf_steps import KubernetesTfSteps
 
 ######## ####
 def main(params):
-    tenant = TfSteps(params)
+    tenant = KubernetesTfSteps(params)
     tenant.execute()
 
 if __name__ == '__main__':

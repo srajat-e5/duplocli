@@ -1,10 +1,10 @@
 from duplocli.terraform.tf_import_parameters import AwsImportParameters
 
-from duplocli.terraform.steps.tf_steps import TfSteps
+from duplocli.terraform.steps.aws.tf_steps import AwsTfSteps
 
 ######## ####
 def main(params):
-    tenant = TfSteps(params)
+    tenant = AwsTfSteps(params)
     tenant.execute()
 
 if __name__ == '__main__':

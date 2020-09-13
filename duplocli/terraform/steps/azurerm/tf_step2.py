@@ -1,12 +1,12 @@
-from duplocli.terraform.steps.azure.base_tf_step import AzureBaseTfImportStep
+from duplocli.terraform.steps.azurerm.base_tf_step import AzureBaseTfImportStep
 
-class AzureTfImportStep2(AzureBaseTfImportStep):
+class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     is_allow_none = True
     state_dict = {}
 
     def __init__(self, params):
-        super(AzureTfImportStep2, self).__init__(params)
+        super(AzurermTfImportStep2, self).__init__(params)
 
     def execute(self):
         self._tf_resources()

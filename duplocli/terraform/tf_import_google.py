@@ -1,10 +1,10 @@
 from duplocli.terraform.tf_import_parameters import GoogleImportParameters
 
-from duplocli.terraform.steps.tf_steps import TfSteps
+from duplocli.terraform.steps.google.tf_steps import GoogleTfSteps
 
 ######## ####
 def main(params):
-    tenant = TfSteps(params)
+    tenant = GoogleTfSteps(params)
     tenant.execute()
 
 if __name__ == '__main__':
