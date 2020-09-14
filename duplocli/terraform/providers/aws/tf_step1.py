@@ -1,4 +1,4 @@
-from duplocli.terraform.steps.aws.base_tf_step import AwsBaseTfImportStep
+from duplocli.terraform.providers.aws.base_tf_step import AwsBaseTfImportStep
 import requests
 
 # aws_resources

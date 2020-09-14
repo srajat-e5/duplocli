@@ -1,6 +1,6 @@
 from duplocli.terraform.tf_import_parameters import KubernetesImportParameters
 
-from duplocli.terraform.steps.kubernetes.tf_steps import KubernetesTfSteps
+from duplocli.terraform.providers.kubernetes.tf_steps import KubernetesTfSteps
 
 ######## ####
 def main(params):

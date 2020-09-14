@@ -1,9 +1,9 @@
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
-from duplocli.terraform.steps.azurerm.azurerm_resources import AzurermResources
-from duplocli.terraform.steps.azurerm.tf_step1 import AzurermTfImportStep1
-from duplocli.terraform.steps.azurerm.tf_step2 import AzurermTfImportStep2
+from duplocli.terraform.providers.azurerm.azurerm_resources import AzurermResources
+from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
+from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
 
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders

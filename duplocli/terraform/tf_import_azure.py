@@ -1,6 +1,6 @@
 from duplocli.terraform.tf_import_parameters import AzurermImportParameters
 
-from duplocli.terraform.steps.azurerm.tf_steps import AzurermTfSteps
+from duplocli.terraform.providers.azurerm.tf_steps import AzurermTfSteps
 
 ######## ####
 def main(params):

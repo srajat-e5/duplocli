@@ -1,10 +1,10 @@
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
-from duplocli.terraform.steps.aws.tf_step1 import AwsTfImportStep1
-from duplocli.terraform.steps.aws.tf_step2 import AwsTfImportStep2
+from duplocli.terraform.providers.aws.tf_step1 import AwsTfImportStep1
+from duplocli.terraform.providers.aws.tf_step2 import AwsTfImportStep2
 
-from duplocli.terraform.steps.aws.aws_resources import AwsResources
+from duplocli.terraform.providers.aws.aws_resources import AwsResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 

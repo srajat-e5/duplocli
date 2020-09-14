@@ -1,6 +1,6 @@
 from duplocli.terraform.tf_import_parameters import HelmImportParameters
 
-from duplocli.terraform.steps.helm.tf_steps import HelmTfSteps
+from duplocli.terraform.providers.helm.tf_steps import HelmTfSteps
 
 ######## ####
 def main(params):

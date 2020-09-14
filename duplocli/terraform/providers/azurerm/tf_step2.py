@@ -1,4 +1,4 @@
-from duplocli.terraform.steps.azurerm.base_tf_step import AzureBaseTfImportStep
+from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 
 class AzurermTfImportStep2(AzureBaseTfImportStep):
 

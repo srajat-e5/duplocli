@@ -1,6 +1,6 @@
 from duplocli.terraform.tf_import_parameters import GoogleImportParameters
 
-from duplocli.terraform.steps.google.tf_steps import GoogleTfSteps
+from duplocli.terraform.providers.google.tf_steps import GoogleTfSteps
 
 ######## ####
 def main(params):
