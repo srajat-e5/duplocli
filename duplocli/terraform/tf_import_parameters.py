@@ -337,8 +337,8 @@ class AwsImportParameters(ImportParametersBase):
         self._check_required_fields(required_fields)
 
 ####################### AzureImportParameters #############################################################
-class AzureImportParameters(ImportParametersBase):
-    provider = "azure"
+class AzurermImportParameters(ImportParametersBase):
+    provider = "azurerm"
 
     def __init__(self):
         parameters = ["tenant_name",
@@ -351,8 +351,8 @@ class AzureImportParameters(ImportParametersBase):
                       "api_token",
                       "url",
                       "aws_region"]
-        super.__init__(AzureImportParameters, parameters)
-        self.provider = "azure"
+        super.__init__(AzurermImportParameters, parameters)
+        self.provider = "azurerm"
 
 ####################### GoogleImportParameters #############################################################
 class GoogleImportParameters(ImportParametersBase):
