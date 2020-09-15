@@ -184,9 +184,9 @@ class TfSchema:
             return True
 
 # ##### test ##########
-from duplocli.terraform.tf_import_parameters import AwsImportParameters
+from duplocli.terraform.providers.aws.aws_params import AwsParams
 def main1():
-    params = AwsImportParameters()
+    params = AwsParams()
     params.provider="helm"
     awsParseSchema = TfSchema(params)
     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()

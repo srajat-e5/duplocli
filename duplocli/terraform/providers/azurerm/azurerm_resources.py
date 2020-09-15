@@ -12,7 +12,7 @@ from stringcase import pascalcase, snakecase
 
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
-from duplocli.terraform.tf_import_parameters import AzurermImportParameters
+ 
 
 
 class AzureResource:
@@ -251,18 +251,18 @@ class AzurermResources:
 #     print(   resourceGroups.keys() )
 #     return resourceGroups.keys()
 
-if __name__ == "__main__":
-    # os.environ['AZURE_SUBSCRIPTION_ID'] = ""
-    # os.environ['AZURE_TENANT_ID'] = ""
-    # os.environ['AZURE_CLIENT_ID']  = ""
-    # os.environ['AZURE_CLIENT_SECRET'] = ""
-
-
-    # os.system('bash /Users/brighu/_go/azure.sh ')
-    params =  AzurermImportParameters( )
-    params.step ="step1"
-    params.step_type  = "step1"
-    obj = AzurermResources(params)
-    list = obj.get_all_resources()
-    print(list)
+# if __name__ == "__main__":
+#     # os.environ['AZURE_SUBSCRIPTION_ID'] = ""
+#     # os.environ['AZURE_TENANT_ID'] = ""
+#     # os.environ['AZURE_CLIENT_ID']  = ""
+#     # os.environ['AZURE_CLIENT_SECRET'] = ""
+#
+#
+#     # os.system('bash /Users/brighu/_go/azure.sh ')
+#     params =  AzurermImportParameters( )
+#     params.step ="step1"
+#     params.step_type  = "step1"
+#     obj = AzurermResources(params)
+#     list = obj.get_all_resources()
+#     print(list)
 

@@ -1,12 +1,5 @@
-import boto3
-import json
-import datetime
-from collections import defaultdict
-from duplocli.terraform.common.tf_utils import TfUtils
-from duplocli.terraform.common.tf_file_utils import TfFileUtils
-from duplocli.terraform.resources.base_resources import BaseResources
 
-class KubernetesResources(BaseResources):
+class KubernetesResources :
     debug_print_out = False
     debug_json = True
     create_key_pair = False
@@ -14,7 +7,6 @@ class KubernetesResources(BaseResources):
     vpc_list = {}
 
     def __init__(self, params):
-        super(KubernetesResources, self).__init__(params)
         self.tenant_prefix = self.utils.get_tenant_id(params.tenant_name )
 
     def get_tenant_resources(self):

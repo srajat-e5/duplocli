@@ -1,21 +1,40 @@
-from duplocli.terraform.params.import_parameters_base import ImportParametersBase
+from duplocli.terraform.params.param_base import ParamBase
+from duplocli.terraform.params.arg_parse import ArgParse, TfModule
 
-
-class AwsParams(ImportParametersBase):
+class AwsParams(ParamBase) :
     provider = "aws"
+    attr_names = ["tenant_name",
+                  "import_module",
+                  "import_name",
+                  "zip_file_path",
+                  "params_json_file_path",
+                  "download_aws_keys",
+                  "tenant_id",
+                  "api_token",
+                  "url",
+                  "aws_region"]
+
+    default_parameters = {
+        "zip_folder": "../work/output/zip",
+        "temp_folder": "../work/output",
+
+        "tenant_name": None,
+        "aws_region": None,
+
+        "state_file": None,
+        "zip_file_path": None,
+
+        "download_aws_keys": "no",
+        "url": None,
+        "tenant_id": None,
+        "api_token": None,
+
+        "import_module": "tenant"
+    }
+
+
     def __init__(self):
-        parameters = ["tenant_name",
-                      "import_module",
-                      "import_name",
-                      "zip_file_path",
-                      "params_json_file_path",
-                      "download_aws_keys",
-                      "tenant_id",
-                      "api_token",
-                      "url",
-                      "aws_region"]
-        super(AwsParams, self).__init__(parameters)
-        self.provider = "aws"
+        super(AwsParams, self).__init__(self.provider, self.attr_names, self.default_parameters )
 
     def validate(self):
         super().validate()
@@ -25,3 +44,4 @@ class AwsParams(ImportParametersBase):
         else:
             required_fields = ["tenant_name", "aws_region"]
         self._check_required_fields(required_fields)
+

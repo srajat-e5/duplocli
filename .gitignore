@@ -26,6 +26,7 @@ wheels/
 *.egg
 
 #terrafrom ignore folders
+duplocli/work/*
 work/*
 dir/
 _temp/

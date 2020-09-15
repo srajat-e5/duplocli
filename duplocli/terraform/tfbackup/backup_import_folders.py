@@ -12,6 +12,8 @@ class BackupImportFolders:
         self.params = params
         self.region_name = region_name
         if self.region_name is None:
+            self.region_name =  params.aws_region
+        if self.region_name is None:
             self.region_name = os.environ['AWS_DEFAULT_REGION']
         if self.region_name is None:
             raise Exception('AWS_DEFAULT_REGION is not set.')
@@ -20,6 +22,9 @@ class BackupImportFolders:
         self.params = self.file_utils.load_json_file(backup_settings_json)
         self.import_root_folder = self.params['import_root_folder']
         self.backup_root_folder = self.params['backup_root_folder']
+        self.file_utils.ensure_folder_by_path(self.import_root_folder)
+        self.file_utils.ensure_folder_by_path(self.backup_root_folder)
+
         # self.import_root_folder = os.path.join(self.params['import_root_folder'], "terraform")
         # self.backup_root_folder = os.path.join(self.params['backup_root_folder'], "terraform")
 

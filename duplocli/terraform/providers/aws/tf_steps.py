@@ -100,8 +100,10 @@ class AwsTfSteps:
     def post_execute(self):
         self._zip()
         # backup and s3 sync
-        terraform_folder = os.path.join("duplocli", "terraform")
-        import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "import_tf_backup_settings_auth_service.json")
+        print(os.getcwd())
+        #'/Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform'
+        terraform_folder = os.getcwd() #os.path.join("duplocli", "terraform")
+        import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "json_tf_backup_settings_auth_service.json")
         if os.path.exists(import_tf_backup_settings_auth_service):
             backup_settings_json = import_tf_backup_settings_auth_service
         else:

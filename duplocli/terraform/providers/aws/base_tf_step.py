@@ -8,7 +8,6 @@ import psutil
 
 class AwsBaseTfImportStep :
 
-
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]

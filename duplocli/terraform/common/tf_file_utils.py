@@ -163,6 +163,10 @@ class TfFileUtils:
         self._ensure_folders()
         print("DONE empty_folder")
 
+    def ensure_folder_by_path(self, path):
+        self._ensure_folder(path)
+        print("DONE ensure_folder_by_path ", path)
+
     def recreate_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "rmdir /s /q \"{0}\\*\";  md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)

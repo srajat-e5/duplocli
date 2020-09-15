@@ -1,5 +1,12 @@
+import psutil
+import os
+import datetime
+import argparse
+from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 # app params for all providers = aws/azure
+# import_name zip_file_name
+#import_module import_module
 arg_params = {
     "import_module": {"short_name": "m", "disc": "import_module=infra, tenant, tenant_list, all. default is tenant,"},
     "import_name": {"short_name": "i", "disc": "zip file path to save imported terraform files in zip format "},
@@ -18,9 +25,7 @@ arg_params = {
 ####################### params #############################################################
 ####################### params #############################################################
 
-def get_help(params):
-    attr_names = params.attr_names
-    provider = params.provider
+def get_help(attr_names , provider):
 
     help_str = []
     help_str.append("Terraform provider: " + provider)
