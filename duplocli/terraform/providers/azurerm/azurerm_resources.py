@@ -14,7 +14,6 @@ from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 
-
 class AzureResource:
     def __init__(self, res):
         self.id = res.id
@@ -64,6 +63,30 @@ class AzurermResources:
     tf_cloud_obj_list = []
     tf_cloud_sg_list = []
     resources_unique_ids = []
+
+    resources_skip= [
+        "azurerm_application_gateway",
+        "azurerm_network_interface",
+        "azurerm_network_security_group",
+        "azurerm_route_table",
+        'azurerm_image' #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
+    ]
+
+    resources_proess = [
+        'azurerm_storage_account',
+        #'azurerm_image',
+        'azurerm_snapshot',
+        'azurerm_automation_account',
+        'azurerm_virtual_machine',
+        'azurerm_local_network_gateway',
+        'azurerm_public_ip',
+        'azurerm_virtual_network_gateway',
+        'azurerm_virtual_network',
+        'azurerm_availability_set',
+        'azurerm_application_security_group',
+        'azurerm_private_dns_zone',
+        'azurerm_network_watcher'
+    ]
 
     def __init__(self, params):
         self.params = params
@@ -181,21 +204,43 @@ class AzurermResources:
         print("======================================================")
         arrAzureResources = []
         # self.azurerm_resources=["azurerm_virtual_machine"]
+        unique_processed_resouces = []
+        unique_skip_resouces = []
+
         for instance in self.resource_client.resources.list():
             res = AzureResource(instance)
             # print(res.type_name)
             if res.type_name_singular in  self.azurerm_resources:
                 res.type_name = res.type_name_singular
-                print("FOUND" , res.type_name )
-                self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
+                # print("FOUND and SKIP?? ", res.type_name, (res.type_name in self.resources_skip), self.resources_skip)
+                if res.type_name in self.resources_skip:
+                    if res.type_name not in unique_skip_resouces:
+                        unique_skip_resouces.append(res.type_name)
+                    print("FOUND and SKIP", res.type_name)
+                else:
+                    if res.type_name not in unique_processed_resouces:
+                        unique_processed_resouces.append(res.type_name)
+                    print("FOUND", res.type_name)
+                    self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
                                        tf_import_id=res.id, skip_if_exists=True)
             elif res.type_name in  self.azurerm_resources:
-                print("FOUND", res.type_name)
-                self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                if res.type_name in self.resources_skip:
+                    if res.type_name not in unique_skip_resouces:
+                        unique_skip_resouces.append(res.type_name)
+                    print("FOUND and SKIP", res.type_name)
+                else:
+                    if res.type_name not in unique_processed_resouces:
+                        unique_processed_resouces.append(res.type_name)
+                    print("FOUND", res.type_name)
+                    self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                        tf_import_id=res.id, skip_if_exists=True)
             else:
                 print("======== NOT_FOUND", res.type_name)
             arrAzureResources.append(res)
+
+        print("======================================================")
+        print("unique_processed_resouces", unique_processed_resouces)
+        print("unique_skip_resouces", unique_skip_resouces)
         print("======================================================")
         return arrAzureResources
 

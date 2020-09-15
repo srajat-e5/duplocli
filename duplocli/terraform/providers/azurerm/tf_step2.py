@@ -107,6 +107,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         print("before ", resource_obj)
         resource_obj2 = self.remove_empty(resource_obj)
         print("after ",  resource_obj2)
+        if tf_resource_type == 'azurerm_image':
+            if 'hyper_v_generation' not in resource_obj2:
+                resource_obj2['hyper_v_generation'] = ""
         tf_resource_type_root[tf_resource_var_name] = resource_obj2
 
 
