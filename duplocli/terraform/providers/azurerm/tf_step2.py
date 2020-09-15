@@ -50,8 +50,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
-            # if tf_resource_type == 'azurerm_virtual_machine' \
-            #         and attribute_name == 'os_profile_linux_config'\
+            if tf_resource_type == 'azurerm_virtual_machine' \
+                    and attribute_name == 'os_profile_linux_config':
+                print("os_profile_linux_config")
             #          and len(attribute) > 0:
             #     resource_obj_dict = [{ "disable_password_authentication": False}]
             #     resource_obj[attribute_name] = resource_obj_dict
@@ -93,6 +94,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     pass #resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
                 elif attribute_name == "id":
                     pass
+                elif isinstance(attribute, bool):
+                    resource_obj[attribute_name] = attribute
                 elif attribute == 0:
                     pass
                 elif attribute is not None and attribute != ""  :  #attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
@@ -119,6 +122,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     resource_obj[attribute_name] = None
                 elif attribute_name == "user_data":
                     resource_obj[attribute_name] = attribute
+                elif isinstance(attribute, bool):
+                    resource_obj[attribute_name] = attribute
                 elif attribute == 0:
                     pass
                 elif attribute is not None and attribute != "" :  #attribute is not None or self.is_allow_none:
@@ -138,8 +143,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             for nested_item in nested_atr:
                 if isinstance(nested_item, dict):
                     resource_obj_list = {}
-                    resource_obj.append(resource_obj_list)
                     self._process_dict(tf_resource_type, resource_obj_list,nested_atr_name,  nested_item,  schema)
+                    resource_obj.append(resource_obj_list)
                 elif isinstance(nested_item, list):
                     print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type,  nested_atr_name)
                     pass
@@ -147,11 +152,15 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     resource_obj.append(nested_item)
             if len(resource_obj) > 0:
                 resource_obj_parent[nested_atr_name] = resource_obj
+        else:
+            print("Warn: Nested non dict/list?")
 
     def remove_empty(self, json_dict):
         final_dict = {}
         for attrName, attrValue in json_dict.items():
-            if attrValue:
+            if isinstance(attrValue , bool):
+                final_dict[attrName] = attrValue
+            elif attrValue :
                 if isinstance(attrValue, dict):
                      final_dict[attrName] = self.remove_empty(attrValue)
                 elif isinstance(attrValue, list):
@@ -169,5 +178,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
                 else:
                     final_dict[attrName] = attrValue
+            else:
+                print("empty??",  attrName, attrValue )
 
         return final_dict
