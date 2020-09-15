@@ -28,9 +28,32 @@ class AzureResource:
         else:
             type_camel = res.type
         self.type_name = "azurerm_{0}".format(snakecase(type_camel))
-        print(self.type_name)
+        if self.type_name == "azurerm_public_i_p_addresses":
+            self.type_name = "azurerm_public_ip"
+
+        self.type_name_singular = self.type_name[:-1]
 
 
+#azurerm_metricalerts
+azure_resoure_map = {
+    "azurerm_route_tables": "azurerm_route_table",
+    "azurerm_user_assigned_identities": "azurerm_user_assigned_identity",
+
+    "azurerm_public_ip_addresses": "azurerm_public_ip",
+    "azurerm_public_i_p_addresses": "azurerm_public_ip",
+
+    "azurerm_metricalerts": "azurerm_monitor_metric_alert",
+    "azurerm_disks": "azurerm_managed_disk",
+    "azurerm_extensions": "azurerm_virtual_machine_extension",
+    "azurerm_virtual_network_links": "azurerm_private_dns_zone_virtual_network_link",
+    "azurerm_galleries": "azurerm_shared_image_gallery",
+
+    "azurerm_hosting_environments": "azurerm_app_service_environment",
+    "azurerm_server_farms": "",
+    "azurerm_sites": "",
+    "azurerm_load_balancers": "",
+
+}
 class AzurermResources:
     debug_print_out = False
     debug_json = True
@@ -66,10 +89,10 @@ class AzurermResources:
     def get_tenant_key_pair_list(self):
         return None
 
-    def get_all_resources(self):
-        ##
-        self.get_all_resources()
-        return self.tf_cloud_obj_list
+    # def get_all_resources(self):
+    #     ##
+    #     self.get_all_resources()
+    #     return self.tf_cloud_obj_list
 
     ########### helpers ###########
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
@@ -77,6 +100,7 @@ class AzurermResources:
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
+            print("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided", tf_resource_type, tf_resource_var_name, tf_import_id )
             raise Exception("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided")
         # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
@@ -90,6 +114,9 @@ class AzurermResources:
                       "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(
                           tf_resource_type, tf_resource_var_name, tf_id))
                 return
+            print(self.file_utils.stage_prefix(),
+                  "Exception tf_resource_var_name should be unique : {0} {1} {2}".format(
+                      tf_resource_type, tf_resource_var_name, tf_id))
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
         # create array
         tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
@@ -153,21 +180,21 @@ class AzurermResources:
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
-        self.azurerm_resources=["azurerm_virtual_machine"]
+        # self.azurerm_resources=["azurerm_virtual_machine"]
         for instance in self.resource_client.resources.list():
             res = AzureResource(instance)
-            print(res.type_name)
-            if res.type_name[:-1] in  self.azurerm_resources:
-                res.type_name = res.type_name[:-1]
+            # print(res.type_name)
+            if res.type_name_singular in  self.azurerm_resources:
+                res.type_name = res.type_name_singular
                 print("FOUND" , res.type_name )
                 self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
-                                       tf_import_id=res.id)
+                                       tf_import_id=res.id, skip_if_exists=True)
             elif res.type_name in  self.azurerm_resources:
                 print("FOUND", res.type_name)
                 self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
-                                       tf_import_id=res.id)
+                                       tf_import_id=res.id, skip_if_exists=True)
             else:
-                print("NOT_FOUND", res.type_name)
+                print("======== NOT_FOUND", res.type_name)
             arrAzureResources.append(res)
         print("======================================================")
         return arrAzureResources
