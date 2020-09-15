@@ -37,6 +37,7 @@ duplo_api_json_test.json
 backup_settings_auth_service.json
 params.json
 
+env.sh
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

@@ -50,6 +50,12 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
+            # if tf_resource_type == 'azurerm_virtual_machine' \
+            #         and attribute_name == 'os_profile_linux_config'\
+            #          and len(attribute) > 0:
+            #     resource_obj_dict = [{ "disable_password_authentication": False}]
+            #     resource_obj[attribute_name] = resource_obj_dict
+            # el
             if  is_nested:
                 self._process_nested(tf_resource_type, attribute_name, attribute, resource_obj, schema)
             elif isinstance(attribute, dict):
@@ -93,6 +99,12 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     resource_obj[attribute_name]=attribute
             else:
                 pass
+        #self.remove_empty()
+        print("before ", resource_obj)
+        resource_obj2 = self.remove_empty(resource_obj)
+        print("after ",  resource_obj2)
+        tf_resource_type_root[tf_resource_var_name] = resource_obj2
+
 
     def _process_dict(self, tf_resource_type, resource_obj, nested_atr_name, nested_atr, schema):
         for attribute_name, attribute in nested_atr.items():
@@ -138,13 +150,24 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def remove_empty(self, json_dict):
         final_dict = {}
-        for a, b in json_dict.items():
-            if b:
-                if isinstance(b, dict):
-                    final_dict[a] = self.remove_empty(b)
-                elif isinstance(b, list):
-                    final_dict[a] = list(filter(None, [self.remove_empty(i) for i in b]))
+        for attrName, attrValue in json_dict.items():
+            if attrValue:
+                if isinstance(attrValue, dict):
+                     final_dict[attrName] = self.remove_empty(attrValue)
+                elif isinstance(attrValue, list):
+                    if len(attrValue) > 0:
+                        resource_obj = []
+                        for nested_item in attrValue:
+                            if isinstance(nested_item, dict):
+                                nested_item_value = self.remove_empty(nested_item)
+                                if nested_item_value and len(nested_item_value) > 0:
+                                    resource_obj.append(nested_item_value)
+                            else:
+                                resource_obj.append(nested_item)
+                        if len(resource_obj)>0:
+                            final_dict[attrName] = resource_obj
+
                 else:
-                    final_dict[a] = b
+                    final_dict[attrName] = attrValue
 
         return final_dict
