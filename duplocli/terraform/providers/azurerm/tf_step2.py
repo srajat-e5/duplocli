@@ -50,9 +50,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             is_nested = attribute_name  in schema.nested
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
-            if tf_resource_type == 'azurerm_virtual_machine' \
-                    and attribute_name == 'os_profile_linux_config':
-                print("os_profile_linux_config")
+            # if tf_resource_type == 'azurerm_virtual_machine' \
+            #         and attribute_name == 'os_profile_linux_config':
+            #     print("os_profile_linux_config")
             #          and len(attribute) > 0:
             #     resource_obj_dict = [{ "disable_password_authentication": False}]
             #     resource_obj[attribute_name] = resource_obj_dict
@@ -81,18 +81,19 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 #https://github.com/hashicorp/terraform/issues/18321
                 #https://github.com/terraform-providers/terraform-provider-aws/issues/4954
                 #todo: forcing aws_instance recreation?: should we move to configuration data/mapping_aws_keys_to_tf_keys.json
-                if attribute_name in ["user_data", "replicas", "availability_zone_id", "arn"]:
-                    # pass; #resource_obj[attribute_name] = attribute
-                    resource_obj["lifecycle"]={"ignore_changes": [attribute_name] }
-                elif tf_resource_type == "aws_elasticache_cluster" and attribute_name in ["replication_group_id", "cache_nodes"]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["replication_group_id", "cache_nodes"]}
-                elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy","acceleration_status"]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy", "acceleration_status"]}
-                elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
-                    resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
-                elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
-                    pass #resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
-                elif attribute_name == "id":
+                # if attribute_name in ["user_data", "replicas", "availability_zone_id", "arn"]:
+                #     # pass; #resource_obj[attribute_name] = attribute
+                #     resource_obj["lifecycle"]={"ignore_changes": [attribute_name] }
+                # elif tf_resource_type == "aws_elasticache_cluster" and attribute_name in ["replication_group_id", "cache_nodes"]:
+                #     resource_obj["lifecycle"] = {"ignore_changes": ["replication_group_id", "cache_nodes"]}
+                # elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy","acceleration_status"]:
+                #     resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy", "acceleration_status"]}
+                # elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
+                #     resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
+                # elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
+                #     pass #resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
+                # el
+                if attribute_name == "id":
                     pass
                 elif isinstance(attribute, bool):
                     resource_obj[attribute_name] = attribute
@@ -118,10 +119,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             elif not is_computed:
                 if attribute_name in ["arn"]:
                     pass  # skip
-                elif attribute_name == "ipv6_cidr_block":
-                    resource_obj[attribute_name] = None
-                elif attribute_name == "user_data":
-                    resource_obj[attribute_name] = attribute
+                # elif attribute_name == "ipv6_cidr_block":
+                #     resource_obj[attribute_name] = None
+                # elif attribute_name == "user_data":
+                #     resource_obj[attribute_name] = attribute
                 elif isinstance(attribute, bool):
                     resource_obj[attribute_name] = attribute
                 elif attribute == 0:
