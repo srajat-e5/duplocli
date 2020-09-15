@@ -153,6 +153,7 @@ class AzurermResources:
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
+        self.azurerm_resources=["azurerm_virtual_machine"]
         for instance in self.resource_client.resources.list():
             res = AzureResource(instance)
             print(res.type_name)

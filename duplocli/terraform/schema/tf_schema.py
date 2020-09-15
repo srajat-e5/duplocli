@@ -39,12 +39,20 @@ class TfSchema:
 
 
     def get_schema_raw(self, tf_obj_name):
-        return self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'][tf_obj_name]
+        #registry.terraform.io/hashicorp/azurerm
+        schema_path=  self.params.provider
+        if self.params.provider =="azurerm":
+            schema_path = 'registry.terraform.io/hashicorp/azurerm'
+        return self.tfschema['provider_schemas'][schema_path]['resource_schemas'][tf_obj_name]
+        #return self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'][tf_obj_name]
 
     def get_tf_resource_list(self):
         if not self.tf_resource_list_inited:
             #load once and catch
-            for tf_obj_name, tf_object in self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'].items():
+            schema_path = self.params.provider
+            if self.params.provider == "azurerm":
+                schema_path = 'registry.terraform.io/hashicorp/azurerm'
+            for tf_obj_name, tf_object in self.tfschema['provider_schemas'][schema_path]['resource_schemas'].items():
                 self.get_tf_resource(tf_obj_name)
             self.tf_resource_list_inited = True
         return self.tf_resource_list
@@ -187,10 +195,11 @@ class TfSchema:
 from duplocli.terraform.providers.aws.aws_params import AwsParams
 def main1():
     params = AwsParams()
-    params.provider="helm"
+    params.provider="azurerm"
     awsParseSchema = TfSchema(params)
     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
-    awsParseSchema.save_json(data_dict_tf_resource_list, "../data/duplo_{0}_tf_schema.json".format(params.provider))
+    json_schema_path="../schema/json_azurerm_tf_schema.json"
+    awsParseSchema.save_json(data_dict_tf_resource_list, "duplo_{0}_tf_schema.json".format(params.provider))
     print(json.dumps(data_dict_tf_resource_list))
 
     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
