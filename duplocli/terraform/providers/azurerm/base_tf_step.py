@@ -21,9 +21,14 @@ class AzureBaseTfImportStep :
         self.main_tf_json_dict = {"resource": {}}
         self.resources_dict = self.main_tf_json_dict["resource"]
         self.tf_import_sh_list = []
-
+        self.tf_import_sh_list.append("")
         self._load_schema()
         self.provider()
+
+    #####################################################
+    def add_env_azurerm(self):
+        pass
+
 
     #####################################################
 
@@ -55,8 +60,11 @@ class AzureBaseTfImportStep :
         tf_resource_type = "provider"
         tf_resource_var_name = "azurerm"
         resource_obj = self._base_provider(tf_resource_type, tf_resource_var_name)
-        resource_obj["version"] = "=2.0.0"
+        resource_obj["version"] = "2.0.0"
+        resource_obj["features"] = {}
         self.tf_import_sh_list.append('terraform init ')
+        self.tf_import_sh_list.append("source {0}".format(self.file_utils.get_azure_env_sh()) )
+
         return resource_obj
 
     def _base_provider(self, tf_resource_type, tf_resource_var_name):

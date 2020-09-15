@@ -2,7 +2,7 @@ from duplocli.terraform.params.param_base import ParamBase
 from duplocli.terraform.params.arg_parse import ArgParse, TfModule
 
 class AzurermParams(ParamBase) :
-    provider = "aws"
+    provider = "azurerm"
     attr_names = ["tenant_name",
                   "import_module",
                   "import_name",
@@ -15,8 +15,8 @@ class AzurermParams(ParamBase) :
                   "aws_region"]
 
     default_parameters = {
-        "zip_folder": "work/outputaws/zip",
-        "temp_folder": "work/outputaws",
+        "zip_folder": "../work/output/zip",
+        "temp_folder": "../work/output",
 
         "tenant_name": None,
         "aws_region": None,

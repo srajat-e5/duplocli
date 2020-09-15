@@ -107,9 +107,14 @@ class AzurermTfSteps:
         if os.path.exists(import_tf_backup_settings_auth_service):
             backup_settings_json = import_tf_backup_settings_auth_service
         else:
-            backup_settings_json =  os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
+            backup_settings_json =  self._get_backup_settings_json() #os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
         eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
         eackupImportFolders.backup_folders()
+
+    def _get_backup_settings_json(self):
+        json_file = "backup_settings.json"
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
+        return json_path
 
     def _zip(self):
         copy_files = []

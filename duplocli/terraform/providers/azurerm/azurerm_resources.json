@@ -280,7 +280,7 @@
  "azurerm_role_assignment",
  "azurerm_role_definition",
  "azurerm_route",
- "azurerm_route_table",
+ "azurerm_route_tableXXXXX",
  "azurerm_search_service",
  "azurerm_security_center_contact",
  "azurerm_security_center_subscription_pricing",

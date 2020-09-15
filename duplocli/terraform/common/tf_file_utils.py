@@ -22,6 +22,20 @@ class TfFileUtils:
     def stage_prefix(self, msg=""):
        return  "**** aws import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type, msg)
 
+    ### env azure ###
+
+    def create_azure_env_sh(self, env_list):
+        env_sh_path = self.get_azure_env_sh()
+        self.save_run_script(env_sh_path, env_list, mode="w")
+        os.system("chmod  777 {0} ".format(env_sh_path))
+
+    def get_azure_env_sh(self):
+        env_sh = "env.sh"
+        self.env_sh_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
+        if not os.path.exists(self.env_sh_path ):
+            os.system("touch {0}; chmod  777 {1} ".format(self.env_sh_path, self.env_sh_path))
+        return self.env_sh_path
+
     ###  work folder
     def work_folder(self):
         return self._folder_temp_sub_folder(self.params.step, self.params.step_type)

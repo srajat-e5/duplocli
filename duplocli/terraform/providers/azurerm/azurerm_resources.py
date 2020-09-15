@@ -12,12 +12,12 @@ from stringcase import pascalcase, snakecase
 
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
- 
+
 
 
 class AzureResource:
     def __init__(self, res):
-        self.Id = res.id
+        self.id = res.id
         self.name = res.name
         self._getType(res)
 
@@ -49,15 +49,18 @@ class AzurermResources:
         self.tenant_prefix = self.utils.get_tenant_id(params.tenant_name)
         self._load_azurerm_resources_json()
         self._init_azure_client()
+        self._create_env_sh()
 
     #### public methods #######
 
     def get_tenant_resources(self):
         ##
+        self.get_all_resources()
         return self.tf_cloud_obj_list
 
     def get_infra_resources(self):
          ##
+        self.get_all_resources()
         return self.tf_cloud_obj_list
 
     def get_tenant_key_pair_list(self):
@@ -116,19 +119,54 @@ class AzurermResources:
         json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
         if not os.path.exists(json_path):
             raise Exception("schema {0} not found".format(json_path))
-        with open(json_file) as f:
+        with open(json_path) as f:
             self.azurerm_resources = json.load(f)
         print("self.azurerm_resources", self.azurerm_resources)
+
+
+    def _create_env_sh(self):
+        self.env_list = []
+        self.env_list.append("export ARM_SUBSCRIPTION_ID=\"{0}\"".format( os.environ.get('AZURE_SUBSCRIPTION_ID')))
+        self.env_list.append("export ARM_CLIENT_ID=\"{0}\"".format( os.environ.get('AZURE_CLIENT_ID')))
+        self.env_list.append("export ARM_CLIENT_SECRET=\"{0}\"".format( os.environ.get('AZURE_CLIENT_SECRET')))
+        self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format( os.environ.get('AZURE_TENANT_ID')))
+        self.file_utils.create_azure_env_sh(self.env_list)
+
+    # export
+    # ARM_SUBSCRIPTION_ID = "29474c73-cd93-48f0-80ee-9577a54e2227"
+    # export
+    # ARM_TENANT_ID = "c146a1f4-120f-4f35-af4b-7b8d175442b2"
+    # export
+    # ARM_CLIENT_ID = "036e109a-04a7-4b94-951c-4849a64e6fd5"
+    # export
+    # ARM_CLIENT_SECRET = "LbN8rrbcx+4toTneZZhR8ZDo27VRgstR40r8TJzHNA8="
+
+    # def create_azure_env_sh(self, env_list):
+    #     env_sh_path = self.get_azure_env_sh()
+    #     self.save_run_script(env_sh_path, env_list, mode="w")
+    #
+    # def get_azure_env_sh(self):
+    #     env_sh = "env.sh"
+    #     self.env_sh_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
+    #     return self.env_sh_path
 
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
         for instance in self.resource_client.resources.list():
             res = AzureResource(instance)
-            if res.type_name in  self.azurerm_resources:
+            print(res.type_name)
+            if res.type_name[:-1] in  self.azurerm_resources:
+                res.type_name = res.type_name[:-1]
                 print("FOUND" , res.type_name )
-                self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.id,
+                self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
                                        tf_import_id=res.id)
+            elif res.type_name in  self.azurerm_resources:
+                print("FOUND", res.type_name)
+                self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                                       tf_import_id=res.id)
+            else:
+                print("NOT_FOUND", res.type_name)
             arrAzureResources.append(res)
         print("======================================================")
         return arrAzureResources

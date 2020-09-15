@@ -33,7 +33,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
     def _create_tf_state(self):
         super()._create_tf_state()
         self.file_utils.create_state(self.file_utils.tf_run_script())
-        self.rm_aws_security_group_rule_tf_bug()
+        #self.rm_aws_security_group_rule_tf_bug()
 
     ############ aws tf resources ##########
     def _tf_resources(self, aws_obj_list):
