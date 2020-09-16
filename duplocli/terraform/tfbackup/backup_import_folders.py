@@ -56,7 +56,7 @@ class BackupImportFolders:
                 if s3_file not in all_s3_files:
                     local_file = os.path.join(self.backup_root_folder,s3_file)
                     s3_file = s3_file.replace("\\", "/")
-                    print("uploading ---- ", local_file , bucket_name, s3_file)
+                    #print("uploading ---- ", local_file , bucket_name, s3_file)
                     s3_connect.upload_file(local_file , bucket_name, s3_file)
 
     ####
@@ -73,9 +73,9 @@ class BackupImportFolders:
         delta = today - file_creation_time  # +ve
         days_older = delta.days
         # days_older = int(delta.total_seconds()/60) #test ..since it takes a day in windows to create folder one day older
-        print("days_older delta.days", days_older, "file_creation_time",file_creation_time,"today",today, import_folder)
+        #print("days_older delta.days", days_older, "file_creation_time",file_creation_time,"today",today, import_folder)
         if abs( days_older) >= 1:
-            print("days_older delta.days", days_older, "DELETING ", import_folder)
+           # print("days_older delta.days", days_older, "DELETING ", import_folder)
             self.file_utils.delete_folder(import_folder)
 
     ######

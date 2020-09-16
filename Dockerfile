@@ -1,8 +1,8 @@
 FROM duplocloud/shell:sso_v1
 
 ENV DEBIAN_FRONTEND=noninteractive
-#Terraform v0.12.24
-ENV TERRAFORM_VERSION=0.12.24
+#Terraform v0.12.24   soon be released = v0.14
+ENV TERRAFORM_VERSION=0.13.2
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 

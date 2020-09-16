@@ -21,10 +21,14 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
 
     ############ execute_step public resources ##########
     def execute(self,  aws_obj_list=[]):
-        self.file_utils.save_to_json(self.file_utils.tf_resources_file(), aws_obj_list)
-        self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step2"), aws_obj_list)
-        self._tf_resources(aws_obj_list)
-        self._create_tf_state()
+        try:
+            self.file_utils.save_to_json(self.file_utils.tf_resources_file(), aws_obj_list)
+            self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step2"), aws_obj_list)
+            self._tf_resources(aws_obj_list)
+            self._create_tf_state()
+        except Exception as e:
+            print("ERROR:Step1:", "execute", e)
+
         return self.file_utils.tf_main_file()
 
     def get_tenant_key_pair_list(self):
@@ -38,18 +42,24 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
     ############ aws tf resources ##########
     def _tf_resources(self, aws_obj_list):
         for aws_obj in aws_obj_list:
-            self._tf_resource(aws_obj)
+            try:
+                self._tf_resource(aws_obj)
+            except Exception as e:
+                print("ERROR:Step1:", "_tf_resources", e)
 
     def _tf_resource(self, aws_obj):
         tf_resource_type=aws_obj['tf_resource_type']
         resource_obj = self._init_tf_resource(aws_obj)
-        schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
-        for required_name in schema.required:
-            if required_name in dummy_values:
-                resource_obj[required_name] = dummy_values[required_name]
-            else:
-                # keep an eye --- we are neglecting data types ! until we get error ?
-                resource_obj[required_name] = "xxxx"
+        try:
+            schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
+            for required_name in schema.required:
+                if required_name in dummy_values:
+                    resource_obj[required_name] = dummy_values[required_name]
+                else:
+                    # keep an eye --- we are neglecting data types ! until we get error ?
+                    resource_obj[required_name] = "xxxx"
+        except Exception as e:
+            print("ERROR:Step1:", "_tf_resource", e)
         return resource_obj
 
     def _init_tf_resource(self, aws_obj):

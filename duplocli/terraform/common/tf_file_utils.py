@@ -20,7 +20,7 @@ class TfFileUtils:
             self.root_folder = self.root_folder.replace("/", "\\")
 
     def stage_prefix(self, msg=""):
-       return  "**** aws import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type, msg)
+       return  "**** import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type, msg)
 
     ### env azure ###
 
@@ -84,8 +84,8 @@ class TfFileUtils:
     def data_folder(self):
         return os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
 
-    def log_folder(self):
-        return os.path.join(self.params.temp_folder_path, "log")
+    # def log_folder(self):
+    #     return os.path.join(self.params.temp_folder_path, "log")
 
     def zip_folder(self):
         return os.path.join(self.params.temp_folder_path, "zip")
@@ -93,9 +93,9 @@ class TfFileUtils:
     def keys_folder(self):
         return os.path.join(self.work_folder(), "keys")
 
-    def final_folder(self):
-        return os.path.join(self.params.temp_folder_path, "final")
- 
+    # def final_folder(self):
+    #     return os.path.join(self.params.temp_folder_path, "final")
+    #
     ### ### utils  ### ###
     ## windows vs bash
     def _script_ext(self):
@@ -181,26 +181,33 @@ class TfFileUtils:
     def empty_folder(self):
         self.recreate_folder(self.work_folder())
         self._ensure_folders()
-        print("DONE empty_folder")
+        #print("DONE empty_folder")
 
     def ensure_folder_by_path(self, path):
         self._ensure_folder(path)
-        print("DONE ensure_folder_by_path ", path)
+        #print("DONE ensure_folder_by_path ", path)
 
     def recreate_folder(self, folder):
         if psutil.WINDOWS:
-            cmd_mod = "rmdir /s /q \"{0}\\*\";  md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
+            cmd_mod = "rmdir /s /q \"{0}\\*\";  md `\"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "rm -rf  {0}/*; mkdir -p {0}; ls  {0}".format(folder)
         resp = os.system(cmd_mod)
-        print("DONE recreate_folder ", cmd_mod, "resp ", resp)
+        #print("DONE recreate_folder ", cmd_mod, "resp ", resp)
+
+    def ls_folder(self, folder):
+        if psutil.WINDOWS:
+            cmd_mod = "dir \"{0}\" ".format(folder)
+        else:
+            cmd_mod = "ls  -alth {0}/*".format(folder)
+        os.system(cmd_mod)
 
     def _ensure_folder(self, folder):
         if psutil.WINDOWS:
             cmd_mod = "md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "mkdir -p {0}; ls  {0}".format(folder)
-        print("DONE _ensure_folder", cmd_mod)
+        #print("DONE _ensure_folder", cmd_mod)
         os.system(cmd_mod)
 
     def empty_terraform_binary_folder(self):

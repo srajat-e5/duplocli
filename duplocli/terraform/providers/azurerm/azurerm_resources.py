@@ -89,13 +89,16 @@ class AzurermResources:
     ]
 
     def __init__(self, params):
-        self.params = params
-        self.utils = TfUtils(params)
-        self.file_utils = TfFileUtils(params, step=params.step, step_type=params.step_type)
-        self.tenant_prefix = self.utils.get_tenant_id(params.tenant_name)
-        self._load_azurerm_resources_json()
-        self._init_azure_client()
-        self._create_env_sh()
+        try:
+            self.params = params
+            self.utils = TfUtils(params)
+            self.file_utils = TfFileUtils(params, step=params.step, step_type=params.step_type)
+            self.tenant_prefix = self.utils.get_tenant_id(params.tenant_name)
+            self._load_azurerm_resources_json()
+            self._init_azure_client()
+            self._create_env_sh()
+        except Exception as e:
+            print("ERROR:AzurermResources:", "__init__", e)
 
     #### public methods #######
 
@@ -151,37 +154,43 @@ class AzurermResources:
 
 
     def _init_azure_client(self):
-        if os.environ['AZURE_CLIENT_ID'] is None:
-            json_env=self._load_env()
-            subscription_id = json_env['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
-            credentials = ServicePrincipalCredentials(
-                client_id=json_env['AZURE_CLIENT_ID'],
-                secret=json_env['AZURE_CLIENT_SECRET'],
-                tenant=json_env['AZURE_TENANT_ID']
-            )
-        else:
-            subscription_id = os.environ.get(
-                'AZURE_SUBSCRIPTION_ID',
-                '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
-            credentials = ServicePrincipalCredentials(
-                client_id=os.environ['AZURE_CLIENT_ID'],
-                secret=os.environ['AZURE_CLIENT_SECRET'],
-                tenant=os.environ['AZURE_TENANT_ID']
-            )
+        try:
+            if os.environ['AZURE_CLIENT_ID'] is None:
+                json_env=self._load_env()
+                subscription_id = json_env['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
+                credentials = ServicePrincipalCredentials(
+                    client_id=json_env['AZURE_CLIENT_ID'],
+                    secret=json_env['AZURE_CLIENT_SECRET'],
+                    tenant=json_env['AZURE_TENANT_ID']
+                )
+            else:
+                subscription_id = os.environ.get(
+                    'AZURE_SUBSCRIPTION_ID',
+                    '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
+                credentials = ServicePrincipalCredentials(
+                    client_id=os.environ['AZURE_CLIENT_ID'],
+                    secret=os.environ['AZURE_CLIENT_SECRET'],
+                    tenant=os.environ['AZURE_TENANT_ID']
+                )
 
-        self.resource_client = ResourceManagementClient(credentials, subscription_id)
-        self.compute_client = ComputeManagementClient(credentials, subscription_id)
-        self.storage_client = StorageManagementClient(credentials, subscription_id)
-        self.network_client = NetworkManagementClient(credentials, subscription_id)
+            self.resource_client = ResourceManagementClient(credentials, subscription_id)
+            self.compute_client = ComputeManagementClient(credentials, subscription_id)
+            self.storage_client = StorageManagementClient(credentials, subscription_id)
+            self.network_client = NetworkManagementClient(credentials, subscription_id)
+        except Exception as e:
+            print("ERROR:AzurermResources:", "_init_azure_client", e)
 
     def _load_azurerm_resources_json(self):
         json_file = "azurerm_resources.json"#"{0}__resources.json".format(self.params.provider)
         json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
         if not os.path.exists(json_path):
             raise Exception("schema {0} not found".format(json_path))
-        with open(json_path) as f:
-            self.azurerm_resources = json.load(f)
-        print("self.azurerm_resources", self.azurerm_resources)
+        try:
+            with open(json_path) as f:
+                self.azurerm_resources = json.load(f)
+        except Exception as e:
+            print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
+
 
     def _load_env(self):
         json_path = "/shell/.duplo_env.json"
@@ -199,65 +208,49 @@ class AzurermResources:
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format( os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
 
-    # export
-    # ARM_SUBSCRIPTION_ID = "29474c73-cd93-48f0-80ee-9577a54e2227"
-    # export
-    # ARM_TENANT_ID = "c146a1f4-120f-4f35-af4b-7b8d175442b2"
-    # export
-    # ARM_CLIENT_ID = "036e109a-04a7-4b94-951c-4849a64e6fd5"
-    # export
-    # ARM_CLIENT_SECRET = "LbN8rrbcx+4toTneZZhR8ZDo27VRgstR40r8TJzHNA8="
-
-    # def create_azure_env_sh(self, env_list):
-    #     env_sh_path = self.get_azure_env_sh()
-    #     self.save_run_script(env_sh_path, env_list, mode="w")
-    #
-    # def get_azure_env_sh(self):
-    #     env_sh = "env.sh"
-    #     self.env_sh_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
-    #     return self.env_sh_path
 
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
-        # self.azurerm_resources=["azurerm_virtual_machine"]
         unique_processed_resouces = []
         unique_skip_resouces = []
 
         for instance in self.resource_client.resources.list():
             res = AzureResource(instance)
-            # print(res.type_name)
-            if res.type_name_singular in  self.azurerm_resources:
-                res.type_name = res.type_name_singular
-                # print("FOUND and SKIP?? ", res.type_name, (res.type_name in self.resources_skip), self.resources_skip)
-                if res.type_name in self.resources_skip:
-                    if res.type_name not in unique_skip_resouces:
-                        unique_skip_resouces.append(res.type_name)
-                    print("FOUND and SKIP", res.type_name)
-                else:
-                    if res.type_name not in unique_processed_resouces:
-                        unique_processed_resouces.append(res.type_name)
-                    print("FOUND", res.type_name)
-                    self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
-                                       tf_import_id=res.id, skip_if_exists=True)
-            elif res.type_name in  self.azurerm_resources:
-                if res.type_name in self.resources_skip:
-                    if res.type_name not in unique_skip_resouces:
-                        unique_skip_resouces.append(res.type_name)
-                    print("FOUND and SKIP", res.type_name)
-                else:
-                    if res.type_name not in unique_processed_resouces:
-                        unique_processed_resouces.append(res.type_name)
-                    print("FOUND", res.type_name)
-                    self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
-                                       tf_import_id=res.id, skip_if_exists=True)
-            else:
-                print("======== NOT_FOUND", res.type_name)
             arrAzureResources.append(res)
+            try:
+                # print(res.type_name)
+                if res.type_name_singular in  self.azurerm_resources:
+                    res.type_name = res.type_name_singular
+                    if res.type_name in self.resources_skip:
+                        if res.type_name not in unique_skip_resouces:
+                            unique_skip_resouces.append(res.type_name)
+                        print("FOUND and SKIP", res.type_name , "===", res.id)
+                    else:
+                        if res.type_name not in unique_processed_resouces:
+                            unique_processed_resouces.append(res.type_name)
+                        print("FOUND", res.type_name, "===", res.id)
+                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
+                                           tf_import_id=res.id, skip_if_exists=True)
+                elif res.type_name in  self.azurerm_resources:
+                    if res.type_name in self.resources_skip:
+                        if res.type_name not in unique_skip_resouces:
+                            unique_skip_resouces.append(res.type_name)
+                        print("FOUND and SKIP", res.type_name, "===", res.id)
+                    else:
+                        if res.type_name not in unique_processed_resouces:
+                            unique_processed_resouces.append(res.type_name)
+                        print("FOUND", res.type_name, "===", res.id)
+                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                                           tf_import_id=res.id, skip_if_exists=True)
+                else:
+                    print("======== NOT_FOUND", res.type_name, "===", res.id)
+            except Exception as e:
+                print("ERROR:AzurermResources:", "get_all_resources", e)
 
-        print("======================================================")
-        print("unique_processed_resouces", unique_processed_resouces)
-        print("unique_skip_resouces", unique_skip_resouces)
+        print("===============len(arrAzureResources)=============", len(arrAzureResources), "==========================")
+        print("unique_processed_resouces", len(unique_processed_resouces), unique_processed_resouces)
+        print("unique_skip_resouces", len(unique_skip_resouces), unique_skip_resouces)
         print("======================================================")
         return arrAzureResources
 
