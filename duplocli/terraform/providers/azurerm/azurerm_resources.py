@@ -151,14 +151,24 @@ class AzurermResources:
 
 
     def _init_azure_client(self):
-        subscription_id = os.environ.get(
-            'AZURE_SUBSCRIPTION_ID',
-            '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
-        credentials = ServicePrincipalCredentials(
-            client_id=os.environ['AZURE_CLIENT_ID'],
-            secret=os.environ['AZURE_CLIENT_SECRET'],
-            tenant=os.environ['AZURE_TENANT_ID']
-        )
+        if os.environ['AZURE_CLIENT_ID'] is None:
+            json_env=self._load_env()
+            subscription_id = json_env['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
+            credentials = ServicePrincipalCredentials(
+                client_id=json_env['AZURE_CLIENT_ID'],
+                secret=json_env['AZURE_CLIENT_SECRET'],
+                tenant=json_env['AZURE_TENANT_ID']
+            )
+        else:
+            subscription_id = os.environ.get(
+                'AZURE_SUBSCRIPTION_ID',
+                '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
+            credentials = ServicePrincipalCredentials(
+                client_id=os.environ['AZURE_CLIENT_ID'],
+                secret=os.environ['AZURE_CLIENT_SECRET'],
+                tenant=os.environ['AZURE_TENANT_ID']
+            )
+
         self.resource_client = ResourceManagementClient(credentials, subscription_id)
         self.compute_client = ComputeManagementClient(credentials, subscription_id)
         self.storage_client = StorageManagementClient(credentials, subscription_id)
@@ -173,8 +183,15 @@ class AzurermResources:
             self.azurerm_resources = json.load(f)
         print("self.azurerm_resources", self.azurerm_resources)
 
+    def _load_env(self):
+        json_path = "/shell/.duplo_env.json"
+        if not os.path.exists(json_path):
+            return {}
+        with open(json_path) as f:
+            return json.load(f)
 
     def _create_env_sh(self):
+        #Issues  with env variables in imprt script and python on shell docker. need a clean and final method
         self.env_list = []
         self.env_list.append("export ARM_SUBSCRIPTION_ID=\"{0}\"".format( os.environ.get('AZURE_SUBSCRIPTION_ID')))
         self.env_list.append("export ARM_CLIENT_ID=\"{0}\"".format( os.environ.get('AZURE_CLIENT_ID')))

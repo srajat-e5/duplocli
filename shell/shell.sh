@@ -65,7 +65,7 @@ aws_import_tf() {
 azure_import_tf() {
 
 
-    if [ -z "$ARM_SUBSCRIPTION_ID" ]; then
+    if [ -z "$AZURE_SUBSCRIPTION_ID" ]; then
         echo "azure_import_tf SKIP:"
         return 0
     fi
