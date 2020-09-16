@@ -26,13 +26,19 @@ class TfFileUtils:
 
     def create_azure_env_sh(self, env_list):
         env_sh_path = self.get_azure_env_sh()
+        if os.path.exists(self.env_sh_path):
+            return
         self.save_run_script(env_sh_path, env_list, mode="w")
         os.system("chmod  777 {0} ".format(env_sh_path))
 
     def get_azure_env_sh(self):
-        env_sh = "env.sh"
-        self.env_sh_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
+        env_sh = ".duplo_env.sh"
+        home_folder = os.getenv("HOME")
+        self.env_sh_path = os.path.join(home_folder, env_sh) #os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
         if not os.path.exists(self.env_sh_path ):
+            self.env_sh_path = "/shell/.duplo_env.sh"
+            if  os.path.exists(self.env_sh_path):
+                print("using", self.env_sh_path)
             os.system("touch {0}; chmod  777 {1} ".format(self.env_sh_path, self.env_sh_path))
         return self.env_sh_path
 

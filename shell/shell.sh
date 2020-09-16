@@ -70,6 +70,9 @@ azure_import_tf() {
         return 0
     fi
 
+    sh /shell/shell_env_create.sh
+    source /shell/.duplo_env.sh
+
     cd /duplocli/duplocli/terraform/
     import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
     zip_file_path="/zip/$import_name"

@@ -57,6 +57,7 @@ COPY shell/shell.conf /etc/supervisor/conf.d/
 COPY shell/nginx-custom.conf /etc/nginx/sites-available/default
 COPY shell/shell_init.sh /shell/shell_init.sh
 COPY shell/shell.sh /shell/shell.sh
+COPY shell/shell_env_create.sh /shell/shell_env_create.sh
 COPY shell/docker_init.sh /shell/docker_init.sh
 COPY shell/app /shell/app
 COPY shell/uwsgi.ini /etc/uwsgi/uwsgi.ini
