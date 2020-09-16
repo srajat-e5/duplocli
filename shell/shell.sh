@@ -21,16 +21,19 @@ k8_token=$(python /shell/parseurl.py $URL 'k8_token')
 export PATH=/shell/bin:${PATH}
 
 
-function aws_import_tf() {
+#************************************** aws_import_tf **************************************
+aws_import_tf() {
+
     if [ -z "$AWS_ACCESS_KEY_ID" ]; then
         echo "aws_import_tf SKIP:"
-        exit
+        return 0
     fi
-    cd /duplocli/terraform/
+
+    cd /duplocli/duplocli/terraform/
     import_name="aws-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
     zip_file_path="/zip/$import_name"
     mkdir -p /zip
-    python tf_import_aws.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
+    python3 tf_import_aws.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
      --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
 
@@ -58,17 +61,20 @@ function aws_import_tf() {
 
 }
 
+#************************************** azure_import_tf **************************************
+azure_import_tf() {
 
-function azure_import_tf() {
+
     if [ -z "$ARM_SUBSCRIPTION_ID" ]; then
         echo "azure_import_tf SKIP:"
-        exit
+        return 0
     fi
-    cd /duplocli/terraform/
+
+    cd /duplocli/duplocli/terraform/
     import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
     zip_file_path="/zip/$import_name"
     mkdir -p /zip
-    python tf_import_azure.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
+    python3 tf_import_azure.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
      --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
 
@@ -95,11 +101,22 @@ function azure_import_tf() {
     echo ""
 
 }
+
+
+#************************************** KUBECTL **************************************
 if [ -n "$KUBECTL" ]; then
-    /bin/bash /shell/docker_init.sh $k8_api_url $k8_token duploservices-$tenant_name $pod 
+    /bin/bash /shell/docker_init.sh $k8_api_url $k8_token duploservices-$tenant_name $pod
+
+#************************************** $TF **************************************
 elif [ -n "$TF" ]; then
-    aws_import_tf()
-    azure_import_tf()
+    export PYTHONPATH=$PYTHONPATH:/duplocli
+    echo "************************************** calling aws_import_tf *********************c "
+    aws_import_tf
+    echo "************************************** calling azure_import_tf *********************c "
+    azure_import_tf
+    echo "************************************** import_tf Dome *********************c "
+
+    cd /duplocli
     /bin/bash
 fi
 

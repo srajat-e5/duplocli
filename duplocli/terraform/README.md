@@ -4,6 +4,7 @@
 ## install requirements: tested with python 3.6 and conda
 pip install -r requirements.txt  
 
+####duplocloud/shell:terraform_kubectl_v8
 ##setup terraform: https://learn.hashicorp.com/terraform/getting-started/install.html
 ### Terraform Install
     * mac
