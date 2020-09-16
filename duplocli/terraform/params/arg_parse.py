@@ -139,7 +139,7 @@ class ArgParse:
         print("============== ERROR ============== ")
         print(message)
         print("============== USAGE ============== ")
-        print(get_help(params))
+        print(get_help(params, self.provider))
         print("============== Exception ============== ")
         raise Exception(message)
 

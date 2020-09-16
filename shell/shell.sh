@@ -72,7 +72,7 @@ azure_import_tf() {
     fi
 
     sh /shell/shell_env_create.sh
-    source /shell/.duplo_env.sh
+    . /shell/.duplo_env.sh
 
     cd /duplocli/duplocli/terraform/
     import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
@@ -124,7 +124,7 @@ elif [ -n "$TF" ]; then
     /bin/bash
 elif [ -n "$TF_DIRECT" ]; then
   sh /shell/shell_env_create.sh
-  source /shell/.duplo_env.sh
+  . /shell/.duplo_env.sh
   cd /duplocli/duplocli/terraform/
   /bin/bash
 fi
