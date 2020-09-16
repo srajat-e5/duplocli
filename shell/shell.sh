@@ -121,5 +121,10 @@ elif [ -n "$TF" ]; then
 
     cd /duplocli
     /bin/bash
+elif [ -n "$TF_DIRECT" ]; then
+  sh /shell/shell_env_create.sh
+  source /shell/.duplo_env.sh
+  cd /duplocli/duplocli/terraform/
+  /bin/bash
 fi
 
