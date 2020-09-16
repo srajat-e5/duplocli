@@ -5,6 +5,7 @@ URL=$1
 
 TF=$(python /shell/parseurl.py $URL 'terraform')
 KUBECTL=$(python /shell/parseurl.py $URL 'kubectl')
+TF_DIRECT=$(python /shell/parseurl.py $URL 'terra_direct')
 
 IP=$(python /shell/parseurl.py $URL 'ip')
 aws_region=$(python /shell/parseurl.py $URL 'aws_region')
