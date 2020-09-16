@@ -116,8 +116,8 @@ elif [ -n "$TF" ]; then
     export PYTHONPATH=$PYTHONPATH:/duplocli
     echo "************************************** calling aws_import_tf *********************c "
     aws_import_tf
-    echo "************************************** calling azure_import_tf *********************c "
-    azure_import_tf
+    #echo "************************************** calling azure_import_tf *********************c "
+    #azure_import_tf
     echo "************************************** import_tf Dome *********************c "
 
     cd /duplocli
