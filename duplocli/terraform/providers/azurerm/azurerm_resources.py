@@ -121,8 +121,10 @@ class AzurermResources:
     #     return self.tf_cloud_obj_list
 
     ########### helpers ###########
+
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
                           skip_if_exists=False):
+
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
@@ -215,38 +217,50 @@ class AzurermResources:
         unique_processed_resouces = []
         unique_skip_resouces = []
 
+        filter_tenant = False
+        if self.params.import_module == "tenant":
+            filter_tenant = True
+            filter_tenant_str = "-{0}".format(self.params.tenant_name.lower())
+
+
         for instance in self.resource_client.resources.list():
+            # small hack to filter tenant_name
             res = AzureResource(instance)
-            arrAzureResources.append(res)
-            try:
-                # print(res.type_name)
-                if res.type_name_singular in  self.azurerm_resources:
-                    res.type_name = res.type_name_singular
-                    if res.type_name in self.resources_skip:
-                        if res.type_name not in unique_skip_resouces:
-                            unique_skip_resouces.append(res.type_name)
-                        print("FOUND and SKIP", res.type_name , "===", res.id)
+            use_resource=False
+            if filter_tenant:
+                if filter_tenant_str in instance.id:
+                    use_resource=True
+            if use_resource:
+                arrAzureResources.append(res)
+                try:
+                    # print(res.type_name)
+                    if res.type_name_singular in  self.azurerm_resources:
+                        res.type_name = res.type_name_singular
+                        if res.type_name in self.resources_skip:
+                            if res.type_name not in unique_skip_resouces:
+                                unique_skip_resouces.append(res.type_name)
+                            print("FOUND and SKIP", res.type_name , "===", res.id)
+                        else:
+                            if res.type_name not in unique_processed_resouces:
+                                unique_processed_resouces.append(res.type_name)
+                            print("FOUND", res.type_name, "===", res.id)
+                            self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
+                                               tf_import_id=res.id, skip_if_exists=True)
+                    elif res.type_name in  self.azurerm_resources:
+                        if res.type_name in self.resources_skip:
+                            if res.type_name not in unique_skip_resouces:
+                                unique_skip_resouces.append(res.type_name)
+                            print("FOUND and SKIP", res.type_name, "===", res.id)
+                        else:
+                            if res.type_name not in unique_processed_resouces:
+                                unique_processed_resouces.append(res.type_name)
+                            print("FOUND", res.type_name, "===", res.id)
+                            self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                                               tf_import_id=res.id, skip_if_exists=True)
                     else:
-                        if res.type_name not in unique_processed_resouces:
-                            unique_processed_resouces.append(res.type_name)
-                        print("FOUND", res.type_name, "===", res.id)
-                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
-                                           tf_import_id=res.id, skip_if_exists=True)
-                elif res.type_name in  self.azurerm_resources:
-                    if res.type_name in self.resources_skip:
-                        if res.type_name not in unique_skip_resouces:
-                            unique_skip_resouces.append(res.type_name)
-                        print("FOUND and SKIP", res.type_name, "===", res.id)
-                    else:
-                        if res.type_name not in unique_processed_resouces:
-                            unique_processed_resouces.append(res.type_name)
-                        print("FOUND", res.type_name, "===", res.id)
-                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
-                                           tf_import_id=res.id, skip_if_exists=True)
-                else:
-                    print("======== NOT_FOUND", res.type_name, "===", res.id)
-            except Exception as e:
-                print("ERROR:AzurermResources:", "get_all_resources", e)
+                        print("======== NOT_FOUND", res.type_name, "===", res.id)
+                except Exception as e:
+                    print("ERROR:AzurermResources:", "get_all_resources", e)
 
         print("===============len(arrAzureResources)=============", len(arrAzureResources), "==========================")
         print("unique_processed_resouces", len(unique_processed_resouces), unique_processed_resouces)
