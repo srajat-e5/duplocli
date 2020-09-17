@@ -40,6 +40,7 @@ class ParamBase:
         return self.paramHelper.get_parser()
 
     def parsed_args(self, parsed_args):
+        self.infer_import_module(parsed_args)
         # self.parsed_args_params = parsed_args
         parameters = self.paramHelper.parsed_args(parsed_args)
 
@@ -87,5 +88,24 @@ class ParamBase:
         self.zip_folder_path = self.zip_folder
 
     def _check_required_fields(self, required_fields):
-        self.paramHelper._check_required_fields(required_fields)
+        parameters = vars(self )
+        self.paramHelper.validate_required_fields(parameters, required_fields)
 
+    def infer_import_module(self, parsed_args ):
+        #
+        default_import_module = 'infra'
+        if 'default_import_module' in self.default_params.keys():
+            default_import_module = self.default_params['default_import_module']
+        #
+        tenant_name = parsed_args.tenant_name
+        #
+        if tenant_name is None:
+             import_module = default_import_module
+        else:
+            if tenant_name in ["all", "infra"]:
+                import_module = tenant_name
+            elif "," in tenant_name:
+                import_module = "tenantlist"
+            else:
+                import_module = "tenant"
+        parsed_args.import_module = import_module

@@ -99,17 +99,43 @@ class AwsTfSteps:
 
     def post_execute(self):
         self._zip()
-        # backup and s3 sync
-        print(os.getcwd())
-        #'/Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform'
-        terraform_folder = os.getcwd() #os.path.join("duplocli", "terraform")
-        import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "json_tf_backup_settings_auth_service.json")
-        if os.path.exists(import_tf_backup_settings_auth_service):
-            backup_settings_json = import_tf_backup_settings_auth_service
-        else:
-            backup_settings_json =  os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
-        eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
-        eackupImportFolders.backup_folders()
+        self.backup()
+        print("================================================================================== ")
+        print("temp_folder  ***** ", self.params.temp_folder)
+        print("import_name  ***** ", self.params.import_name)
+        print("log_folder  ***** ", self.file_utils.log_folder())
+        print("fial_folder  ***** ", self.file_utils.final_folder())
+        print("files  ***** ", self.file_utils.ls_folder(self.file_utils.final_folder()))
+        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
+        print("================================================================================== ")
+
+    def backup(self):
+        try:
+            # backup and s3 sync
+            terraform_folder = os.path.join("duplocli", "terraform")
+            import_tf_backup_settings_auth_service = os.path.join(terraform_folder,
+                                                                  "import_tf_backup_settings_auth_service.json")
+            if os.path.exists(import_tf_backup_settings_auth_service):
+                backup_settings_json = import_tf_backup_settings_auth_service
+            else:
+                backup_settings_json = self._get_backup_settings_json()  # os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
+            eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
+            eackupImportFolders.backup_folders()
+        except Exception as e:
+            print("ERROR:Steps:","backup", e)
+    # def post_execute(self):
+    #     self._zip()
+    #     # backup and s3 sync
+    #     print(os.getcwd())
+    #     #'/Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform'
+    #     terraform_folder = os.getcwd() #os.path.join("duplocli", "terraform")
+    #     import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "json_tf_backup_settings_auth_service.json")
+    #     if os.path.exists(import_tf_backup_settings_auth_service):
+    #         backup_settings_json = import_tf_backup_settings_auth_service
+    #     else:
+    #         backup_settings_json =  os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
+    #     eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
+    #     eackupImportFolders.backup_folders()
 
     def _zip(self):
         copy_files = []

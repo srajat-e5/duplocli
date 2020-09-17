@@ -126,6 +126,9 @@ elif [ -n "$TF_DIRECT" ]; then
   sh /shell/shell_env_create.sh
   . /shell/.duplo_env.sh
   cd /duplocli/duplocli/terraform/
+  echo "python3 tf_import_aws.py ADDITIONAL_PARAMS"
+  echo "python3 tf_import_aws.py"
+  echo "python3 tf_import_azure.py"
   /bin/bash
 fi
 

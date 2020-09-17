@@ -18,15 +18,17 @@ class AzurermParams(ParamBase) :
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
 
-        "tenant_name": "infra",
+        "tenant_name": "all",
+        "import_module": "all",
+        "default_import_module": "all",
 
         "state_file": None,
         "zip_file_path": None,
 
         "download_aws_keys": "no",
-        "url": "infra",
-        "tenant_id": "infra",
-        "api_token": "infra",
+        "url": "all",
+        "tenant_id": "all",
+        "api_token": "all",
 
         "is_tenant_id_needed": False,
         "import_module": "tenant",
@@ -39,8 +41,10 @@ class AzurermParams(ParamBase) :
     def __init__(self):
         super(AzurermParams, self).__init__(self.provider, self.attr_names, self.default_parameters )
 
+
     def validate(self):
         super().validate()
+
         # validate params
         # if self.import_module in ["infra", "all"]:
         #     pass #required_fields = ["aws_region"]

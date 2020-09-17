@@ -14,6 +14,7 @@ class TfModule:
         self.tenant_id = tenant_id
         self.tenant_token = tenant_token
 
+
 class ArgParse:
 
     def __init__(self, provider, args_param_list, default_params):
@@ -30,6 +31,19 @@ class ArgParse:
             parser.add_argument('-' + arg_params[attr_name]['short_name'],
                                 '--' + attr_name, action='store', dest=attr_name)
         return parser
+
+    def infer_import_module(self, default_import_module="all"):
+        self.import_module = None  # for now neglect and derive
+        if self.import_module is None:
+            if self.tenant_name is None:
+                self.import_module = default_import_module
+            else:
+                if self.tenant_name in ["all", "infra"]:
+                    self.import_module = self.tenant_name
+                elif "," in self.tenant_name:
+                    self.import_module = "tenantlist"
+                else:
+                    self.import_module = default_import_module
 
     def parsed_args(self, parsed_args):
         self.parsed_args_params = parsed_args
@@ -145,6 +159,10 @@ class ArgParse:
 
     def _check_required_fields(self, required_fields):
         parameters = vars(self.parsed_args_params,)
+        self.validate_required_fields(parameters, required_fields)
+
+    def validate_required_fields(self, parameters, required_fields):
+        # parameters = vars(self.parsed_args_params,)
         for required_field in required_fields:
             if required_field not in parameters or parameters[required_field] is None or parameters[
                 required_field] == "":

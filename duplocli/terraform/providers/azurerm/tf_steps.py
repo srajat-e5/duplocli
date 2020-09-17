@@ -106,7 +106,7 @@ class AzurermTfSteps:
         print("temp_folder  ***** ", self.params.temp_folder)
         print("import_name  ***** ", self.params.import_name)
         print("log_folder  ***** ", self.file_utils.log_folder())
-        print("final_folder  ***** ", self.file_utils.final_folder())
+        print("fial_folder  ***** ", self.file_utils.final_folder())
         print("files  ***** ", self.file_utils.ls_folder(self.file_utils.final_folder()))
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
         print("================================================================================== ")

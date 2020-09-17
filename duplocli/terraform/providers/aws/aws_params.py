@@ -18,23 +18,28 @@ class AwsParams(ParamBase) :
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
 
-        "tenant_name": None,
-        "aws_region": None,
-
         "state_file": None,
         "zip_file_path": None,
+
+        "tenant_name": "infra",
+        "import_module": None,
+        "default_import_module": "infra",
 
         "download_aws_keys": "no",
         "url": None,
         "tenant_id": None,
         "api_token": None,
+        "is_tenant_id_needed": False,
 
-        "import_module": "tenant"
+
+        "aws_region": "us-west-2",
+        "provider": "aws"
     }
 
 
     def __init__(self):
         super(AwsParams, self).__init__(self.provider, self.attr_names, self.default_parameters )
+
 
     def validate(self):
         super().validate()
