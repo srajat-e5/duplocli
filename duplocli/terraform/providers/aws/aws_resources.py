@@ -40,6 +40,8 @@ class AwsResources :
 
     ########### helpers ###########
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None , skip_if_exists=False):
+        if tf_import_id in ["eni-0b69e66c897740b0f","eni-0bce26ce0e55b9648"]:
+            print("tf_import_id", tf_import_id)
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
@@ -227,6 +229,8 @@ class AwsResources :
         # terraform import aws_network_interface.gw igw-c0a643a9  === id
         for object in objects:
             _id = object.network_interface_id
+            if _id == "eni-0b69e66c897740b0f":
+                print("tf_import_id", _id)
             self.tf_cloud_resource("aws_network_interface", vpc, tf_variable_id=_id, tf_import_id=_id)
             print(self.file_utils.stage_prefix(), "aws_network_interface :", _id)
 

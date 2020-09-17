@@ -150,7 +150,7 @@ class TfFileUtils:
         # delete terraform binaries
         print("**************** deleting terraform binaries **************** ")
         self.empty_terraform_binary_folder()
-        print("**************** to get back terraform binaries please run ' terrafrom init ' **************** ")
+        print("**************** deleted terraform binaries : for testing - you may run ' terrafrom init ' **************** ")
 
     ######
     def _ensure_folders(self):
