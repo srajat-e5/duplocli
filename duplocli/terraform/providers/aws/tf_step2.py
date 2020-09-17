@@ -53,7 +53,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
             elif isinstance(attribute, dict):
                 resource_obj_dict = {}
                 resource_obj[attribute_name] = resource_obj_dict
-                self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj_dict, attribute_name, attribute, schema)
+                self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_dict, attribute_name, attribute, schema)
             elif isinstance(attribute, list):
                 resource_obj_dict = []
                 resource_obj[attribute_name] = resource_obj_dict
@@ -61,7 +61,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                     if isinstance(nested_item, dict):
                         resource_obj_list = {}
                         resource_obj_dict.append(resource_obj_list)
-                        self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj_list, attribute_name, nested_item, schema)
+                        self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_list, attribute_name, nested_item, schema)
                     elif isinstance(nested_item, list):
                         print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, tf_resource_var_name, attribute_name)
                         pass
@@ -112,7 +112,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
 
             else:
                 pass
-    def _process_dict_no_schema(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr):
+    def _process_dict_no_schema(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         # schema = schema_nested.nested_block[nested_atr_name]
         if 'launch-wizard-1' == tf_resource_var_name:
             print(tf_resource_var_name)

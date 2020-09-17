@@ -211,26 +211,30 @@ class AzurermResources:
         self.file_utils.create_azure_env_sh(self.env_list)
 
 
+    def filter_resource(self, id):
+        if self.params.import_module == "tenant":
+            filter_tenant_str = "-{0}".format(self.params.tenant_name.lower())
+            if filter_tenant_str in id.lower():
+                return True
+            else:
+                return False
+        elif self.params.import_module == "infra":
+            if 'duploservices-' in id.lower():
+                return False
+            else:
+                return True
+        return True
+
+
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
         unique_processed_resouces = []
         unique_skip_resouces = []
-
-        filter_tenant = False
-        if self.params.import_module == "tenant":
-            filter_tenant = True
-            filter_tenant_str = "-{0}".format(self.params.tenant_name.lower())
-
-
         for instance in self.resource_client.resources.list():
             # small hack to filter tenant_name
             res = AzureResource(instance)
-            use_resource=False
-            if filter_tenant:
-                if filter_tenant_str in instance.id:
-                    use_resource=True
-            if use_resource:
+            if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
                 try:
                     # print(res.type_name)
