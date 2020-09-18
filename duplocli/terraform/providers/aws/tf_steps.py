@@ -107,6 +107,9 @@ class AwsTfSteps:
         print("fial_folder  ***** ", self.file_utils.final_folder())
         print("files  ***** ", self.file_utils.ls_folder(self.file_utils.final_folder()))
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
+        print("import_name  ***** ", self.params.import_name)
+        print("log_folder  ***** ", os.path.abspath(self.file_utils.log_folder()))
+        print("final_folder  ***** ", os.path.abspath(self.file_utils.final_folder()))
         print("================================================================================== ")
 
     def backup(self):
@@ -136,6 +139,11 @@ class AwsTfSteps:
     #         backup_settings_json =  os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
     #     eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
     #     eackupImportFolders.backup_folders()
+
+    def _get_backup_settings_json(self):
+        json_file = "backup_settings.json"
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
+        return json_path
 
     def _zip(self):
         copy_files = []

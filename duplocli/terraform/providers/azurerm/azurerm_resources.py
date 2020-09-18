@@ -210,19 +210,20 @@ class AzurermResources:
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format( os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
 
-
+#duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
         if self.params.import_module == "tenant":
-            filter_tenant_str = "-{0}".format(self.params.tenant_name.lower())
+            filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
             if filter_tenant_str in id.lower():
                 return True
             else:
                 return False
         elif self.params.import_module == "infra":
-            if 'duploservices-' in id.lower():
-                return False
-            else:
+            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.tenant_name.lower())
+            if filter_tenant_str in id.lower():
                 return True
+            else:
+                return False
         return True
 
 

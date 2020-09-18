@@ -318,6 +318,25 @@ class AwsResources :
     ########## get_tenant_resources START ##############################
     ########## get_tenant_resources START ##############################
     ### private: methods to get individual resource for tenant ###
+    def _aws_elb_bucket(self):
+        awsclient = boto3.client('elb')
+        response = awsclient.list_buckets()
+        if self.debug_json:
+            self.file_utils.save_json_to_log("aws_s3_bucket._json", response)
+        aws_objs=[]
+        for instance in response["Buckets"]:
+            # pass
+            aws_name=instance['Name']
+            if aws_name.startswith(self.tenant_prefix+"-"):
+                self.tf_cloud_resource("aws_s3_bucket", instance, tf_variable_id=aws_name, tf_import_id=aws_name, skip_if_exists=True)
+                aws_objs.append(instance)
+                print(self.file_utils.stage_prefix(), "aws_s3_bucket :", instance['Name'])
+            #todo: resolve tenant specific
+        if len(aws_objs) ==0 :
+            print(self.file_utils.stage_prefix(), "aws_s3_bucket :", "NOT_FOUND ANY")
+        if self.debug_print_out:
+            self.file_utils.print_json(aws_objs)
+        return self
 
     def _aws_s3_bucket(self):
         awsclient = boto3.client('s3')

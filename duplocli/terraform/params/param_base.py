@@ -40,7 +40,10 @@ class ParamBase:
         return self.paramHelper.get_parser()
 
     def parsed_args(self, parsed_args):
-        self.infer_import_module(parsed_args)
+        if self.provider == 'aws':
+            self.infer_import_module(parsed_args)
+        else: #elif self.provider == 'azurerm':
+            self.infer_import_module_azurerm(parsed_args)
         # self.parsed_args_params = parsed_args
         parameters = self.paramHelper.parsed_args(parsed_args)
 
@@ -109,3 +112,29 @@ class ParamBase:
             else:
                 import_module = "tenant"
         parsed_args.import_module = import_module
+
+    def infer_import_module_azurerm(self, parsed_args ):
+        if parsed_args.import_module in ["infra"]:
+            parsed_args.tenant_name = parsed_args.infra_name
+
+        if parsed_args.import_module is None:
+            parsed_args.import_module = "all"
+            parsed_args.tenant_name = "all"
+
+        # #
+        # default_import_module = 'infra'
+        # if 'default_import_module' in self.default_params.keys():
+        #     default_import_module = self.default_params['default_import_module']
+        # #
+        # tenant_name = parsed_args.tenant_name
+        # #
+        # if tenant_name is None:
+        #      import_module = default_import_module
+        # else:
+        #     if tenant_name in ["all", "infra"]:
+        #         import_module = tenant_name
+        #     elif "," in tenant_name:
+        #         import_module = "tenantlist"
+        #     else:
+        #         import_module = "tenant"
+        # parsed_args.import_module = import_module

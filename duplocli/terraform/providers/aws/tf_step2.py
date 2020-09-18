@@ -78,7 +78,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                     resource_obj["lifecycle"] = {"ignore_changes": ["replication_group_id", "cache_nodes"]}
                 elif tf_resource_type == "aws_s3_bucket" and attribute_name in ["acl", "force_destroy","acceleration_status"]:
                     resource_obj["lifecycle"] = {"ignore_changes": ["acl", "force_destroy", "acceleration_status"]}
-                elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles"]:
+                elif tf_resource_type == "aws_iam_instance_profile" and attribute_name in ["roles", "role"]:
                     resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
                 elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count", "cpu_threads_per_core"]:
                     pass #resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}

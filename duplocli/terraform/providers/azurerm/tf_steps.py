@@ -109,6 +109,8 @@ class AzurermTfSteps:
         print("fial_folder  ***** ", self.file_utils.final_folder())
         print("files  ***** ", self.file_utils.ls_folder(self.file_utils.final_folder()))
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
+        print("log_folder  ***** ", os.path.abspath(self.file_utils.log_folder()))
+        print("final_folder  ***** ", os.path.abspath(self.file_utils.final_folder()))
         print("================================================================================== ")
 
     def backup(self):

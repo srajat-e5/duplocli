@@ -6,6 +6,7 @@ class AzurermParams(ParamBase) :
     attr_names = ["tenant_name",
                   "import_module",
                   "import_name",
+                  "infra_name",
                   "zip_file_path",
                   "params_json_file_path",
                   "download_aws_keys",
@@ -18,9 +19,9 @@ class AzurermParams(ParamBase) :
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
 
-        "tenant_name": "all",
-        "import_module": "all",
-        "default_import_module": "all",
+        "tenant_name": "infra",
+        "import_module": "infra",
+        "default_import_module": "infra",
 
         "state_file": None,
         "zip_file_path": None,
