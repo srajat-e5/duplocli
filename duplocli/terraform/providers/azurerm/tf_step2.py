@@ -38,7 +38,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     def _tf_resource(self, resource):
         tf_resource_type = resource["type"]
         tf_resource_var_name = resource["name"]
-        print(self.file_utils.stage_prefix(), tf_resource_type, "=", tf_resource_var_name)
+        print(self.file_utils.stage_prefix(), tf_resource_type, tf_resource_var_name, "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
@@ -50,20 +50,20 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 is_computed = attribute_name  in schema.computed
                 is_optional = attribute_name  in schema.optional
                 if is_nested:
-                    self._process_nested(tf_resource_type, attribute_name, attribute, resource_obj, schema)
+                    self._process_nested(tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
                 elif isinstance(attribute, dict):
                     resource_obj_dict = {}
                     resource_obj[attribute_name] = resource_obj_dict
-                    self._process_dict_no_schema(tf_resource_type, resource_obj_dict, attribute_name, attribute, schema)
+                    self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_dict, attribute_name, attribute, schema)
                 elif isinstance(attribute, list):
                     resource_obj_dict = []
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
                             resource_obj_list = {}
                             resource_obj_dict.append(resource_obj_list)
-                            self._process_dict_no_schema(tf_resource_type, resource_obj_list, attribute_name, nested_item, schema)
+                            self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_list, attribute_name, nested_item, schema)
                         elif isinstance(nested_item, list):
-                            print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, attribute_name)
+                            print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, tf_resource_var_name, attribute_name)
                             #pass
                         else:
                             resource_obj_dict.append(nested_item)
@@ -91,13 +91,13 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         tf_resource_type_root[tf_resource_var_name] = resource_obj2
 
 
-    def _process_dict(self, tf_resource_type, resource_obj, nested_atr_name, nested_atr, schema):
+    def _process_dict(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         for attribute_name, attribute in nested_atr.items():
             try:
                 is_nested = attribute_name in schema.nested
                 is_computed = attribute_name in schema.computed
                 if is_nested: 
-                    self._process_nested(tf_resource_type, attribute_name, attribute, resource_obj, schema)
+                    self._process_nested(tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
                 elif not is_computed:
                     if isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
@@ -110,14 +110,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
 
-    def _process_dict_no_schema(self, tf_resource_type, resource_obj, nested_atr_name, nested_atr, schema):
+    def _process_dict_no_schema(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         for attribute_name, attribute in nested_atr.items():
             try:
                 # is_nested = attribute_name in schema.nested
                 # is_computed = attribute_name in schema.computed
                 # if is_nested:
-                #     self._process_nested(tf_resource_type, attribute_name, attribute, resource_obj, schema)
-                # elif not is_computed:
+                #     self._process_nested(tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
+                # elif not is_computed:  
                 if isinstance(attribute, bool):
                     resource_obj[attribute_name] = attribute
                 elif attribute == 0:
@@ -130,23 +130,23 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
 
-    def _process_nested(self, tf_resource_type, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
+    def _process_nested(self, tf_resource_type, tf_resource_var_name, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
         try:
             schema = schema_nested.nested_block[nested_atr_name]
             if isinstance(nested_atr, dict):
                 resource_obj = {}
                 resource_obj_parent[nested_atr_name] = resource_obj
-                self._process_dict(tf_resource_type, resource_obj, nested_atr_name, nested_atr, schema)
+                self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema)
             elif isinstance(nested_atr, list): #aa
                 resource_obj = []
                 # resource_obj_parent[nested_atr_name] = resource_obj
                 for nested_item in nested_atr:
                     if isinstance(nested_item, dict):
                         resource_obj_list = {}
-                        self._process_dict(tf_resource_type, resource_obj_list,nested_atr_name,  nested_item,  schema)
+                        self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj_list,nested_atr_name,  nested_item,  schema)
                         resource_obj.append(resource_obj_list)
                     elif isinstance(nested_item, list):
-                        print("WARN:", self.file_utils.stage_prefix(), " _process_nested  is list list nested list ???? ", tf_resource_type,  nested_atr_name)
+                        print("WARN:", self.file_utils.stage_prefix(), " _process_nested  is list list nested list ???? ", tf_resource_type, tf_resource_var_name,  nested_atr_name)
                         #pass
                     else:
                         resource_obj.append(nested_item)

@@ -67,7 +67,7 @@ class AzurermResources:
     resources_skip= [
         "azurerm_application_gateway",
         "azurerm_network_interface",
-        "azurerm_network_security_group",
+        # "azurerm_network_security_group",
         "azurerm_route_table",
         'azurerm_image' #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
     ]
@@ -232,6 +232,7 @@ class AzurermResources:
         arrAzureResources = []
         unique_processed_resouces = []
         unique_skip_resouces = []
+        self.resources_proess = ["azurerm_network_security_group"]
         for instance in self.resource_client.resources.list():
             # small hack to filter tenant_name
             res = AzureResource(instance)
