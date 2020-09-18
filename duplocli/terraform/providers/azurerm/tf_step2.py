@@ -85,15 +85,23 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:","_tf_resource", e)
 
-        resource_obj2 = self.remove_empty(resource_obj)
+        resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
         # print("after ",  resource_obj2)
         # if tf_resource_type == 'azurerm_image':
         #     if 'hyper_v_generation' not in resource_obj2:
         #         resource_obj2['hyper_v_generation'] = ""
         tf_resource_type_root[tf_resource_var_name] = resource_obj2
 
-
-
+    # azurerm_network_security_group
+    # Inappropriate
+    # value
+    # for attribute "security_rule": element
+    # 0: attributes
+    # "description", "destination_address_prefix", "destination_address_prefixes",
+    # "destination_port_ranges", "source_address_prefixes",
+    # "source_application_security_group_ids", and "source_port_ranges"
+    # are
+    # required.
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1
         for attribute_name, attribute in nested_atr.items():
@@ -111,6 +119,21 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         pass
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
+
+        if tf_resource_type == 'azurerm_network_security_group' and  nested_atr_name == 'security_rule':
+            self._set_val(resource_obj, "description",  "")
+            self._set_val(resource_obj, "destination_address_prefix", [])
+            self._set_val(resource_obj, "destination_address_prefixes", [])
+            self._set_val(resource_obj, "destination_port_ranges", [])
+            self._set_val(resource_obj, "source_port_ranges", [])
+            self._set_val(resource_obj, "source_address_prefixes", [])
+            self._set_val(resource_obj, "source_application_security_group_ids", "")
+            self._set_val(resource_obj, "source_port_ranges", "")
+
+
+    def _set_val(self, resource_obj, attribute_name, attribute):
+        if attribute_name  not in resource_obj.keys():
+            resource_obj[attribute_name] = attribute
 
     def _process_nested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
         try:
@@ -150,7 +173,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 return True
         return False
 
-    def remove_empty(self, json_dict):
+    def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
         final_dict = {}
         for attrName, attrValue in json_dict.items():
             try:
@@ -158,7 +181,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     final_dict[attrName] = attrValue
                 elif attrValue :
                     if isinstance(attrValue, dict):
-                         final_dict[attrName] = self.remove_empty(attrValue)
+                        if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':
+                            pass
+                        else:
+                            final_dict[attrName] = self.remove_empty(attrValue)
                     elif isinstance(attrValue, list):
                         if len(attrValue) > 0:
                             resource_obj = []
