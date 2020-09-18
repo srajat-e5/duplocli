@@ -92,14 +92,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         #         resource_obj2['hyper_v_generation'] = ""
         tf_resource_type_root[tf_resource_var_name] = resource_obj2
 
-    def processIfNested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
-        if schema is not None:
-            is_nested = attribute_name in schema.nested
-            if is_nested:
-                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
-                                     resource_obj, schema)
-                return True
-        return False
+
 
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1
@@ -146,6 +139,15 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 # print("Warn: Nested non dict/list?")
         except Exception as e:
             print("ERROR:Step2:", "_process_nested", e)
+
+    def processIfNested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
+        if schema is not None:
+            is_nested = attribute_name in schema.nested
+            if is_nested:
+                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
+                                     resource_obj, schema)
+                return True
+        return False
 
     def remove_empty(self, json_dict):
         final_dict = {}

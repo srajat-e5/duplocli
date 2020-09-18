@@ -34,11 +34,12 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
 
     #############
     def _tf_resource(self, resource):
+        nested_count=1
         tf_resource_type = resource["type"]
         # if tf_resource_type =="aws_default_route_table":
         #     print(tf_resource_type)
         tf_resource_var_name = resource["name"]
-        print(self.file_utils.stage_prefix(), tf_resource_type, "=", tf_resource_var_name)
+        print(self.file_utils.stage_prefix(), nested_count, tf_resource_type,  "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
@@ -49,11 +50,11 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
             is_computed = attribute_name  in schema.computed
             is_optional = attribute_name  in schema.optional
             if is_nested:
-                self._process_nested(tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
+                self._process_nested(nested_count, tf_resource_type,  tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
             elif isinstance(attribute, dict):
                 resource_obj_dict = {}
                 resource_obj[attribute_name] = resource_obj_dict
-                self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_dict, attribute_name, attribute, schema)
+                self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_dict, attribute_name, attribute, None)
             elif isinstance(attribute, list):
                 resource_obj_dict = []
                 resource_obj[attribute_name] = resource_obj_dict
@@ -61,9 +62,9 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                     if isinstance(nested_item, dict):
                         resource_obj_list = {}
                         resource_obj_dict.append(resource_obj_list)
-                        self._process_dict_no_schema(tf_resource_type, tf_resource_var_name, resource_obj_list, attribute_name, nested_item, schema)
+                        self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list, attribute_name, nested_item, None)
                     elif isinstance(nested_item, list):
-                        print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, tf_resource_var_name, attribute_name)
+                        print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name, attribute_name)
                         pass
                     else:
                         resource_obj_dict.append(nested_item)
@@ -89,35 +90,13 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
             else:
                 pass
 
-    def _process_dict(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
-        # schema = schema_nested.nested_block[nested_atr_name]
-        if 'launch-wizard-1' == tf_resource_var_name:
-            print(tf_resource_var_name)
+    def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
+        nested_count = nested_count_parent +  1
         for attribute_name, attribute in nested_atr.items():
-            is_nested = attribute_name in schema.nested
-            is_computed =  attribute_name in schema.computed
-            if is_nested:
-                self._process_nested(tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
-            elif nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
-                resource_obj[attribute_name] = attribute or ""
-            elif not is_computed:
-                if attribute_name in ["arn"]:
-                    pass  # skip
-                elif attribute_name == "ipv6_cidr_block":
-                    resource_obj[attribute_name] = None
-                elif attribute_name == "user_data":
-                    resource_obj[attribute_name] = attribute
-                elif attribute is not None or self.is_allow_none:
-                    resource_obj[attribute_name] = attribute
-
-            else:
+            if self.processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
+                                    resource_obj, schema):
                 pass
-    def _process_dict_no_schema(self, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
-        # schema = schema_nested.nested_block[nested_atr_name]
-        if 'launch-wizard-1' == tf_resource_var_name:
-            print(tf_resource_var_name)
-        for attribute_name, attribute in nested_atr.items():
-            if nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
+            elif nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
                 resource_obj[attribute_name] = attribute or ""
             elif attribute_name in ["arn"]:
                 pass  # skip
@@ -129,12 +108,32 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                 resource_obj[attribute_name] = attribute
             else:
                 pass
-    def _process_nested(self, tf_resource_type, tf_resource_var_name, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
+
+    # def _process_dict_no_schema(self, nested_count, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
+    #     # schema = schema_nested.nested_block[nested_atr_name]
+    #     # if 'launch-wizard-1' == tf_resource_var_name:
+    #     #     print(tf_resource_var_name)
+    #     for attribute_name, attribute in nested_atr.items():
+    #         if nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
+    #             resource_obj[attribute_name] = attribute or ""
+    #         elif attribute_name in ["arn"]:
+    #             pass  # skip
+    #         elif attribute_name == "ipv6_cidr_block":
+    #             resource_obj[attribute_name] = None
+    #         elif attribute_name == "user_data":
+    #             resource_obj[attribute_name] = attribute
+    #         elif attribute is not None or self.is_allow_none:
+    #             resource_obj[attribute_name] = attribute
+    #         else:
+    #             pass
+
+    def _process_nested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
+        nested_count = nested_count_parent + 1
         schema = schema_nested.nested_block[nested_atr_name]
         if isinstance(nested_atr, dict):
             resource_obj = {}
             resource_obj_parent[nested_atr_name] = resource_obj
-            self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema)
+            self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema)
         elif isinstance(nested_atr, list):
             resource_obj = []
             resource_obj_parent[nested_atr_name] = resource_obj
@@ -142,11 +141,19 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                 if isinstance(nested_item, dict):
                     resource_obj_list = {}
                     resource_obj.append(resource_obj_list)
-                    self._process_dict(tf_resource_type, tf_resource_var_name, resource_obj_list,nested_atr_name,  nested_item,  schema)
+                    self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list,nested_atr_name,  nested_item,  schema)
                 elif isinstance(nested_item, list):
-                    print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", tf_resource_type, tf_resource_var_name,  nested_atr_name)
+                    print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name,  nested_atr_name)
                     pass
                 else:
                     resource_obj.append(nested_item)
 
 
+    def processIfNested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
+        if schema is not None:
+            is_nested = attribute_name in schema.nested
+            if is_nested:
+                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
+                                     resource_obj, schema)
+                return True
+        return False
