@@ -99,15 +99,16 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         for attribute_name, attribute in nested_atr.items():
             try:
                 if self.processIfNested(nested_count, tf_resource_type,  tf_resource_var_name, attribute_name, attribute, resource_obj, schema):
-                    pass
-                elif isinstance(attribute, bool):
-                    resource_obj[attribute_name] = attribute
-                elif attribute == 0:
-                    pass
-                elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
-                    resource_obj[attribute_name] = attribute
-                else:
-                    pass
+                    return
+                if schema is None or not attribute_name in schema.computed:
+                    if isinstance(attribute, bool):
+                        resource_obj[attribute_name] = attribute
+                    elif attribute == 0:
+                        pass
+                    elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
+                        resource_obj[attribute_name] = attribute
+                    else:
+                        pass
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
 

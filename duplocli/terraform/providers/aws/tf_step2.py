@@ -96,18 +96,19 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
             if self.processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
                                     resource_obj, schema):
                 pass
-            elif nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
-                resource_obj[attribute_name] = attribute or ""
-            elif attribute_name in ["arn"]:
-                pass  # skip
-            elif attribute_name == "ipv6_cidr_block":
-                resource_obj[attribute_name] = None
-            elif attribute_name == "user_data":
-                resource_obj[attribute_name] = attribute
-            elif attribute is not None or self.is_allow_none:
-                resource_obj[attribute_name] = attribute
-            else:
-                pass
+            if schema is None or not attribute_name in schema.computed:
+                if nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
+                    resource_obj[attribute_name] = attribute or ""
+                elif attribute_name in ["arn"]:
+                    pass  # skip
+                elif attribute_name == "ipv6_cidr_block":
+                    resource_obj[attribute_name] = None
+                elif attribute_name == "user_data":
+                    resource_obj[attribute_name] = attribute
+                elif attribute is not None or self.is_allow_none:
+                    resource_obj[attribute_name] = attribute
+                else:
+                    pass
 
     # def _process_dict_no_schema(self, nested_count, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
     #     # schema = schema_nested.nested_block[nested_atr_name]
