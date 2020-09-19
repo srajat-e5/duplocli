@@ -54,25 +54,37 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 if is_nested:
                     self._process_nested(nested_count, tf_resource_type,  tf_resource_var_name, attribute_name, attribute, resource_obj, schema)
                 elif isinstance(attribute, dict):
+                    # if is_computed:
+                    #     pass
+                    # else:
                     resource_obj_dict = {}
                     resource_obj[attribute_name] = resource_obj_dict
                     self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_dict, attribute_name, attribute, None)
                 elif isinstance(attribute, list):
-                    resource_obj_dict = []
-                    for nested_item in attribute:
-                        if isinstance(nested_item, dict):
-                            resource_obj_list = {}
-                            resource_obj_dict.append(resource_obj_list)
-                            self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list, attribute_name, nested_item, None)
-                        elif isinstance(nested_item, list):
-                            print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name, attribute_name)
-                            #pass
-                        else:
-                            resource_obj_dict.append(nested_item)
+                    # if is_computed:
+                    #     pass
+                    # el
+                    if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
+                        pass
+                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address']:
+                        pass
+                    else:
+                        resource_obj_dict = []
+                        for nested_item in attribute:
+                            if isinstance(nested_item, dict):
+                                resource_obj_list = {}
+                                resource_obj_dict.append(resource_obj_list)
+                                self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list, attribute_name, nested_item, None)
+                            elif isinstance(nested_item, list):
+                                print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name, attribute_name)
+                                #pass
+                            else:
+                                resource_obj_dict.append(nested_item)
                     if len(resource_obj_dict) > 0 :
+                        # if is_computed:
+                        #     pass
+                        #else:
                         resource_obj[attribute_name] = resource_obj_dict
-                elif tf_resource_type == 'azurerm_network_interface'  and attribute_name == 'private_ip_address':
-                    pass
                 elif is_optional or not is_computed :
                     if attribute_name == "id":
                         pass
@@ -146,24 +158,30 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             nested_count = nested_count_parent + 1
             schema = schema_nested.nested_block[nested_atr_name]
             if isinstance(nested_atr, dict):
-                resource_obj = {}
-                resource_obj_parent[nested_atr_name] = resource_obj
-                self._process_dict(nested_count  , tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema)
-            elif isinstance(nested_atr, list): #aa
-                resource_obj = []
-                # resource_obj_parent[nested_atr_name] = resource_obj
-                for nested_item in nested_atr:
-                    if isinstance(nested_item, dict):
-                        resource_obj_list = {}
-                        self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list,nested_atr_name,  nested_item,  schema)
-                        resource_obj.append(resource_obj_list)
-                    elif isinstance(nested_item, list):
-                        print("WARN:", self.file_utils.stage_prefix(), " _process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name,  nested_atr_name)
-                        #pass
-                    else:
-                        resource_obj.append(nested_item)
-                if len(resource_obj) > 0:
+                if nested_atr_name in schema.computed:
+                    pass
+                else:
+                    resource_obj = {}
                     resource_obj_parent[nested_atr_name] = resource_obj
+                    self._process_dict(nested_count  , tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema)
+            elif isinstance(nested_atr, list): #aa
+                if nested_atr_name in schema.computed:
+                    pass
+                else:
+                    resource_obj = []
+                    # resource_obj_parent[nested_atr_name] = resource_obj
+                    for nested_item in nested_atr:
+                        if isinstance(nested_item, dict):
+                            resource_obj_list = {}
+                            self._process_dict(nested_count, tf_resource_type,  tf_resource_var_name, resource_obj_list,nested_atr_name,  nested_item,  schema)
+                            resource_obj.append(resource_obj_list)
+                        elif isinstance(nested_item, list):
+                            print("WARN:", self.file_utils.stage_prefix(), " _process_nested  is list list nested list ???? ", nested_count, tf_resource_type,  tf_resource_var_name,  nested_atr_name)
+                            #pass
+                        else:
+                            resource_obj.append(nested_item)
+                    if len(resource_obj) > 0:
+                        resource_obj_parent[nested_atr_name] = resource_obj
             else:
                 pass
                 # print("Warn: Nested non dict/list?")

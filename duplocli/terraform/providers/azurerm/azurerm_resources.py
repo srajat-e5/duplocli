@@ -226,45 +226,47 @@ class AzurermResources:
             else:
                 return False
         return True
-
+    def filter_resource_type(self, res):
+        if self.resources_only_debug:
+            if res.type_name in ['azurerm_network_interface']:
+                if res.type_name not in self.unique_processed_resouces:
+                    self.unique_processed_resouces.append(res.type_name)
+                print("FOUND", res.type_name, "===", res.id)
+                return True
+            else:
+                if res.type_name not in self.unique_skip_resouces:
+                    self.unique_skip_resouces.append(res.type_name)
+                print("FOUND and SKIP", res.type_name, "===", res.id)
+                return False
+        if res.type_name in self.resources_skip:
+            if res.type_name not in self.unique_skip_resouces:
+                self.unique_skip_resouces.append(res.type_name)
+            print("FOUND and SKIP", res.type_name, "===", res.id)
+            return False
+        if res.type_name not in self.unique_processed_resouces:
+            self.unique_processed_resouces.append(res.type_name)
+        print("FOUND", res.type_name, "===", res.id)
+        return True
 
     def get_all_resources(self):
         print("======================================================")
         arrAzureResources = []
-        unique_processed_resouces = []
-        unique_skip_resouces = []
-
         self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
         self.resources_skip = []
+        self.resources_only_debug = True
+        self.unique_processed_resouces = []
+        self.unique_skip_resouces = []
+
         for instance in self.resource_client.resources.list():
             # small hack to filter tenant_name
             res = AzureResource(instance)
             if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
                 try:
-                    # print(res.type_name)
                     if res.type_name_singular in  self.azurerm_resources:
                         res.type_name = res.type_name_singular
-                        if res.type_name in self.resources_skip:
-                            if res.type_name not in unique_skip_resouces:
-                                unique_skip_resouces.append(res.type_name)
-                            print("FOUND and SKIP", res.type_name , "===", res.id)
-                        else:
-                            if res.type_name not in unique_processed_resouces:
-                                unique_processed_resouces.append(res.type_name)
-                            print("FOUND", res.type_name, "===", res.id)
-                            self.tf_cloud_resource(res.type_name, instance, tf_variable_id= res.name,
-                                               tf_import_id=res.id, skip_if_exists=True)
-                    elif res.type_name in  self.azurerm_resources:
-                        if res.type_name in self.resources_skip:
-                            if res.type_name not in unique_skip_resouces:
-                                unique_skip_resouces.append(res.type_name)
-                            print("FOUND and SKIP", res.type_name, "===", res.id)
-                        else:
-                            if res.type_name not in unique_processed_resouces:
-                                unique_processed_resouces.append(res.type_name)
-                            print("FOUND", res.type_name, "===", res.id)
-                            self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                    if self.filter_resource_type(res):
+                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                tf_import_id=res.id, skip_if_exists=True)
                     else:
                         print("======== NOT_FOUND", res.type_name, "===", res.id)
@@ -272,8 +274,8 @@ class AzurermResources:
                     print("ERROR:AzurermResources:", "get_all_resources", e)
 
         print("===============len(arrAzureResources)=============", len(arrAzureResources), "==========================")
-        print("unique_processed_resouces", len(unique_processed_resouces), unique_processed_resouces)
-        print("unique_skip_resouces", len(unique_skip_resouces), unique_skip_resouces)
+        print("unique_processed_resouces", len(self.unique_processed_resouces), self.unique_processed_resouces)
+        print("unique_skip_resouces", len(self.unique_skip_resouces), self.unique_skip_resouces)
         print("======================================================")
         return arrAzureResources
 
