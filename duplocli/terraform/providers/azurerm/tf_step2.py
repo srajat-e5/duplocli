@@ -71,6 +71,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             resource_obj_dict.append(nested_item)
                     if len(resource_obj_dict) > 0 :
                         resource_obj[attribute_name] = resource_obj_dict
+                elif tf_resource_type == 'azurerm_network_interface'  and attribute_name == 'private_ip_address':
+                    pass
                 elif is_optional or not is_computed :
                     if attribute_name == "id":
                         pass
@@ -113,6 +115,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         resource_obj[attribute_name] = attribute
                     elif attribute == 0:
                         pass
+                    # if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route' and attribute_name == 'next_hop_in_ip_address':
+                    #     pass
                     elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
                         resource_obj[attribute_name] = attribute
                     else:
@@ -120,6 +124,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
 
+        if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route':
+            self._set_val(resource_obj, "next_hop_in_ip_address",  "")
         if tf_resource_type == 'azurerm_network_security_group' and  nested_atr_name == 'security_rule':
             self._set_val(resource_obj, "description",  "")
             self._set_val(resource_obj, "destination_address_prefix", [])
@@ -183,18 +189,28 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     if isinstance(attrValue, dict):
                         if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':
                             pass
+                        elif tf_resource_type == 'azurerm_route_table' and attrName == 'route':
+                            pass
                         else:
-                            final_dict[attrName] = self.remove_empty(attrValue)
+                            final_dict[attrName] = self.remove_empty( tf_resource_type, tf_resource_var_name, attrValue)
                     elif isinstance(attrValue, list):
-                        if len(attrValue) > 0:
+                        if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':
+                            pass
+                        elif tf_resource_type == 'azurerm_route_table' and attrName == 'route':
+                            pass
+                        elif len(attrValue) > 0:
                             resource_obj = []
                             for nested_item in attrValue:
                                 if isinstance(nested_item, dict):
-                                    nested_item_value = self.remove_empty(nested_item)
+                                    nested_item_value = self.remove_empty( tf_resource_type, tf_resource_var_name, nested_item)
                                     if nested_item_value and len(nested_item_value) > 0:
                                         resource_obj.append(nested_item_value)
                                 else:
-                                    resource_obj.append(nested_item)
+                                    if tf_resource_type == 'azurerm_route_table' and attrName == 'route':
+                                        pass
+                                    # next_hop_in_ip_address
+                                    else:
+                                        resource_obj.append(nested_item)
                             if len(resource_obj)>0:
                                 final_dict[attrName] = resource_obj
 

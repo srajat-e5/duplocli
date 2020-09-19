@@ -74,6 +74,7 @@ class AzurermResources:
 
     resources_proess = [
         'azurerm_storage_account',
+        "azurerm_network_security_group",
         #'azurerm_image',
         'azurerm_snapshot',
         'azurerm_automation_account',
@@ -232,7 +233,9 @@ class AzurermResources:
         arrAzureResources = []
         unique_processed_resouces = []
         unique_skip_resouces = []
-        self.resources_proess = ["azurerm_network_security_group"]
+
+        self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
+        self.resources_skip = []
         for instance in self.resource_client.resources.list():
             # small hack to filter tenant_name
             res = AzureResource(instance)
