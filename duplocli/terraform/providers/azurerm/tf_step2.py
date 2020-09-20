@@ -66,7 +66,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     # el
                     if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
                         pass
-                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address']:
+                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address', 'private_ip_addresses']:
                         pass
                     else:
                         resource_obj_dict = []
@@ -87,6 +87,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         resource_obj[attribute_name] = resource_obj_dict
                 elif is_optional or not is_computed :
                     if attribute_name == "id":
+                        pass
+                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address', 'private_ip_addresses']:
                         pass
                     elif isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
