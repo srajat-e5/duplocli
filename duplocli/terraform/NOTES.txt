@@ -7,3 +7,7 @@
 
 ### every tenant == resource group
 * 1- duploservices-TENANT_NAME -( ManagedIdentity, App Sec Grp, List of VM , Each VM = 1 VM + nic + OS disk, n data disk, optional Public IP)
+
+```
+terraform providers schema -json
+```

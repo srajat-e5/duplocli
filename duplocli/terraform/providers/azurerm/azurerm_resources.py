@@ -17,7 +17,8 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 class AzureResource:
     def __init__(self, res):
         self.id = res.id
-        self.name = res.name
+        self.name_origin = res.name
+        self.name = res.name.lower()
         self._getType(res)
 
     def _getType(self, res):
@@ -27,32 +28,14 @@ class AzureResource:
         else:
             type_camel = res.type
         self.type_name = "azurerm_{0}".format(snakecase(type_camel))
+        self.type_name_orig = self.type_name
         if self.type_name == "azurerm_public_i_p_addresses":
             self.type_name = "azurerm_public_ip"
 
         self.type_name_singular = self.type_name[:-1]
 
 
-#azurerm_metricalerts
-azure_resoure_map = {
-    "azurerm_route_tables": "azurerm_route_table",
-    "azurerm_user_assigned_identities": "azurerm_user_assigned_identity",
 
-    "azurerm_public_ip_addresses": "azurerm_public_ip",
-    "azurerm_public_i_p_addresses": "azurerm_public_ip",
-
-    "azurerm_metricalerts": "azurerm_monitor_metric_alert",
-    "azurerm_disks": "azurerm_managed_disk",
-    "azurerm_extensions": "azurerm_virtual_machine_extension",
-    "azurerm_virtual_network_links": "azurerm_private_dns_zone_virtual_network_link",
-    "azurerm_galleries": "azurerm_shared_image_gallery",
-
-    "azurerm_hosting_environments": "azurerm_app_service_environment",
-    "azurerm_server_farms": "",
-    "azurerm_sites": "",
-    "azurerm_load_balancers": "",
-
-}
 class AzurermResources:
     debug_print_out = False
     debug_json = True
@@ -64,17 +47,86 @@ class AzurermResources:
     tf_cloud_sg_list = []
     resources_unique_ids = []
 
-    resources_skip= [
-        "azurerm_application_gateway",
-        "azurerm_network_interface",
-        # "azurerm_network_security_group",
-        "azurerm_route_table",
-        'azurerm_image' #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
-    ]
+    # azurerm_metricalerts
+    azure_resoure_map = {
+        "azurerm_route_tables": "azurerm_route_table",
+        "azurerm_user_assigned_identities": "azurerm_user_assigned_identity",
 
+        "azurerm_public_i_p_addresses": "azurerm_public_ip",
+        "azurerm_public_ip_addresses": "azurerm_public_ip",
+        "azurerm_vaults": "azurerm_key_vault",
+        "azurerm_connections": "azurerm_virtual_network_gateway_connection",
+        "azurerm_dnszones": "azurerm_dns_zone",
+        "azurerm_runbooks": "azurerm_automation_runbook",
+        "azurerm_certificate_orders": "azurerm_app_certificate_order",
+        "azurerm_disks": "azurerm_managed_disk",
+        "azurerm_workspaces": "azurerm_log_analytics_workspace",
+        "azurerm_solutions": "azurerm_log_analytics_solution",
+        "azurerm_metricalerts": "azurerm_monitor_metric_alert",
+        "azurerm_virtual_network_links":"azurerm_private_dns_zone_virtual_network_link",
+        "azurerm_galleries":"azurerm_shared_image_gallery",
+        # "azurerm_extensions": "",
+        #
+        # "azurerm_metricalerts": "azurerm_monitor_metric_alert",
+        # "azurerm_disks": "azurerm_managed_disk",
+        # "azurerm_extensions": "azurerm_virtual_machine_extension",
+        # "azurerm_virtual_network_links": "azurerm_private_dns_zone_virtual_network_link",
+        # "azurerm_galleries": "azurerm_shared_image_gallery",
+        #
+        # "azurerm_hosting_environments": "azurerm_app_service_environment",
+        # "azurerm_server_farms": "",
+        # "azurerm_sites": "",
+        # "azurerm_load_balancers": "",
+        "A":""
+
+    }
+    resources_skip= [
+        # "azurerm_application_gateway",
+        # "azurerm_network_interface",
+        # "azurerm_network_security_group",
+        # "azurerm_storage_account",
+        # "azurerm_route_table",
+        # 'azurerm_image',
+        # 'azurerm_virtual_machine',
+        'azurerm_automation_account',
+        'azurerm_availability_set',
+        'azurerm_local_network_gateway',
+        'azurerm_network_watcher',
+        'azurerm_private_dns_zone',
+        # 'azurerm_public_ip',
+        'azurerm_snapshot',
+        # 'azurerm_virtual_machine',
+        # 'azurerm_virtual_network_gateway'
+        "azurerm_app_certificate_order",
+        "azurerm_extensions",
+        "azurerm_certificates",
+
+        ""
+        #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
+    ]
+    resources_skip_not_supported = [
+        "azurerm_workspaces",
+        "azurerm_solutions",
+        "azurerm_runbooks",
+        "azurerm_certificate_orders",
+        "azurerm_disks",
+        "azurerm_extensions",
+        "azurerm_vaults",
+        "azurerm_connections",
+        "azurerm_dnszones",
+        "azurerm_metricalerts",
+        "azurerm_user_assigned_identities",
+        "azurerm_virtual_network_links",
+        "azurerm_certificates",
+        "azurerm_galleries"
+        # some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
+    ]
+# waf
+# lb
+# azurerm_application_gateway
     resources_proess = [
-        'azurerm_storage_account',
-        "azurerm_network_security_group",
+        # 'azurerm_storage_account',
+        # "azurerm_network_security_group",
         #'azurerm_image',
         'azurerm_snapshot',
         'azurerm_automation_account',
@@ -135,7 +187,7 @@ class AzurermResources:
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_resource_var_name = tf_resource_var_name.strip()
-        tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-")
+        tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-").replace(" ", "-").replace("(", "-").replace(")", "-").replace("--", "-")
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
@@ -226,9 +278,15 @@ class AzurermResources:
             else:
                 return False
         return True
+
     def filter_resource_type(self, res):
+        if res.type_name not in self.azurerm_resources:
+            if res.type_name not in self.unique_skip_not_found_resouces:
+                self.unique_skip_not_found_resouces.append(res.type_name)
+            print("NOT_FOUND and SKIP", res.type_name, "===", res.id)
+            return False
         if self.resources_only_debug:
-            if res.type_name in ['azurerm_network_interface']:
+            if res.type_name in ['azurerm_virtual_machine']: #,'azurerm_network_interface']:
                 if res.type_name not in self.unique_processed_resouces:
                     self.unique_processed_resouces.append(res.type_name)
                 print("FOUND", res.type_name, "===", res.id)
@@ -252,24 +310,42 @@ class AzurermResources:
         print("======================================================")
         arrAzureResources = []
         self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
-        self.resources_skip = []
-        self.resources_only_debug = True
+        # self.resources_skip = []
+        self.resources_only_debug = False
         self.unique_processed_resouces = []
         self.unique_skip_resouces = []
-
+        self.unique_skip_not_found_resouces = []
+        azure_resoure_map_keys = self.azure_resoure_map.keys()
         for instance in self.resource_client.resources.list():
             # small hack to filter tenant_name
             res = AzureResource(instance)
             if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
                 try:
-                    if res.type_name_singular in  self.azurerm_resources:
+                    azurerm_resources_found=False
+                    if res.type_name in  azure_resoure_map_keys :
+                        res.type_name = self.azure_resoure_map[res.type_name]
+                        azurerm_resources_found = True
+                    elif res.type_name_singular in azure_resoure_map_keys :
+                        res.type_name = self.azure_resoure_map[res.type_name_singular]
+                        azurerm_resources_found = True
+                    elif res.type_name in  self.azurerm_resources:
+                        azurerm_resources_found=True
+                    elif res.type_name_singular in  self.azurerm_resources:
                         res.type_name = res.type_name_singular
-                    if self.filter_resource_type(res):
-                        self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
-                                               tf_import_id=res.id, skip_if_exists=True)
+                        azurerm_resources_found = True
                     else:
-                        print("======== NOT_FOUND", res.type_name, "===", res.id)
+                        print("======== ??????? ", res.type_name, "===", res.id)
+                        azurerm_resources_found = False
+
+                    if azurerm_resources_found:
+                        if self.filter_resource_type(res):
+                            self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
+                                                   tf_import_id=res.id, skip_if_exists=True)
+                        else:
+                            print("======== SKIPPED", res.type_name, "===", res.id)
+                    else:
+                        print("======== NOT_FOUND: not supported by azurerm terraform?", res.type_name, "===", res.id)
                 except Exception as e:
                     print("ERROR:AzurermResources:", "get_all_resources", e)
 

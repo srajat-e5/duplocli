@@ -77,7 +77,7 @@ class ParamBase:
     def _create_work_file_paths(self):
         params = self
         self.file_utils = TfFileUtils(self)
-        if self.import_name is None:
+        if self.import_name is None: # use self.import_name for debug
             now = datetime.datetime.now()
             now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
             self.import_name = "{0}-{1}".format(self.provider, now_str)

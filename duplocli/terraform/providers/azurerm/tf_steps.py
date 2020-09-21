@@ -93,11 +93,12 @@ class AzurermTfSteps:
 
     ############# ######
     def pre_execute(self):
-        self.file_utils.delete_folder(self.params.temp_folder)
-        for module in self.params.modules():
-            self.params.set_step_type(module)
-            self.params.set_step("step1")
-            self.file_utils._ensure_folders()
+        if not self.only_step2:
+            self.file_utils.delete_folder(self.params.temp_folder)
+            for module in self.params.modules():
+                self.params.set_step_type(module)
+                self.params.set_step("step1")
+                self.file_utils._ensure_folders()
 
     def post_execute(self):
         self._zip()

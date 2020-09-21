@@ -86,67 +86,49 @@ class ArgParse:
         params = self._set_defaults(params)
         tenants = []
         tenant_ids = []
+
         tenant_name = params['tenant_name']
         tenant_id = params['tenant_id']
-
         import_module = params['import_module']
-        if  import_module in ["tenant", None, ""]:
-            import_module = "tenant"
-            params['import_module']= "tenant"
+        is_tenant_id_needed = params['is_tenant_id_needed']
+        api_token = params['api_token']
+        is_key_download = is_tenant_id_needed
 
-        if  tenant_id is None:
-            params['tenant_id'] = ""
-            tenant_id = ""
-
-        if  tenant_id is None:
-            params['tenant_id'] = ""
-            tenant_id = ""
-
-        if import_module in ["tenant", "tenant_list"] and params['download_aws_keys'] == "yes":
-            params['is_tenant_id_needed'] = True
-            required_fields = ["url", "tenant_id", "api_token"]
-            self._check_required_fields( required_fields)
-
-
-        if import_module in ["infra", "all"]:
+        if import_module in ["all"]:
             tenants.append(import_module)
             tenant_ids.append("")
-        elif import_module  == "tenant":
-            if "," in tenant_name or "," in tenant_id:
-                self._raise_error(self.parsed_args_params, "Exception: import_module=tenant - more thann one tenant is provided.")
+        elif import_module in ["infra", "tenant"]:
             tenants.append(tenant_name)
             tenant_ids.append(tenant_id)
-        elif import_module == "tenant_list":
-            tenants.append("infra")
-            tenant_ids.append("infra")
+        elif import_module in ["infra_list", "tenant_list"]:
             tenants_arr = tenant_name.split(",")
             for tenant in tenants_arr:
                 tenant = tenant.strip()
                 if tenant != "":
                     tenants.append(tenant)
-            tenant_ids_arr = tenant_id.split(",")
-            for tenant_id in tenant_ids_arr:
-                tenant_id = tenant_id.strip()
-                if tenant_id != "":
-                    tenant_ids.append(tenant_id)
-            if len(tenants_arr) != len(tenant_ids_arr):
-                self._raise_error(self.parsed_args_params, "Exception: import_module=tenant_list - count not matching for tenant_names and tenant_ids, should be equal.")
+                    tenant_id.append("")
+            if is_key_download:
+                tenant_ids_arr = tenant_id.split(",")
+                for tenant_id in tenant_ids_arr:
+                    tenant_id = tenant_id.strip()
+                    if tenant_id != "":
+                        tenant_ids.append(tenant_id)
+                if len(tenants_arr) != len(tenant_ids_arr):
+                    self._raise_error(self.parsed_args_params, "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
         tf_modules = {}
-        is_tenant_id_needed = params['is_tenant_id_needed']
-        api_token = params['api_token']
-        is_key_download =  is_tenant_id_needed
         for index in range(len(tenants)):
             tenant_name = tenants[index]
             tenant_id = ""
-            is_tenant = True
-            if tenant_name in ["infra", "all"]:
-                is_tenant = False
+            is_tenant = False
+            if tenant_name in ["tenant", "tenant_list"]:
+                is_tenant = True
             if is_key_download:
                 tenant_id = tenant_ids[index]
             tf_module = TfModule(is_tenant, is_key_download, tenant_name, tenant_id, api_token)
             tf_modules[tenant_name] = tf_module
         return tf_modules
+
 
     ############ helpers ########################
     def _raise_error(self, params, message):
@@ -171,6 +153,7 @@ class ArgParse:
                 self._raise_error(parameters, "Exception: Missing required_fields = " + fields)
 
     def _set_defaults(self, params):
+
         if params['import_module'] in ["tenant", None, ""]:
             params['import_module'] = "tenant"
 
@@ -179,5 +162,25 @@ class ArgParse:
 
         if params['tenant_name'] is None:
             params['tenant_name'] = ""
+
+        params['is_tenant_id_needed'] = False
+        if params['download_aws_keys'] is None or params['import_module'] in ["infra_list", "infra", "all"]:
+            params['download_aws_keys'] = "no"
+
+        if params['import_module'] in ["tenant", "tenant_list"] and params['download_aws_keys'] == "yes":
+            params['is_tenant_id_needed'] = True
+            required_fields = ["url", "tenant_id", "api_token"]
+            self._check_required_fields(required_fields)
+
+        if params['import_module'] in ["infra", "tenant"]:
+            if "," in params['tenant_name'] or "," in params['tenant_id']:
+                self._raise_error(self.parsed_args_params,
+                                  "Exception: import_module=tenant/infra - more than one tenant/infra is provided.")
+
+        if params['download_aws_keys'] == True:
+            tenants_arr = params['tenant_name'].split(",")
+            tenant_ids_arr = params['tenant_id'].split(",")
+            if len(tenants_arr) > 0 and len(tenants_arr) != len(tenant_ids_arr):
+                self._raise_error(self.parsed_args_params, "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
         return params
