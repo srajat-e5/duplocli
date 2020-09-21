@@ -144,8 +144,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         1
 
         # identity_ids
+
+
+
+        if tf_resource_type == 'azurerm_application_gateway' and nested_atr_name == 'backend_address_pool':
+            if 'fqdns' in resource_obj and len(resource_obj['fqdns']) ==0:
+                del resource_obj['fqdns']
         if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route':
-            self._set_val(resource_obj, "next_hop_in_ip_address",  "")
+            self._set_val(resource_obj, "next_hop_in_ip_address", "")
         elif tf_resource_type == 'azurerm_network_security_group' and  nested_atr_name == 'security_rule':
             self._set_val(resource_obj, "description",  "")
             self._set_val(resource_obj, "source_application_security_group_ids", "")

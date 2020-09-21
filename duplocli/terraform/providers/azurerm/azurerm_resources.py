@@ -81,35 +81,27 @@ class AzurermResources:
 
     }
     resources_skip= [
-        # "azurerm_application_gateway",
-        # "azurerm_network_interface",
-        # "azurerm_network_security_group",
-        # "azurerm_storage_account",
-        # "azurerm_route_table",
-        # 'azurerm_image',
-        # 'azurerm_virtual_machine',
+
         'azurerm_automation_account',
         'azurerm_availability_set',
         'azurerm_local_network_gateway',
         'azurerm_network_watcher',
         'azurerm_private_dns_zone',
-        # 'azurerm_public_ip',
+
         'azurerm_snapshot',
-        # 'azurerm_virtual_machine',
-        # 'azurerm_virtual_network_gateway'
         "azurerm_app_certificate_order",
         "azurerm_extensions",
         "azurerm_certificates",
         #
         "azurerm_automation_runbook",
         "azurerm_dns_zone",
-        "azurerm_key_vault",
-        "azurerm_monitor_metric_alert",
-        "azurerm_network_security_group",
-        "azurerm_route_table",
+        "azurerm_key_vault", ###### needed ###
+        "azurerm_monitor_metric_alert", ###### needed ###
+        "azurerm_network_security_group", ###### needed ###
+        "azurerm_route_table", ###### needed ###
         #
-        "azurerm_storage_account",
-        "azurerm_virtual_machine",
+        "azurerm_storage_account", ###### needed ###
+        "azurerm_virtual_machine", ###### needed ###
         "azurerm_image",
 
         ""
