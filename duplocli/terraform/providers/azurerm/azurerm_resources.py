@@ -100,6 +100,17 @@ class AzurermResources:
         "azurerm_app_certificate_order",
         "azurerm_extensions",
         "azurerm_certificates",
+        #
+        "azurerm_automation_runbook",
+        "azurerm_dns_zone",
+        "azurerm_key_vault",
+        "azurerm_monitor_metric_alert",
+        "azurerm_network_security_group",
+        "azurerm_route_table",
+        #
+        "azurerm_storage_account",
+        "azurerm_virtual_machine",
+        "azurerm_image",
 
         ""
         #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
