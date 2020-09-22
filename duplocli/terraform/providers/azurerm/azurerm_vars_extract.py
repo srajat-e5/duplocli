@@ -1,4 +1,5 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
+import json
 
 class AzurermTfVarsExtract(AzureBaseTfImportStep):
 
@@ -72,12 +73,12 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         print(self.value_count)
         d = self.value_count
         sort_orders = sorted(d.items(), key=lambda x: x[1], reverse=True)
-        print(sort_orders)
-        print(self.value_keys)
-        print(self.value_computed)
+        print(json.dumps(sort_orders))
+        print(json.dumps( list(self.value_keys)))
+        print(json.dumps(list(self.value_computed)))
 
-        print(self.vars_tf)
-        print(self.vars_state_tf)
+        print( json.dumps(self.vars_tf))
+        print( json.dumps(self.vars_state_tf))
         return self.main_tf_json_dict
 
     ######  TfImportStep3 ################################################
