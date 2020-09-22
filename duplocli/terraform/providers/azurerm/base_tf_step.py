@@ -50,6 +50,7 @@ class AzureBaseTfImportStep :
 
     def _plan(self):
         self.tf_import_sh_list.append('terraform init ')
+        self.tf_import_sh_list.append('terraform refresh ')
         self.tf_import_sh_list.append('terraform plan ')
 
     ############ provider ##########

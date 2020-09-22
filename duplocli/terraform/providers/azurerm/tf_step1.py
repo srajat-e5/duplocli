@@ -24,6 +24,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         try:
             self.file_utils.save_to_json(self.file_utils.tf_resources_file(), aws_obj_list)
             self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step2"), aws_obj_list)
+            self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step3"), aws_obj_list)
             self._tf_resources(aws_obj_list)
             self._create_tf_state()
         except Exception as e:

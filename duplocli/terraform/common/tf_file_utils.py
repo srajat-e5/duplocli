@@ -63,6 +63,9 @@ class TfFileUtils:
     def tf_state_file_srep1(self):
         return os.path.join(self.work_folder_for_step("step1"), self._tf_state_file_name)
 
+    def tf_state_file_srep2(self):
+        return os.path.join(self.work_folder_for_step("step2"), self._tf_state_file_name)
+
     def tf_main_file(self):
         return os.path.join(self.work_folder(), self._tf_file_name)
 
@@ -159,6 +162,7 @@ class TfFileUtils:
         self._ensure_folder(self.work_folder())
         self._ensure_folder(self.work_folder_for_step("step1"))
         self._ensure_folder(self.work_folder_for_step("step2"))
+        self._ensure_folder(self.work_folder_for_step("step3"))
         self._ensure_folder(self.keys_folder())
         self._ensure_folder(self.zip_folder())
         self._ensure_folder(self.final_folder())
