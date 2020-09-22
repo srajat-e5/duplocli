@@ -19,18 +19,42 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         self.file_utils.save_state_file(self.state_dict)
         super()._create_tf_state()
 
-    ######  TfImportStep2 ################################################
+    #############
+    def _load_state_into_dict(self):
+        ## state
+        self.state_read_from_file = self.file_utils.tf_state_file_srep2()
+        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
+        if "resources" in self.state_dict:
+            resources = self.state_dict['resources']
+        else:
+            resources = self.state_dict['resource']
+        return resources
+
+    def _load_main_json(self):
+        self.src_main_tf_json_file = self.file_utils.tf_main_file_srep2()
+        self.src_main_tf_json_dict = self.file_utils.load_json_file(self.src_main_tf_json_file)
+        self.src_resources_dict = self.src_main_tf_json_dict["resource"]
+
+    ######  TfImportStep3 ################################################
     def _tf_resources(self):
 
         ### duplo resources
         self.tf_resources_file = self.file_utils.load_json_file(self.file_utils.tf_resources_file())
         ## state
         self.state_resources = self._load_state_into_dict()
+        self._load_main_json()
 
         self.value_count = {}
         self.value_keys = {}
         self.value_details = {}
         self.value_computed = {}
+
+        self.vars_tf = {}
+        for resource_type in self.src_resources_dict:
+            try:
+                self.vars_tf[resource_type] =  self._tf_resource_type(resource_type, self.src_resources_dict[resource_type])
+            except Exception as e:
+                print("ERROR:Step2:","_tf_resources", e)
 
         for resource in self.state_resources:
             try:
@@ -44,8 +68,23 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         print(sort_orders)
         print(self.value_keys)
         print(self.value_computed)
+
+        print(self.vars_tf)
+
         return self.main_tf_json_dict
 
+    ######  TfImportStep3 ################################################
+    def _tf_resource_type(self, resource_type, array_resources):
+        obj_resources_arr_vars=[]
+        for resource_name in  array_resources:
+            try:
+                obj_resources_tf = array_resources[resource_name]
+                obj_resources_tf['duplo_tf_name'] =resource_name
+                obj_resources_arr_vars.append(obj_resources_tf)
+            except Exception as e:
+                print("ERROR:Step2:","_tf_resource_type", e)
+        return obj_resources_arr_vars
+    ######  TfImportStep3 ################################################
 
     def set_value_cout(self, nested_count, is_computed,  parents, tf_resource_type, tf_resource_var_name, attribute, attribute_name):
         parents_str = ".".join(parents)
@@ -65,6 +104,7 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
                 else:
                     self.value_computed[attribute] = {parents_str}
 
+    ######  TfImportStep3 ################################################
 
     def _tf_resource(self, resource):
         nested_count = 1
@@ -216,13 +256,3 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         return False
 
 
-    #############
-    def _load_state_into_dict(self):
-        ## state
-        self.state_read_from_file = self.file_utils.tf_state_file_srep2()
-        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-        if "resources" in self.state_dict:
-            resources = self.state_dict['resources']
-        else:
-            resources = self.state_dict['resource']
-        return resources

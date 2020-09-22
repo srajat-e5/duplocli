@@ -66,6 +66,9 @@ class TfFileUtils:
     def tf_state_file_srep2(self):
         return os.path.join(self.work_folder_for_step("step2"), self._tf_state_file_name)
 
+    def tf_main_file_srep2(self):
+        return os.path.join(self.work_folder_for_step("step2"), self._tf_file_name)
+
     def tf_main_file(self):
         return os.path.join(self.work_folder(), self._tf_file_name)
 
