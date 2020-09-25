@@ -1,13 +1,13 @@
-from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
+from duplocli.terraform.providers.aws.base_tf_step import AwsBaseTfImportStep
 import json
 
-class AzurermTfVarsExtract(AzureBaseTfImportStep):
+class AwsTfVarsExtract(AwsBaseTfImportStep):
 
     is_allow_none = True
     state_dict = {}
 
     def __init__(self, params):
-        super(AzurermTfVarsExtract, self).__init__(params)
+        super(AwsTfVarsExtract, self).__init__(params)
 
 
     def execute(self):

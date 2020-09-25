@@ -3,56 +3,50 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 from duplocli.terraform.providers.aws.tf_step1 import AwsTfImportStep1
 from duplocli.terraform.providers.aws.tf_step2 import AwsTfImportStep2
+from duplocli.terraform.providers.aws.aws_vars_extract import AwsTfVarsExtract
 
 from duplocli.terraform.providers.aws.aws_resources import AwsResources
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 
 import os
+
 class AwsTfSteps:
-    only_step2 = False
-    only_step1 = False
+    disable_step1 = True
+    disable_step2 = True #True
+    disable_step3 = False
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
         self.params = params
 
-    ######### modules == tenant, infra or all customer objects ######
+
+    ######## modules == tenant, infra or all customer objects ######
+
     def execute(self):
+        ### pre execute
         self.pre_execute()
-        ##  debug
-        if self.only_step1 or self.only_step2 :
-            for module in self.params.modules():  # infra and tenants in modules to export
-                self.params.set_step_type(module)
-                if self.only_step1:
-                    self._step1_tf_state()
-                else:
-                    self._step2_tf_main()
-            return [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
-        ###
-        # execute
-        for module in self.params.modules(): # infra and tenants in modules to export
+        ### execute modules -- infra_list, tenant_list, infra, tenant, all
+        for module in self.params.modules():
             self._module_execute(module)
+        ### post execute
         self.post_execute()
         return  [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
 
-
-    def _init_step1(self):
-        self.step1 = AwsTfImportStep1(self.params)
-        return self.step1
-
-    def _init_step2(self):
-        self.step2 = AwsTfImportStep2(self.params)
-        return self.step2
+    ######### _module_execute ######
 
     def _module_execute(self, module):
         self.params.set_step_type(module)
         self._step1_tf_state()
         self._step2_tf_main()
+        self._step3_tf_vars_extract()
+
 
     ######### steps ######
 
     def _step1_tf_state(self):
+        if self.disable_step1:
+            return
         self.params.set_step("step1")
         print("\n")
         print(self.file_utils.stage_prefix(), "step1_tf_state")
@@ -63,7 +57,7 @@ class AwsTfSteps:
         else:
             cloud_resources = api.get_tenant_resources()
         #step2
-        print(cloud_resources)
+        #print(cloud_resources)
         self.step1 = self._init_step1()
         self.step1.execute(cloud_resources)
         # download_aws_keys
@@ -78,6 +72,8 @@ class AwsTfSteps:
 
 
     def _step2_tf_main(self):
+        if self.disable_step2:
+            return
         self.params.set_step("step2")
         print("\n====== execute_step2 ====== START")
         self.step2 = self._init_step2()
@@ -86,11 +82,27 @@ class AwsTfSteps:
         print("import_name  ***** ", self.params.import_name)
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path+".zip"))
         print(" ====== execute_step2 ====== DONE\n")
+
+    def _step3_tf_vars_extract(self):
+        if self.disable_step3:
+            return
+        self.params.set_step("step3")
+        print("\n====== execute_step3 ====== START")
+        self.step3 = self._init_step3()
+        self.step3.execute()
+        print("temp_folder  ***** ", self.params.temp_folder)
+        print("import_name  ***** ", self.params.import_name)
+        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
+        print(" ====== execute_step3 ====== DONE\n")
+        #AwsTfVarsExtract
     ############# ######
+
 
 
     ############# ######
     def pre_execute(self):
+        if self.disable_step1:
+            return
         self.file_utils.delete_folder(self.params.temp_folder)
         for module in self.params.modules():
             self.params.set_step_type(module)
@@ -98,8 +110,10 @@ class AwsTfSteps:
             self.file_utils._ensure_folders()
 
     def post_execute(self):
+        if self.disable_step1 or self.disable_step2 or self.disable_step3:
+            return
         self._zip()
-        self.backup()
+        self._backup()
         print("================================================================================== ")
         print("temp_folder  ***** ", self.params.temp_folder)
         print("import_name  ***** ", self.params.import_name)
@@ -107,12 +121,28 @@ class AwsTfSteps:
         print("fial_folder  ***** ", self.file_utils.final_folder())
         print("files  ***** ", self.file_utils.ls_folder(self.file_utils.final_folder()))
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
-        print("import_name  ***** ", self.params.import_name)
         print("log_folder  ***** ", os.path.abspath(self.file_utils.log_folder()))
         print("final_folder  ***** ", os.path.abspath(self.file_utils.final_folder()))
         print("================================================================================== ")
 
-    def backup(self):
+    #####################
+
+    def _init_step1(self):
+        self.step1 = AwsTfImportStep1(self.params)
+        return self.step1
+
+    def _init_step2(self):
+        self.step2 = AwsTfImportStep2(self.params)
+        return self.step2
+
+    def _init_step3(self):
+        self.step3 = AwsTfVarsExtract(self.params)
+        return self.step3
+
+
+    ######################
+
+    def _backup(self):
         try:
             # backup and s3 sync
             terraform_folder = os.path.join("duplocli", "terraform")
@@ -126,19 +156,7 @@ class AwsTfSteps:
             eackupImportFolders.backup_folders()
         except Exception as e:
             print("ERROR:Steps:","backup", e)
-    # def post_execute(self):
-    #     self._zip()
-    #     # backup and s3 sync
-    #     print(os.getcwd())
-    #     #'/Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform'
-    #     terraform_folder = os.getcwd() #os.path.join("duplocli", "terraform")
-    #     import_tf_backup_settings_auth_service = os.path.join(terraform_folder, "json_tf_backup_settings_auth_service.json")
-    #     if os.path.exists(import_tf_backup_settings_auth_service):
-    #         backup_settings_json = import_tf_backup_settings_auth_service
-    #     else:
-    #         backup_settings_json =  os.path.join(terraform_folder,"tfbackup","json_default_tf_backup_settings.json")
-    #     eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
-    #     eackupImportFolders.backup_folders()
+
 
     def _get_backup_settings_json(self):
         json_file = "backup_settings.json"
