@@ -14,7 +14,7 @@ from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 
-class AzureResource:
+class AzureTfStepResource:
     def __init__(self, res):
         self.id = res.id
         self.name_origin = res.name
@@ -48,7 +48,7 @@ class AzurermResources:
     resources_unique_ids = []
 
     # azurerm_metricalerts
-    azure_resoure_map = {
+    azure_name_to_resoure_map = {
         "azurerm_route_tables": "azurerm_route_table",
         "azurerm_user_assigned_identities": "azurerm_user_assigned_identity",
 
@@ -186,12 +186,14 @@ class AzurermResources:
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
             print("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided", tf_resource_type, tf_resource_var_name, tf_import_id )
             raise Exception("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided")
+
         # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_resource_var_name = tf_resource_var_name.strip()
         tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-").replace(" ", "-").replace("(", "-").replace(")", "-").replace("--", "-")
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
+
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
                 print(self.file_utils.stage_prefix(),
@@ -202,6 +204,7 @@ class AzurermResources:
                   "Exception tf_resource_var_name should be unique : {0} {1} {2}".format(
                       tf_resource_type, tf_resource_var_name, tf_id))
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
+
         # create array
         tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
                        "tf_import_id": tf_resource_type_sync_id,
@@ -231,10 +234,10 @@ class AzurermResources:
                     tenant=os.environ['AZURE_TENANT_ID']
                 )
 
-            self.resource_client = ResourceManagementClient(credentials, subscription_id)
-            self.compute_client = ComputeManagementClient(credentials, subscription_id)
-            self.storage_client = StorageManagementClient(credentials, subscription_id)
-            self.network_client = NetworkManagementClient(credentials, subscription_id)
+            self.az_resource_client = ResourceManagementClient(credentials, subscription_id)
+            self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
+            self.az_storage_client = StorageManagementClient(credentials, subscription_id)
+            self.az_network_client = NetworkManagementClient(credentials, subscription_id)
         except Exception as e:
             print("ERROR:AzurermResources:", "_init_azure_client", e)
 
@@ -266,7 +269,7 @@ class AzurermResources:
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format( os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
 
-#duplocloud/shell:terraform_kubectl_azure_test_v26
+    #duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
         if self.params.import_module == "tenant":
             filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
@@ -311,26 +314,30 @@ class AzurermResources:
 
     def get_all_resources(self):
         print("======================================================")
-        arrAzureResources = []
-        self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
-        # self.resources_skip = []
         self.resources_only_debug = False
+        # trac info
         self.unique_processed_resouces = []
         self.unique_skip_resouces = []
         self.unique_skip_not_found_resouces = []
-        azure_resoure_map_keys = self.azure_resoure_map.keys()
-        for instance in self.resource_client.resources.list():
+        # skip
+        self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
+        # helper
+        azure_name_to_resoure_map_keys = self.azure_name_to_resoure_map.keys()
+        # results
+        arrAzureResources = []
+        #loop all azure resources
+        for instance in self.az_resource_client.resources.list():
             # small hack to filter tenant_name
-            res = AzureResource(instance)
+            res = AzureTfStepResource(instance)
             if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
                 try:
                     azurerm_resources_found=False
-                    if res.type_name in  azure_resoure_map_keys :
-                        res.type_name = self.azure_resoure_map[res.type_name]
+                    if res.type_name in  azure_name_to_resoure_map_keys :
+                        res.type_name = self.azure_name_to_resoure_map[res.type_name]
                         azurerm_resources_found = True
-                    elif res.type_name_singular in azure_resoure_map_keys :
-                        res.type_name = self.azure_resoure_map[res.type_name_singular]
+                    elif res.type_name_singular in azure_name_to_resoure_map_keys :
+                        res.type_name = self.azure_name_to_resoure_map[res.type_name_singular]
                         azurerm_resources_found = True
                     elif res.type_name in  self.azurerm_resources:
                         azurerm_resources_found=True

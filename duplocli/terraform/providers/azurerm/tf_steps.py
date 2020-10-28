@@ -1,7 +1,7 @@
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
-from duplocli.terraform.providers.azurerm.azurerm_resources import AzurermResources
+from duplocli.terraform.providers.azurerm.tf_step_resources import AzurermResources
 from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
 from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
 from duplocli.terraform.providers.azurerm.azurerm_vars_extract2 import AzurermTfVarsExtract
@@ -11,9 +11,13 @@ from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolder
 
 import os
 class AzurermTfSteps:
-    disable_step1 = True
-    disable_step2 = True #True
-    disable_step3 = False
+    disable_step1 = False
+    disable_step2 = False #True
+    disable_step3 = True
+    #
+    # disable_step1 = True
+    # disable_step2 = True #True
+    # disable_step3 = False
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
@@ -164,9 +168,12 @@ class AzurermTfSteps:
 
     def _zip(self):
         copy_files = []
+        step_name="step3"
+        if self.disable_step3:
+            step_name = "step2"
         for module in self.params.modules():
             self.params.set_step_type(module)
-            self.params.set_step("step3")
+            self.params.set_step(step_name)
             copy_files.append(self.file_utils.tf_resources_file())
             copy_files.append(self.file_utils.tf_state_file())
             copy_files.append(self.file_utils.tf_main_file())
