@@ -12,9 +12,9 @@ from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolder
 import os
 
 class AwsTfSteps:
-    disable_step1 = True
-    disable_step2 = True #True
-    disable_step3 = False
+    disable_step1 = False #False
+    disable_step2 = False #True
+    disable_step3 = True
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
@@ -53,7 +53,10 @@ class AwsTfSteps:
         #step1
         api = self._api()
         if self.params.module == 'infra':
-            cloud_resources = api.get_infra_resources()
+            #cloud_resources = api.get_infra_resources()
+            cloud_resources = api.get_all_resources()
+        elif self.params.module == 'all':
+            cloud_resources = api.get_all_resources()
         else:
             cloud_resources = api.get_tenant_resources()
         #step2

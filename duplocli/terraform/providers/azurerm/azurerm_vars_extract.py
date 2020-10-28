@@ -52,6 +52,8 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
 
         self.vars_tf = {}
         self.vars_state_tf = {}
+        self.vars_state_tf_names = {}
+        self.vars_state_tf_ids = {}
 
         ###
         for resource_type in self.src_resources_dict:
@@ -73,12 +75,22 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         print(self.value_count)
         d = self.value_count
         sort_orders = sorted(d.items(), key=lambda x: x[1], reverse=True)
+
+        self.file_utils.save_json_to_work_folder("sort_orders.json", sort_orders)
+        self.file_utils.save_json_to_work_folder("value_keys.json", self.value_keys)
+        self.file_utils.save_json_to_work_folder("value_computed.json", self.value_computed)
+        self.file_utils.save_json_to_work_folder("vars_tf.json", self.vars_tf)
+        self.file_utils.save_json_to_work_folder("vars_state_tf.json", self.vars_state_tf)
+
+        self.file_utils.save_json_to_work_folder("vars_state_tf_names.json", self.vars_state_tf_names)
+        self.file_utils.save_json_to_work_folder("vars_state_tf_ids.json", self.vars_state_tf_ids)
+
         print(json.dumps(sort_orders))
         print(json.dumps( list(self.value_keys)))
         print(json.dumps(list(self.value_computed)))
-
         print( json.dumps(self.vars_tf))
         print( json.dumps(self.vars_state_tf))
+
         return self.main_tf_json_dict
 
 
@@ -88,24 +100,49 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         for resource_name in  array_resources:
             try:
                 obj_resources_tf = array_resources[resource_name]
-                obj_resources_tf['duplo_tf_name'] =resource_name
+                obj_resources_tf['duplo_tf_name'] = resource_name
                 obj_resources_arr_vars.append(obj_resources_tf)
+                attributes = obj_resources_tf['instances'][0]['attributes']
             except Exception as e:
                 print("ERROR:Step2:","_tf_resource_type", e)
         return obj_resources_arr_vars
 
+    #######################################
+    def _get_tf_resource_computed(self, resource_type, resource_name, attributes):
+        try:
+            pass
+        except Exception as e:
+            print("ERROR:Step2:", "_get_tf_resource_computed", e)
 
+
+    def _get_tf_resource_required(self, resource_type, resource_name, attributes):
+        try:
+            pass
+        except Exception as e:
+            print("ERROR:Step2:", "_get_tf_resource_computed", e)
+
+    #######################################
     def _tf_resource_state_type(self):
         obj_resources_arr_vars = []
         for resource in self.state_resources:
             try:
                 tf_resource_type = resource["type"]
                 tf_resource_var_name = resource["name"]
-                attributes = resource['instances'][0]['attributes']
-                attributes["type"] = tf_resource_type
-                attributes["name"] = tf_resource_var_name
+                tf_resource_tf_name = ""
                 if not tf_resource_type in self.vars_state_tf:
                     self.vars_state_tf[tf_resource_type] = []
+                    self.vars_state_tf_names[tf_resource_type] = []
+                    self.vars_state_tf_ids[tf_resource_type] = []
+
+                attributes = resource['instances'][0]['attributes']
+                if 'name'  in attributes:
+                    self.vars_state_tf_names[tf_resource_type].append(attributes['name'])
+                if 'id'  in attributes:
+                    self.vars_state_tf_ids[tf_resource_type].append(attributes['id'])
+
+
+                attributes["type"] = tf_resource_type
+                attributes["duplo_var_name"] = tf_resource_var_name
                 self.vars_state_tf[tf_resource_type].append(attributes)
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resource_state_type", e)

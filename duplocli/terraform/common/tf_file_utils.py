@@ -283,6 +283,9 @@ class TfFileUtils:
         f.write(new_line)
         f.close()
 
+    def save_json_to_work_folder(self, file_name, data_dict):
+        file_path = self._file_inwork_folder(file_name)
+        self.save_to_json(file_path, data_dict)
 
     def save_json_to_log(self, file_name, data_dict):
         file_path = self._file_inlog_folder_json(file_name)

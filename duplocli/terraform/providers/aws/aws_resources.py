@@ -39,6 +39,15 @@ class AwsResources :
         self.tenant_prefix = self.utils.get_tenant_id(params.tenant_name)
 
     ########### helpers ###########
+    def _remove_non_alpa_numeric(self, tf_resource_var_name):
+        tf_var_name=""
+        for element in range(0, len(tf_resource_var_name)):
+            c =  tf_resource_var_name[element]
+            if  not c.isalnum():
+                c = '-'
+            tf_var_name = tf_var_name + c
+        return tf_var_name
+
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None , skip_if_exists=False):
         if tf_import_id in ["eni-0b69e66c897740b0f","eni-0bce26ce0e55b9648"]:
             print("tf_import_id", tf_import_id)
@@ -49,8 +58,9 @@ class AwsResources :
         # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
-        tf_resource_var_name =  tf_resource_var_name.strip()
-        tf_resource_var_name=  tf_resource_var_name.replace(".","-").replace("/","-")
+        tf_resource_var_name =  self._remove_non_alpa_numeric(tf_resource_var_name.strip())
+        tf_resource_var_name=  tf_resource_var_name.lower().replace(" ","-").replace(".","-").replace("/","-").replace("--","-")
+
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
@@ -61,12 +71,28 @@ class AwsResources :
         tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
                        "tf_import_id": tf_resource_type_sync_id,
                        "module": self.file_utils.params.module}
+        print("*.........", tf_resource_var_name, " .. ", tf_resource_type, " .. ", tf_resource_type_sync_id)
         self.tf_cloud_obj_list.append(tf_resource)
         self.resources_unique_ids.append(tf_id)
         return tf_resource
 
 
     #### public methods #######
+
+    def get_all_resources(self):
+        self.get_infra_resources()
+        self.params.tenant_name="default"
+        self.tenant_prefix = self.utils.get_tenant_id(self.params.tenant_name)
+        ##hack for now to extract vars
+        self._aws_security_group()
+        self._aws_iam_role()
+        self._aws_iam_instance_profile()
+        self._aws_instance()
+        self._aws_db_instance()
+        self._aws_s3_bucket()
+        self._aws_elasticache_cluster()
+        return self.tf_cloud_obj_list
+
     def get_tenant_resources(self):
         self.tf_cloud_obj_list = []
         self.tf_cloud_sg_list=[]
@@ -397,7 +423,7 @@ class AwsResources :
                     ######## aws_instance
                     name = self.utils.getVal(tags, "Name")
                     aws_name = instance['InstanceId']
-                    self.tf_cloud_resource("aws_instance", instance, tf_variable_id=aws_name, tf_import_id=aws_name,
+                    self.tf_cloud_resource("aws_instance", instance, tf_variable_id=name, tf_import_id=aws_name,
                                       skip_if_exists=True)
                     aws_objs.append(instance)
                     print(self.file_utils.stage_prefix(), "aws_instance :", tenant_name_ec2, name, aws_name)
