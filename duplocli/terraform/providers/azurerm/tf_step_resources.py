@@ -107,42 +107,42 @@ class AzurermResources:
         ""
         #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
     ]
-    resources_skip_not_supported = [
-        "azurerm_workspaces",
-        "azurerm_solutions",
-        "azurerm_runbooks",
-        "azurerm_certificate_orders",
-        "azurerm_disks",
-        "azurerm_extensions",
-        "azurerm_vaults",
-        "azurerm_connections",
-        "azurerm_dnszones",
-        "azurerm_metricalerts",
-        "azurerm_user_assigned_identities",
-        "azurerm_virtual_network_links",
-        "azurerm_certificates",
-        "azurerm_galleries"
-        # some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
-    ]
+    # resources_skip_not_supported = [
+    #     "azurerm_workspaces",
+    #     "azurerm_solutions",
+    #     "azurerm_runbooks",
+    #     "azurerm_certificate_orders",
+    #     "azurerm_disks",
+    #     "azurerm_extensions",
+    #     "azurerm_vaults",
+    #     "azurerm_connections",
+    #     "azurerm_dnszones",
+    #     "azurerm_metricalerts",
+    #     "azurerm_user_assigned_identities",
+    #     "azurerm_virtual_network_links",
+    #     "azurerm_certificates",
+    #     "azurerm_galleries"
+    #     # some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
+    # ]
 # waf
 # lb
 # azurerm_application_gateway
-    resources_proess = [
-        # 'azurerm_storage_account',
-        # "azurerm_network_security_group",
-        #'azurerm_image',
-        'azurerm_snapshot',
-        'azurerm_automation_account',
-        'azurerm_virtual_machine',
-        'azurerm_local_network_gateway',
-        'azurerm_public_ip',
-        'azurerm_virtual_network_gateway',
-        'azurerm_virtual_network',
-        'azurerm_availability_set',
-        'azurerm_application_security_group',
-        'azurerm_private_dns_zone',
-        'azurerm_network_watcher'
-    ]
+#     resources_proess = [
+#         # 'azurerm_storage_account',
+#         # "azurerm_network_security_group",
+#         #'azurerm_image',
+#         'azurerm_snapshot',
+#         'azurerm_automation_account',
+#         'azurerm_virtual_machine',
+#         'azurerm_local_network_gateway',
+#         'azurerm_public_ip',
+#         'azurerm_virtual_network_gateway',
+#         'azurerm_virtual_network',
+#         'azurerm_availability_set',
+#         'azurerm_application_security_group',
+#         'azurerm_private_dns_zone',
+#         'azurerm_network_watcher'
+#     ]
 
     def __init__(self, params):
         try:
@@ -320,7 +320,7 @@ class AzurermResources:
         self.unique_skip_resouces = []
         self.unique_skip_not_found_resouces = []
         # skip
-        self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
+        # self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
         # helper
         azure_name_to_resoure_map_keys = self.azure_name_to_resoure_map.keys()
         # results
