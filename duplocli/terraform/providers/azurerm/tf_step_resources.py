@@ -107,6 +107,33 @@ class AzurermResources:
         ""
         #some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
     ]
+    # resources_skip = [
+    #
+    #     'azurerm_automation_account',
+    #     'azurerm_availability_set',
+    #     'azurerm_local_network_gateway',
+    #     'azurerm_network_watcher',
+    #     'azurerm_private_dns_zone',
+    #
+    #     'azurerm_snapshot',
+    #     "azurerm_app_certificate_order",
+    #     "azurerm_extensions",
+    #     "azurerm_certificates",
+    #     #
+    #     "azurerm_automation_runbook",
+    #     "azurerm_dns_zone",
+    #     "azurerm_key_vault",  ###### needed ###
+    #     "azurerm_monitor_metric_alert",  ###### needed ###
+    #     "azurerm_network_security_group",  ###### needed ###
+    #     "azurerm_route_table",  ###### needed ###
+    #     #
+    #     "azurerm_storage_account",  ###### needed ###
+    #     "azurerm_virtual_machine",  ###### needed ###
+    #     "azurerm_image",
+    #
+    #     ""
+    #     # some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
+    # ]
     # resources_skip_not_supported = [
     #     "azurerm_workspaces",
     #     "azurerm_solutions",
@@ -269,11 +296,32 @@ class AzurermResources:
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format( os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
 
+    def tenant_resource_debug(self):
+        for instance in self.az_resource_client.resources.list():
+            id = instance.id
+            if self.params.import_module == "tenant":
+                filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
+                if filter_tenant_str in id.lower():
+                    print("*****##tenant##*****  complete match? filter_resource ", self.params.tenant_name.lower(), id)
+                elif self.params.tenant_name.lower() in id.lower():
+                    print("*****##tenant##*****  only tenant found? filter_resource ",  self.params.tenant_name.lower(), id)
+                else:
+                    pass #print("*****##tenant##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
+            elif self.params.import_module == "infra":
+                filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.tenant_name.lower())
+                if filter_tenant_str in id.lower():
+                    print("*****##infra##*****  complete match? filter_resource ", self.params.tenant_name.lower(), id)
+                else:
+                    pass #print("*****##infra##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
+        return True
+
     #duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
         if self.params.import_module == "tenant":
             filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
             if filter_tenant_str in id.lower():
+                return True
+            elif self.params.tenant_name.lower() in id.lower():
                 return True
             else:
                 return False
@@ -285,40 +333,47 @@ class AzurermResources:
                 return False
         return True
 
-    def filter_resource_type(self, res):
+
+    def should_import_resource_type(self, res):
         if res.type_name not in self.azurerm_resources:
-            if res.type_name not in self.unique_skip_not_found_resouces:
-                self.unique_skip_not_found_resouces.append(res.type_name)
-            print("NOT_FOUND and SKIP", res.type_name, "===", res.id)
+            if res.type_name not in self.unique_unsupported_resouces:
+                self.unique_unsupported_resouces.append(res.type_name)
+                print("NOT_FOUND: TypeName?", res.type_name, "===", res.id)
             return False
-        if self.resources_only_debug:
-            if res.type_name in ['azurerm_virtual_machine']: #,'azurerm_network_interface']:
-                if res.type_name not in self.unique_processed_resouces:
-                    self.unique_processed_resouces.append(res.type_name)
-                print("FOUND", res.type_name, "===", res.id)
-                return True
-            else:
-                if res.type_name not in self.unique_skip_resouces:
-                    self.unique_skip_resouces.append(res.type_name)
-                print("FOUND and SKIP", res.type_name, "===", res.id)
-                return False
+        # else:
+        #     self.unique_unsupported_resouces.append(res.type_name)
+        #     print("NOT_FOUND: Terraform azurerm supports?", res.type_name, "===", res.id)
+        #     return False
+        # if self.resources_only_debug:
+        #     if res.type_name in ['azurerm_virtual_machine']: #,'azurerm_network_interface']:
+        #         if res.type_name not in self.unique_processed_resouces:
+        #             self.unique_processed_resouces.append(res.type_name)
+        #         print("FOUND", res.type_name, "===", res.id)
+        #         return True
+        #     else:
+        #         if res.type_name not in self.unique_skip_resouces:
+        #             self.unique_skip_resouces.append(res.type_name)
+        #         print("FOUND and SKIP", res.type_name, "===", res.id)
+        #         return False
         if res.type_name in self.resources_skip:
             if res.type_name not in self.unique_skip_resouces:
                 self.unique_skip_resouces.append(res.type_name)
-            print("FOUND and SKIP", res.type_name, "===", res.id)
+            print("FOUND and SKIP NOT implemented?", res.type_name, "===", res.id)
             return False
         if res.type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(res.type_name)
-        print("FOUND", res.type_name, "===", res.id)
+        print("FOUND !", res.type_name, "===", res.id)
         return True
 
     def get_all_resources(self):
+        if True:
+            self.tenant_resource_debug()
         print("======================================================")
         self.resources_only_debug = False
         # trac info
         self.unique_processed_resouces = []
         self.unique_skip_resouces = []
-        self.unique_skip_not_found_resouces = []
+        self.unique_unsupported_resouces = []
         # skip
         # self.resources_proess = self.resources_skip #["azurerm_network_security_group"]
         # helper
@@ -331,8 +386,8 @@ class AzurermResources:
             res = AzureTfStepResource(instance)
             if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
+
                 try:
-                    azurerm_resources_found=False
                     if res.type_name in  azure_name_to_resoure_map_keys :
                         res.type_name = self.azure_name_to_resoure_map[res.type_name]
                         azurerm_resources_found = True
@@ -349,21 +404,25 @@ class AzurermResources:
                         azurerm_resources_found = False
 
                     if azurerm_resources_found:
-                        if self.filter_resource_type(res):
+                        if self.should_import_resource_type(res):
                             self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                    tf_import_id=res.id, skip_if_exists=True)
                         else:
-                            print("======== SKIPPED", res.type_name, "===", res.id)
+                            print("========ABORT 1 SKIPPED", res.type_name, "===", res.id)
                     else:
-                        print("======== NOT_FOUND: not supported by azurerm terraform?", res.type_name, "===", res.id)
+                        print("======== ABORT 2 NOT_FOUND: not supported by azurerm terraform?", res.type_name, "===", res.id)
                 except Exception as e:
                     print("ERROR:AzurermResources:", "get_all_resources", e)
+                    print("========ABORT 3 ERROR", res.type_name, "===", res.id)
 
         print("===============len(arrAzureResources)=============", len(arrAzureResources), "==========================")
         print("unique_processed_resouces", len(self.unique_processed_resouces), self.unique_processed_resouces)
         print("unique_skip_resouces", len(self.unique_skip_resouces), self.unique_skip_resouces)
+        print("unique_unsupported_resouces", len(self.unique_unsupported_resouces), self.unique_unsupported_resouces)
         print("======================================================")
         return arrAzureResources
+
+
 
 #
 #

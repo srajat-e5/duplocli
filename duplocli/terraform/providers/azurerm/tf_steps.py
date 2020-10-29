@@ -71,6 +71,12 @@ class AzurermTfSteps:
         #         print(" ====== execute_infra_step1 download_key ====== \n")
         #         tenant_key_pairs = api.get_tenant_key_pair_list()
         #         self.step1.download_key(tenant_key_pairs)
+
+        #validate import succeded
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        if not self.file_utils.file_exists(self.state_read_from_file):
+            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+
         print(" ====== execute_infra_step1 ====== DONE\n")
 
 

@@ -159,6 +159,11 @@ class TfFileUtils:
         print("**************** deleted terraform binaries : for testing - you may run ' terrafrom init ' **************** ")
 
     ######
+    def file_exists(self,  final_sub_folder):
+        if  os.path.exists(final_sub_folder):
+            return True;
+        return False;
+
     def _ensure_folders(self):
         zip_external = os.path.dirname(self.params.zip_file_path)
         self._ensure_folder(zip_external)

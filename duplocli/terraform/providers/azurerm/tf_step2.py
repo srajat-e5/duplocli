@@ -21,6 +21,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     ######  TfImportStep2 ################################################
     def _tf_resources(self):
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        if not self.file_utils.file_exists(self.state_read_from_file):
+            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
         if "resources" in  self.state_dict:
             resources = self.state_dict['resources']
