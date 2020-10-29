@@ -50,7 +50,7 @@ class AzurermResources:
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
         "azurerm_resource_providers":"azurerm_custom_provider",
-        "azurerm_deployment_scripts":"azurerm_subscription_template_deployment",
+        "azurerm_deployment_scripts":"azurerm_template_deployment",
         "azurerm_extensions":"azurerm_virtual_machine_extension",
         "azurerm_certificates":"azurerm_app_service_certificate", #for web
         "azurerm_server_farms":"azurerm_service_fabric_cluster",

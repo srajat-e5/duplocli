@@ -37,6 +37,32 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
         return self.main_tf_json_dict
 
+    ############
+
+    def _set_val(self, resource_obj, attribute_name, attribute):
+        if attribute_name  not in resource_obj.keys():
+            resource_obj[attribute_name] = attribute
+    def _set_val_array(self, resource_obj, attribute_name, attribute):
+        if attribute_name  not in resource_obj.keys():
+            if resource_obj[attribute_name] in None:
+                resource_obj[attribute_name] = []
+            if isinstance(attribute_name, list):
+                pass
+    def _del_key(self, final_dict, attrName):
+        try:
+            del final_dict[attrName]
+        except KeyError as ex:
+            print("No such key: '%s'" % ex.message)
+
+    def _processIfNested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
+        if schema is not None:
+            is_nested = attribute_name in schema.nested
+            if is_nested:
+                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
+                                     resource_obj, schema)
+                return True
+        return False
+
     #############
     def _tf_resource(self, resource):
         nested_count = 1
@@ -106,26 +132,17 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 print("ERROR:Step2:","_tf_resource", e)
 
         if tf_resource_type in ['AAazurerm_virtual_machine']:
-
             tf_resource_type_root[tf_resource_var_name] = resource_obj  # resource_obj2
         else:
             resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
-            # print("after ",  resource_obj2)
-            # if tf_resource_type == 'azurerm_image':
-            #     if 'hyper_v_generation' not in resource_obj2:
-            #         resource_obj2['hyper_v_generation'] = ""
-            tf_resource_type_root[tf_resource_var_name] = resource_obj #resource_obj2
+            if tf_resource_type in ['azurerm_route_table'] and not "subnets" in resource_obj2:
+                self._del_key(resource_obj2, "subnets")
+            if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "name" in resource_obj2:
+                resource_obj2["name"] = ""
+            if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "scopes" in resource_obj2:
+                resource_obj2["scopes"] = None
+            tf_resource_type_root[tf_resource_var_name] = resource_obj2 # resource_obj #resource_obj2
 
-    # azurerm_network_security_group
-    # Inappropriate
-    # value
-    # for attribute "security_rule": element
-    # 0: attributes
-    # "description", "destination_address_prefix", "destination_address_prefixes",
-    # "destination_port_ranges", "source_address_prefixes",
-    # "source_application_security_group_ids", and "source_port_ranges"
-    # are
-    # required.
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1
         #https://registry.terraform.io/modules/innovationnorway/sql-server/azurerm/latest
@@ -133,15 +150,13 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             try:
                 # if tf_resource_type == "azurerm_container_group":
                 #     pass
-                if self.processIfNested(nested_count, tf_resource_type,  tf_resource_var_name, attribute_name, attribute, resource_obj, schema):
+                if self._processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name, attribute, resource_obj, schema):
                     return
                 if schema is None or not attribute_name in schema.computed:
                     if isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
                     elif tf_resource_type == "azurerm_container_group" and nested_atr_name == 'container' and attribute_name in ["volume"]:
                         pass  # skip
-                    # elif  tf_resource_type == 'azurerm_container_group' and nested_atr_name == 'container' and attribute_name == 'volume':
-                    #     pass
                     elif attribute == 0:
                         pass
                     # if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route' and attribute_name == 'next_hop_in_ip_address':
@@ -152,12 +167,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         pass
             except Exception as e:
                 print("ERROR:Step2:","_process_dict", e)
-        1
-
-        # identity_ids
-
-
-
         if tf_resource_type == 'azurerm_application_gateway' and nested_atr_name == 'backend_address_pool':
             if 'fqdns' in resource_obj and len(resource_obj['fqdns']) ==0:
                 del resource_obj['fqdns']
@@ -175,25 +184,12 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             self._set_val(resource_obj, "source_address_prefixes", [])
             self._set_val(resource_obj, "source_port_ranges", [])
             # self._set_val(resource_obj, "source_port_range", "")
-
-
         # if tf_resource_type == 'azurerm_virtual_machine' and nested_atr_name == 'identity':
         #     self._set_val(resource_obj, "identity_ids", [{
         #         "identity_ids": [] }])
         if tf_resource_type == 'azurerm_virtual_machine' and nested_atr_name == 'boot_diagnostics':
             self._set_val(resource_obj, "enabled",  False)
             self._set_val(resource_obj, "storage_uri", "")
-
-
-    def _set_val(self, resource_obj, attribute_name, attribute):
-        if attribute_name  not in resource_obj.keys():
-            resource_obj[attribute_name] = attribute
-    def _set_val_array(self, resource_obj, attribute_name, attribute):
-        if attribute_name  not in resource_obj.keys():
-            if resource_obj[attribute_name] in None:
-                resource_obj[attribute_name] = []
-            if isinstance(attribute_name, list):
-                pass
 
     def _process_nested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, nested_atr_name, nested_atr, resource_obj_parent, schema_nested):
         try:
@@ -230,27 +226,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         except Exception as e:
             print("ERROR:Step2:", "_process_nested", e)
 
-    def processIfNested(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
-        if schema is not None:
-            is_nested = attribute_name in schema.nested
-            if is_nested:
-                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name, attribute,
-                                     resource_obj, schema)
-                return True
-        return False
 
-    def _del_key(self, final_dict, attrName):
-        try:
-            del final_dict[attrName]
-        except KeyError as ex:
-            print("No such key: '%s'" % ex.message)
     def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
         final_dict = {}
         for attrName, attrValue in json_dict.items():
             try:
                 if isinstance(attrValue , bool):
                     final_dict[attrName] = attrValue
-                elif attrValue :
+                else:
                     if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':
                         pass
                     # elif tf_resource_type == 'azurerm_virtual_machine' and attrName in ['identity',  'boot_diagnostics', 'identity_ids']:
@@ -276,7 +259,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                 else:
                                     if tf_resource_type == 'azurerm_route_table' and attrName == 'route':
                                         pass
-                                    # next_hop_in_ip_address
                                     else:
                                         resource_obj.append(nested_item)
                             if len(resource_obj)>0:
@@ -285,11 +267,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     elif tf_resource_type == 'azurerm_storage_account' and attrName in ['retention_policy_days']:
                         if "".format("{}",attrValue) == "0" or (isinstance(attrValue, int) and attrValue ==0):
                             final_dict[attrName] = 1
-
                     else:
                         final_dict[attrName] = attrValue
-                else:
-                    pass
                     #print("empty??",  attrName, attrValue )
             except Exception as e:
                 print("ERROR:Step2:","remove_empty", e)
