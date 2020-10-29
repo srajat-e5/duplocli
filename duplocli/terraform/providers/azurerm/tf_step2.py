@@ -48,7 +48,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         resource_obj = {}
         tf_resource_type_root[tf_resource_var_name] = resource_obj
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
-
+        if tf_resource_type == "azurerm_container_group":
+            pass
         for attribute_name, attribute  in attributes.items():
             try:
                 is_nested = attribute_name  in schema.nested
@@ -127,13 +128,20 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     # required.
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1
+        #https://registry.terraform.io/modules/innovationnorway/sql-server/azurerm/latest
         for attribute_name, attribute in nested_atr.items():
             try:
+                # if tf_resource_type == "azurerm_container_group":
+                #     pass
                 if self.processIfNested(nested_count, tf_resource_type,  tf_resource_var_name, attribute_name, attribute, resource_obj, schema):
                     return
                 if schema is None or not attribute_name in schema.computed:
                     if isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
+                    elif tf_resource_type == "azurerm_container_group" and nested_atr_name == 'container' and attribute_name in ["volume"]:
+                        pass  # skip
+                    # elif  tf_resource_type == 'azurerm_container_group' and nested_atr_name == 'container' and attribute_name == 'volume':
+                    #     pass
                     elif attribute == 0:
                         pass
                     # if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route' and attribute_name == 'next_hop_in_ip_address':

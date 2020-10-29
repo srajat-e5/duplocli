@@ -317,6 +317,7 @@ class AzurermResources:
 
     #duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
+        #############
         if self.params.import_module == "tenant":
             filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
             if filter_tenant_str in id.lower():
@@ -335,41 +336,43 @@ class AzurermResources:
 
 
     def should_import_resource_type(self, res):
+
         if res.type_name not in self.azurerm_resources:
             if res.type_name not in self.unique_unsupported_resouces:
                 self.unique_unsupported_resouces.append(res.type_name)
-                print("NOT_FOUND: TypeName?", res.type_name, "===", res.id)
+                print("NOT_OK: not supported? or unresolved: TypeName?", res.type_name, "===", res.id)
             return False
-        # else:
-        #     self.unique_unsupported_resouces.append(res.type_name)
-        #     print("NOT_FOUND: Terraform azurerm supports?", res.type_name, "===", res.id)
-        #     return False
-        # if self.resources_only_debug:
-        #     if res.type_name in ['azurerm_virtual_machine']: #,'azurerm_network_interface']:
-        #         if res.type_name not in self.unique_processed_resouces:
-        #             self.unique_processed_resouces.append(res.type_name)
-        #         print("FOUND", res.type_name, "===", res.id)
-        #         return True
-        #     else:
-        #         if res.type_name not in self.unique_skip_resouces:
-        #             self.unique_skip_resouces.append(res.type_name)
-        #         print("FOUND and SKIP", res.type_name, "===", res.id)
-        #         return False
+
+        ############# DEBUG #############
+        #test only few imports at a time
+        if self.resources_only_debug:
+            if res.type_name in ['azurerm_container_group','azurerm_virtual_machine']: #,'azurerm_network_interface']:
+                if res.type_name not in self.unique_processed_resouces:
+                    self.unique_processed_resouces.append(res.type_name)
+                print("FOUND", res.type_name, "===", res.id)
+                return True
+            else:
+                if res.type_name not in self.unique_skip_resouces:
+                    self.unique_skip_resouces.append(res.type_name)
+                print("FOUND and SKIP", res.type_name, "===", res.id)
+                return False
+        ############# DEBUG #############
+
         if res.type_name in self.resources_skip:
             if res.type_name not in self.unique_skip_resouces:
                 self.unique_skip_resouces.append(res.type_name)
-            print("FOUND and SKIP NOT implemented?", res.type_name, "===", res.id)
+            print("NOT_OK: SKIP NOT implemented, TODO?", res.type_name, "===", res.id)
             return False
         if res.type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(res.type_name)
-        print("FOUND !", res.type_name, "===", res.id)
+        print("OK: Processing!", res.type_name, "===", res.id)
         return True
 
     def get_all_resources(self):
         if True:
             self.tenant_resource_debug()
         print("======================================================")
-        self.resources_only_debug = False
+        self.resources_only_debug = False #True  #False
         # trac info
         self.unique_processed_resouces = []
         self.unique_skip_resouces = []
@@ -386,7 +389,6 @@ class AzurermResources:
             res = AzureTfStepResource(instance)
             if self.filter_resource(instance.id):
                 arrAzureResources.append(res)
-
                 try:
                     if res.type_name in  azure_name_to_resoure_map_keys :
                         res.type_name = self.azure_name_to_resoure_map[res.type_name]
