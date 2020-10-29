@@ -239,6 +239,11 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 return True
         return False
 
+    def _del_key(self, final_dict, attrName):
+        try:
+            del final_dict[attrName]
+        except KeyError as ex:
+            print("No such key: '%s'" % ex.message)
     def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
         final_dict = {}
         for attrName, attrValue in json_dict.items():
@@ -252,6 +257,12 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     #     pass
                     elif tf_resource_type == 'azurerm_route_table' and attrName in ['route']:
                         pass
+                    elif tf_resource_type == 'azurerm_monitor_metric_alert' and attrName in ['name', 'scopes']:
+                        pass
+                    elif tf_resource_type == 'azurerm_app_service' and attrName in ['site_credential','source_control']:
+                        self._del_key(final_dict, attrName)
+                    elif tf_resource_type == 'azurerm_app_service_certificate' and attrName in ['host_names']:
+                        self._del_key(final_dict, attrName)
                     elif isinstance(attrValue, dict):
                         final_dict[attrName] = self.remove_empty( tf_resource_type, tf_resource_var_name, attrValue)
                     elif isinstance(attrValue, list):
@@ -270,6 +281,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                         resource_obj.append(nested_item)
                             if len(resource_obj)>0:
                                 final_dict[attrName] = resource_obj
+
+                    elif tf_resource_type == 'azurerm_storage_account' and attrName in ['retention_policy_days']:
+                        if "".format("{}",attrValue) == "0" or (isinstance(attrValue, int) and attrValue ==0):
+                            final_dict[attrName] = 1
 
                     else:
                         final_dict[attrName] = attrValue

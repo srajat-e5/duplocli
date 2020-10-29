@@ -55,6 +55,7 @@ class ArgParse:
         print("########## default parameters ########## ")
         for key in params:
             print(" default parameter values", key, params[key])
+        print("########## default parameters ########## ")
         #
         print("########## passed as environ variables  ########## ")
         for key in params:

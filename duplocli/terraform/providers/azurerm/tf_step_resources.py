@@ -49,6 +49,13 @@ class AzurermResources:
 
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
+        "azurerm_resource_providers":"azurerm_custom_provider",
+        "azurerm_deployment_scripts":"azurerm_subscription_template_deployment",
+        "azurerm_extensions":"azurerm_virtual_machine_extension",
+        "azurerm_certificates":"azurerm_app_service_certificate", #for web
+        "azurerm_server_farms":"azurerm_service_fabric_cluster",
+        "azurerm_sites":"azurerm_app_service",
+        #
         "azurerm_route_tables": "azurerm_route_table",
         "azurerm_user_assigned_identities": "azurerm_user_assigned_identity",
 
@@ -80,7 +87,8 @@ class AzurermResources:
         "A":""
 
     }
-    resources_skip= [
+    resources_skip = []
+    resources_skip111= [
 
         'azurerm_automation_account',
         'azurerm_availability_set',
@@ -302,7 +310,7 @@ class AzurermResources:
             if self.params.import_module == "tenant":
                 filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
                 if filter_tenant_str in id.lower():
-                    print("*****##tenant##*****  complete match? filter_resource ", self.params.tenant_name.lower(), id)
+                    print("*****##tenant##*****  resourcegroups match? filter_resource ", self.params.tenant_name.lower(), id)
                 elif self.params.tenant_name.lower() in id.lower():
                     print("*****##tenant##*****  only tenant found? filter_resource ",  self.params.tenant_name.lower(), id)
                 else:
@@ -313,6 +321,7 @@ class AzurermResources:
                     print("*****##infra##*****  complete match? filter_resource ", self.params.tenant_name.lower(), id)
                 else:
                     pass #print("*****##infra##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
+
         return True
 
     #duplocloud/shell:terraform_kubectl_azure_test_v26
@@ -340,7 +349,7 @@ class AzurermResources:
         if res.type_name not in self.azurerm_resources:
             if res.type_name not in self.unique_unsupported_resouces:
                 self.unique_unsupported_resouces.append(res.type_name)
-                print("NOT_OK: not supported? or unresolved: TypeName?", res.type_name, "===", res.id)
+                print("NOT_OK_UN_RESOLVED_MICROSOFT: not supported?: TypeName?", res.type_name, "===", res.id)
             return False
 
         ############# DEBUG #############
@@ -349,29 +358,30 @@ class AzurermResources:
             if res.type_name in ['azurerm_container_group','azurerm_virtual_machine']: #,'azurerm_network_interface']:
                 if res.type_name not in self.unique_processed_resouces:
                     self.unique_processed_resouces.append(res.type_name)
-                print("FOUND", res.type_name, "===", res.id)
+                print("OK:DEBUG:", res.type_name, "===", res.id)
                 return True
             else:
                 if res.type_name not in self.unique_skip_resouces:
                     self.unique_skip_resouces.append(res.type_name)
-                print("FOUND and SKIP", res.type_name, "===", res.id)
+                print("NOT_OK_SKIP_LIST:DEBUG:", res.type_name, "===", res.id)
                 return False
         ############# DEBUG #############
 
         if res.type_name in self.resources_skip:
             if res.type_name not in self.unique_skip_resouces:
                 self.unique_skip_resouces.append(res.type_name)
-            print("NOT_OK: SKIP NOT implemented, TODO?", res.type_name, "===", res.id)
+            print("NOT_OK_SKIP_LIST:", res.type_name, "===", res.id)
             return False
         if res.type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(res.type_name)
-        print("OK: Processing!", res.type_name, "===", res.id)
+        print("OK:", res.type_name, "===", res.id)
         return True
 
     def get_all_resources(self):
+        print("\n\n\n======================================================")
         if True:
             self.tenant_resource_debug()
-        print("======================================================")
+        print("======================================================\n\n\n")
         self.resources_only_debug = False #True  #False
         # trac info
         self.unique_processed_resouces = []
@@ -402,7 +412,7 @@ class AzurermResources:
                         res.type_name = res.type_name_singular
                         azurerm_resources_found = True
                     else:
-                        print("======== ??????? ", res.type_name, "===", res.id)
+                        print("??????? NOT_OK_UN_RESOLVED_MICROSOFT======== ??????? ", res.type_name, "===", res.id)
                         azurerm_resources_found = False
 
                     if azurerm_resources_found:
@@ -421,7 +431,7 @@ class AzurermResources:
         print("unique_processed_resouces", len(self.unique_processed_resouces), self.unique_processed_resouces)
         print("unique_skip_resouces", len(self.unique_skip_resouces), self.unique_skip_resouces)
         print("unique_unsupported_resouces", len(self.unique_unsupported_resouces), self.unique_unsupported_resouces)
-        print("======================================================")
+        print("======================================================\n\n\n")
         return arrAzureResources
 
 

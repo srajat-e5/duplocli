@@ -58,8 +58,9 @@ class ParamBase:
         print("########## final parameters ########## ")
         parameters_cur = vars(self)
         for key in parameters_cur:
-            print("final", key, getattr(self, key))
-
+            print("final parameters:", key, "=",getattr(self, key))
+        # print(parameters_cur)
+        print("########## final parameters ########## ")
         return parameters
 
     def _set_attributes(self, parameters):
@@ -120,21 +121,3 @@ class ParamBase:
         if parsed_args.import_module is None:
             parsed_args.import_module = "all"
             parsed_args.tenant_name = "all"
-
-        # #
-        # default_import_module = 'infra'
-        # if 'default_import_module' in self.default_params.keys():
-        #     default_import_module = self.default_params['default_import_module']
-        # #
-        # tenant_name = parsed_args.tenant_name
-        # #
-        # if tenant_name is None:
-        #      import_module = default_import_module
-        # else:
-        #     if tenant_name in ["all", "infra"]:
-        #         import_module = tenant_name
-        #     elif "," in tenant_name:
-        #         import_module = "tenantlist"
-        #     else:
-        #         import_module = "tenant"
-        # parsed_args.import_module = import_module
