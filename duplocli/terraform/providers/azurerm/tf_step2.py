@@ -131,17 +131,28 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:","_tf_resource", e)
 
-        if tf_resource_type in ['AAazurerm_virtual_machine']:
-            tf_resource_type_root[tf_resource_var_name] = resource_obj  # resource_obj2
+
+        resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
+        if tf_resource_type in ['Aazurerm_virtual_machine', 'azurerm_monitor_metric_alert']:
+            pass #resource_obj = resource_obj  # resource_obj2
         else:
-            resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
-            if tf_resource_type in ['azurerm_route_table'] and not "subnets" in resource_obj2:
-                self._del_key(resource_obj2, "subnets")
-            if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "name" in resource_obj2:
-                resource_obj2["name"] = ""
-            if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "scopes" in resource_obj2:
-                resource_obj2["scopes"] = None
-            tf_resource_type_root[tf_resource_var_name] = resource_obj2 # resource_obj #resource_obj2
+            resource_obj = resource_obj2
+        if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj:
+            self._del_key(resource_obj, "subnets")
+        if tf_resource_type in ['azurerm_monitor_metric_alert']  and ( not "name" in resource_obj or resource_obj["name"] ==""):
+            resource_obj["name"] = resource_obj["resource_group_name"]
+
+        #set
+        tf_resource_type_root[tf_resource_var_name] = resource_obj
+        # resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
+        # if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj2:
+        #     self._del_key(resource_obj2, "subnets")
+        # if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "name" in resource_obj2:
+        #     resource_obj2["name"] = resource_obj2["resource_group_name"]
+        #     resource_obj2["dynamic_criteria"] =  [],
+        #     resource_obj2["scopes"] = None
+        # #set
+        # tf_resource_type_root[tf_resource_var_name] = resource_obj2 # resource_obj #resource_obj2
 
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1

@@ -31,7 +31,8 @@ class AzureTfStepResource:
         self.type_name_orig = self.type_name
         if self.type_name == "azurerm_public_i_p_addresses":
             self.type_name = "azurerm_public_ip"
-
+        if "/serverFarms/" in self.id: #azurerm_app_service_plan
+            self.id = self.id.replace("/serverFarms/", "/serverfarms/")
         self.type_name_singular = self.type_name[:-1]
 
 
@@ -53,7 +54,7 @@ class AzurermResources:
         "azurerm_deployment_scripts":"azurerm_template_deployment",
         "azurerm_extensions":"azurerm_virtual_machine_extension",
         "azurerm_certificates":"azurerm_app_service_certificate", #for web
-        "azurerm_server_farms":"azurerm_service_fabric_cluster",
+        "azurerm_server_farms":"azurerm_app_service_plan",
         "azurerm_sites":"azurerm_app_service",
         #
         "azurerm_route_tables": "azurerm_route_table",
@@ -87,7 +88,7 @@ class AzurermResources:
         "A":""
 
     }
-    resources_skip = []
+    resources_skip = ["azurerm_monitor_metric_alert", "azurerm_snapshot"]
     resources_skip111= [
 
         'azurerm_automation_account',
