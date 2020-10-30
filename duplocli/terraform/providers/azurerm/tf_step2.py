@@ -1,4 +1,6 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
+import random
+from datetime import datetime
 
 class AzurermTfImportStep2(AzureBaseTfImportStep):
 
@@ -7,6 +9,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def __init__(self, params):
         super(AzurermTfImportStep2, self).__init__(params)
+        random.seed(datetime.now())
 
     def execute(self):
         self._tf_resources()
@@ -52,7 +55,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         try:
             del final_dict[attrName]
         except KeyError as ex:
-            print("No such key: '%s'" % ex.message)
+            pass #print("No such key: '%s'" % ex.message)
 
     def _processIfNested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj, attribute_name, attribute, schema):
         if schema is not None:
@@ -148,13 +151,23 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _post_tf_resource(self, resource, tf_resource_type_root,  tf_resource_var_name, resource_obj):
         try:
+
+            nornd = "{}-{}".format(random.randint(11, 9999) , random.randint(11, 9999))
             tf_resource_type = resource["type"]
             #tf_resource_var_name = resource["name"]
-            if tf_resource_type in ['azurerm_storage_account']:
-                import random
-                number = random.randit(1111, 9999)
-                resource_obj["name"] = "{0}-{1}".format(self.params.tenant_name.lower(), number)
+            if tf_resource_type in ['azurerm_storage_account', "azurerm_app_service"]:
+                resource_obj["name"] = "{0}-{1}".format(self.params.tenant_name.lower(), nornd)
                 self._del_key(resource_obj, "queue_properties")
+            elif tf_resource_type in ['azurerm_container_group']:
+                resource_obj["name"] = "{0}-{1}".format(self.params.tenant_name.lower(), nornd)
+                if not "ip_address_type" in resource_obj or resource_obj["ip_address_type"] is None:
+                    resource_obj["ip_address_type"] = "Public"
+                container = resource_obj["container"]
+                if not "ports" in container:
+                    container["ports"] =   {
+                        "port": 443,
+                        "protocol": "TCP"
+                    }
         except Exception as e:
             print("ERROR:Step2:", "_tf_resource", e)
         tf_resource_type_root[tf_resource_var_name] = resource_obj

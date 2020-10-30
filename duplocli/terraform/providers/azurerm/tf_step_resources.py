@@ -91,7 +91,11 @@ class AzurermResources:
     resources_skip = ["azurerm_monitor_metric_alert",
                       "azurerm_snapshot",
                       "azurerm_private_dns_zone_virtual_network_link",
-                      "azurerm_app_service_certificate"
+                      "azurerm_app_service_certificate",
+                      "azurerm_managed_disk",
+                      "azurerm_virtual_machine",
+                      "azurerm_virtual_machine_extension",
+                      "azurerm_public_ip"
                       ]
     resources_skip111= [
 
