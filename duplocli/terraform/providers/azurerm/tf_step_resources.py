@@ -88,7 +88,11 @@ class AzurermResources:
         "A":""
 
     }
-    resources_skip = ["azurerm_monitor_metric_alert", "azurerm_snapshot"]
+    resources_skip = ["azurerm_monitor_metric_alert",
+                      "azurerm_snapshot",
+                      "azurerm_private_dns_zone_virtual_network_link",
+                      "azurerm_app_service_certificate"
+                      ]
     resources_skip111= [
 
         'azurerm_automation_account',
