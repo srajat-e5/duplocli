@@ -72,7 +72,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
-        tf_resource_type_root[tf_resource_var_name] = resource_obj
+        # tf_resource_type_root[tf_resource_var_name] = resource_obj
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         if tf_resource_type == "azurerm_container_group":
             pass
@@ -143,16 +143,22 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             resource_obj["name"] = resource_obj["resource_group_name"]
 
         #set
+        resource_obj = self._post_tf_resource(resource, tf_resource_type_root, tf_resource_var_name, resource_obj)
+
+
+    def _post_tf_resource(self, resource, tf_resource_type_root,  tf_resource_var_name, resource_obj):
+        try:
+            tf_resource_type = resource["type"]
+            #tf_resource_var_name = resource["name"]
+            if tf_resource_type in ['azurerm_storage_account']:
+                import random
+                number = random.randit(1111, 9999)
+                resource_obj["name"] = "{0}-{1}".format(self.params.tenant_name.lower(), number)
+                self._del_key(resource_obj, "queue_properties")
+        except Exception as e:
+            print("ERROR:Step2:", "_tf_resource", e)
         tf_resource_type_root[tf_resource_var_name] = resource_obj
-        # resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
-        # if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj2:
-        #     self._del_key(resource_obj2, "subnets")
-        # if tf_resource_type in ['azurerm_monitor_metric_alert'] and not "name" in resource_obj2:
-        #     resource_obj2["name"] = resource_obj2["resource_group_name"]
-        #     resource_obj2["dynamic_criteria"] =  [],
-        #     resource_obj2["scopes"] = None
-        # #set
-        # tf_resource_type_root[tf_resource_var_name] = resource_obj2 # resource_obj #resource_obj2
+        return resource_obj
 
     def _process_dict(self, nested_count_parent, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
         nested_count = nested_count_parent + 1
