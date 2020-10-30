@@ -2,13 +2,13 @@ from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportS
 import random
 from datetime import datetime
 
-class AzurermTfImportStep2(AzureBaseTfImportStep):
+class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     is_allow_none = True
     state_dict = {}
 
     def __init__(self, params):
-        super(AzurermTfImportStep2, self).__init__(params)
+        super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
 
     def execute(self):
