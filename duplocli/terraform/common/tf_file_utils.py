@@ -57,6 +57,9 @@ class TfFileUtils:
     def tf_resources_file_for_step(self, step):
         return os.path.join(self.work_folder_for_step(step), self._tf_resources_file_name)
 
+    def tf_main_file_for_step(self, step):
+        return os.path.join(self.work_folder_for_step(step), self._tf_file_name)
+
     def tf_state_file(self):
         return os.path.join(self.work_folder(), self._tf_state_file_name)
 
@@ -142,6 +145,15 @@ class TfFileUtils:
             run_sh_list.append("bash {0}  ".format(tf_import_script_file))
         self.save_run_script(self.tf_run_script(), run_sh_list)
     #######
+
+    #######
+    def file_read_as_text(self, tf_run_script_file):
+        f = open(tf_run_script_file, "r")
+        return f.read()
+
+    def file_write_as_text(self, tf_run_script_file, text):
+        f = open(tf_run_script_file, "w")
+        f.write(text)
 
     #######
     def create_state(self, tf_run_script_file):

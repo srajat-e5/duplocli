@@ -11,11 +11,26 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
 
+    def _load_files(self):
+        self.main_tf_read_from_file = self.file_utils.tf_resources_file_for_step("step2")
+        self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+
+        if not self.file_utils.file_exists(self.state_read_from_file):
+            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
+        self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)
+        self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
+        self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
+
     def execute(self):
+        #copy step2 main file
+        #copy resources file
+        #add new fields- new name, replace id with json interpolation
+        #
         self._tf_resources()
-        self._create_tf_state()
         return self.file_utils.tf_main_file()
-    
+
     ##### manage files and state ##############
     def _create_tf_state(self):
         self.file_utils.save_state_file(self.state_dict)
@@ -23,9 +38,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     ######  TfImportStep2 ################################################
     def _tf_resources(self):
-        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
-        if not self.file_utils.file_exists(self.state_read_from_file):
-            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+        # self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        # if not self.file_utils.file_exists(self.state_read_from_file):
+        #     raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
 
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
         if "resources" in  self.state_dict:
