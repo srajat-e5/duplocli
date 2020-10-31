@@ -32,15 +32,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         return self.file_utils.tf_main_file()
 
     ##### manage files and state ##############
-
-    ######  TfImportStep3 ################################################
-    def _tf_resources(self):
+    def _resources_by_id_dict(self):
         self.resources_by_id_dict = {}
         for duplo_resource in self.resources_dict:
             self.resources_by_id_dict[duplo_resource["tf_import_id"]] = duplo_resource
-
-        self.states_by_id_dict = self._states_by_id_dict()
-
 
     def _states_by_id_dict(self):
         self.states_by_id_dict = {}
@@ -58,3 +53,12 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 print("ERROR:Step2:","_tf_resources", e)
 
         return self.states_by_id_dict
+    ######  TfImportStep3 ################################################
+    def _tf_resources(self):
+        self.resources_by_id_dict = self._resources_by_id_dict()
+        self.states_by_id_dict = self._states_by_id_dict()
+        # create unique names for storage
+        # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
+        # ie. simple json interpolation  referenced-id replacement in main tf
+        #also create resource, and simple json interpolation location and resource-id replacement in main tf
+
