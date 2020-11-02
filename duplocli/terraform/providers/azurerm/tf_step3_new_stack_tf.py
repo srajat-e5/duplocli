@@ -54,11 +54,41 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
         return self.states_by_id_dict
 
+    def _update_resource_for_id(self,resources_id):
+        # {
+        #     "tf_resource_type": "azurerm_managed_disk",
+        #     "tf_variable_id": "duploservices-azdemo1-host1-dohpx",
+        #     "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/DUPLOSERVICES-AZDEMO1/providers/Microsoft.Compute/disks/duploservices-azdemo1-host1-dohpx",
+        #     "module": "azdemo1"
+        # },
+        resource = self.resources_by_id_dict[resources_id]
+        tf_resource_type = resource["tf_resource_type"]
+        tf_variable_id = resource["tf_variable_id"]
+        tf_import_id = resource["tf_import_id"]
+        tf_variable_id_new = resource["tf_variable_id_new"] or resource["tf_variable_id"]
+        #interpolation_id= "${azurerm_resource_group.tfduplosvs-aztf7.name}"
+        #TODO:  if id contains '$' or '}' ?
+        interpolation_id = "${"+tf_resource_type+"."+tf_import_id+"}"
+        resource["tf_variable_id_new"] = tf_variable_id_new # must be unique for new terraform for global's like s3 or azure storage?
+        resource["interpolation_id"] = interpolation_id
+        self.resources_by_id_dict[tf_variable_id]=resource
+        return resource
+    def _replace_id_with_reference(self, resource):
+        tf_import_id = resource["tf_import_id"]
+        interpolation_id = resource["interpolation_id"]
+        text = self.main_tf_text
+        self.main_tf_text = self.text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
+
     ######  TfImportStep3 ################################################
     def _tf_resources(self):
         self.resources_by_id_dict = self._resources_by_id_dict()
         self.states_by_id_dict = self._states_by_id_dict()
+
         # create unique names for storage
         # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
         # ie. simple json interpolation  referenced-id replacement in main tf
         # also create resource, and simple json interpolation location and resource-id replacement in main tf
+        for resources_id in self.resources_by_id_dict:
+            self._update_resource_for_id(self, resources_id)
+            resource = self.resources_by_id_dict[resources_id]
+            self._replace_id_with_reference(resource)
