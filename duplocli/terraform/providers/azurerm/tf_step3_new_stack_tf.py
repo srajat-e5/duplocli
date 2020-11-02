@@ -1,5 +1,6 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 import random
+import os
 from datetime import datetime
 
 
@@ -12,7 +13,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         random.seed(datetime.now())
 
     def _load_files(self):
-        self.main_tf_read_from_file = self.file_utils.tf_resources_file_for_step("step2")
+        self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step2")
         self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
 
@@ -33,7 +34,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         # copy resources file
         # add new fields- new name, replace id with json interpolation
         #
+        self._load_files()
         self._tf_resources()
+        self._save_files("")
         return self.file_utils.tf_main_file()
 
     ##### manage files and state ##############
@@ -41,7 +44,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.resources_by_id_dict = {}
         for duplo_resource in self.resources_dict:
             self.resources_by_id_dict[duplo_resource["tf_import_id"]] = duplo_resource
-
+        return self.resources_by_id_dict
     def _states_by_id_dict(self):
         self.states_by_id_dict = {}
         if "resources" in self.states_dict:
@@ -55,7 +58,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 attributes["tf_resource_var_name"] = resource["name"]
                 self.states_by_id_dict[attributes["id"]] = attributes
             except Exception as e:
-                print("ERROR:Step2:", "_tf_resources", e)
+                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
 
         return self.states_by_id_dict
 
@@ -70,34 +73,58 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         tf_resource_type = resource["tf_resource_type"]
         tf_variable_id = resource["tf_variable_id"]
         tf_import_id = resource["tf_import_id"]
-        tf_variable_id_new = resource["tf_variable_id_new"] or resource["tf_variable_id"]
+
+
+        # must be unique for new terraform for global's like s3 or azure storage?
+        if "tf_variable_id_new" not in resource:
+            resource["tf_variable_id_new"] = tf_variable_id
+        else:
+            resource["tf_variable_id_new"] = tf_variable_id # "tf_variable_id_new"
+        #TODO: for new we have to change id for existing keep old id?
+        tf_variable_id_new = resource["tf_variable_id_new"]
         #interpolation_id= "${azurerm_resource_group.tfduplosvs-aztf7.name}"
         #TODO:  if id contains '$' or '}' ?
-        interpolation_id = "${"+tf_resource_type+"."+tf_import_id+"}"
-        resource["tf_variable_id_new"] = tf_variable_id_new # must be unique for new terraform for global's like s3 or azure storage?
+        interpolation_id = "${"+tf_resource_type+"."+tf_variable_id_new+"}"
+
+
         resource["interpolation_id"] = interpolation_id
-        self.resources_by_id_dict[tf_variable_id]=resource
+        # self.resources_by_id_dict[tf_import_id]=resource
         return resource
     def _replace_id_with_reference(self, resource):
         tf_import_id = resource["tf_import_id"]
         interpolation_id = resource["interpolation_id"]
         text = self.main_tf_text
-        self.main_tf_text = self.text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
+        text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
+        self.main_tf_text = text
 
     ######  TfImportStep3 ################################################
     def _tf_resources(self):
-        self.resources_by_id_dict = self._resources_by_id_dict()
-        self.states_by_id_dict = self._states_by_id_dict()
+        try:
+            self._resources_by_id_dict()
+            self._states_by_id_dict()
 
-        # create unique names for storage
-        # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
-        # ie. simple json interpolation  referenced-id replacement in main tf
-        # also create resource, and simple json interpolation location and resource-id replacement in main tf
-        for resources_id in self.resources_by_id_dict:
-            self._update_resource_for_id(self, resources_id)
-            resource = self.resources_by_id_dict[resources_id]
-            self._replace_id_with_reference(resource)
+            # create unique names for storage
+            # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
+            # ie. simple json interpolation  referenced-id replacement in main tf
+            # also create resource, and simple json interpolation location and resource-id replacement in main tf
+
+            keys =  self.resources_by_id_dict.keys()
+            for resources_id in keys:
+                try:
+                    self._update_resource_for_id(resources_id)
+                except Exception as e:
+                    print("ERROR:AzurermTfStep3NewStack:res", "_tf_resources", resources_id, e)
+
+            for resources_id in self.resources_by_id_dict:
+                try:
+                    resource = self.resources_by_id_dict[resources_id]
+                    self._replace_id_with_reference(resource)
+                except Exception as e:
+                    print("ERROR:AzurermTfStep3NewStack:text", "_tf_resources",resources_id, e)
+            print("DONE")
+        except Exception as e:
+            print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
         #save resources and tf
         #todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
-        self._save_files()
+        # self._save_files()
 

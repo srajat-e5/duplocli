@@ -161,7 +161,7 @@ class TfFileUtils:
         f = open(tf_run_script_file, "r")
         return f.read()
 
-    def file_write_as_text(self, tf_run_script_file, text):
+    def file_save_as_text(self, tf_run_script_file, text):
         f = open(tf_run_script_file, "w")
         f.write(text)
 

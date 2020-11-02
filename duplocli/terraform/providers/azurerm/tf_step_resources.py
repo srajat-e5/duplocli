@@ -339,7 +339,9 @@ class AzurermResources:
     # duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
         #############
-        if self.params.import_module == "tenant":
+        if self.params.import_module == "all" or self.DEBUG_EXPORT_ALL:
+            return True
+        elif self.params.import_module == "tenant":
             filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
             if filter_tenant_str in id.lower():
                 return True
@@ -391,6 +393,9 @@ class AzurermResources:
 
     def get_all_resources(self):
         print("\n\n\n======================================================")
+        self.DEBUG_EXPORT_ALL = True
+        if  self.DEBUG_EXPORT_ALL:
+            self.resources_skip = []
         if True:
             self.tenant_resource_debug()
         print("======================================================\n\n\n")
