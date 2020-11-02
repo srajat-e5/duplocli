@@ -2,20 +2,20 @@ from duplocli.terraform.providers.azurerm.azurerm_vars_computed import AzurermTf
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 import json
 
-class AzurermTfVarsExtract(AzureBaseTfImportStep):
 
+class AzurermTfVarsExtract(AzureBaseTfImportStep):
     is_allow_none = True
     state_dict = {}
 
     def __init__(self, params):
         super(AzurermTfVarsExtract, self).__init__(params)
 
-
     def execute(self):
         self._tf_resources()
         # self._create_tf_state()
         # return self.file_utils.tf_main_file()
         return []
+
     ##### manage files and state ##############
     def _create_tf_state(self):
         self.file_utils.save_state_file(self.state_dict)
@@ -64,7 +64,6 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
 
         self._resource_array_by_type()
 
-
         print(self.value_count)
         d = self.value_count
         sort_orders = sorted(d.items(), key=lambda x: x[1], reverse=True)
@@ -81,14 +80,13 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         self.file_utils.save_json_to_work_folder("resource_computed.json", self.resource_computed)
 
         print(json.dumps(sort_orders))
-        print(json.dumps( list(self.value_keys)))
+        print(json.dumps(list(self.value_keys)))
         print(json.dumps(list(self.value_computed)))
-        print( json.dumps(self.vars_tf))
-        print( json.dumps(self.vars_state_tf))
-        print( json.dumps(self.resource_computed))
+        print(json.dumps(self.vars_tf))
+        print(json.dumps(self.vars_state_tf))
+        print(json.dumps(self.resource_computed))
 
         return self.main_tf_json_dict
-
 
     #######################################
     def _resource_array_by_type(self):
@@ -114,7 +112,6 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
                 self.resource_computed[tf_resource_type].append(resource_object)
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resource_state_type", e)
-
 
     # ################################
     # def _resource_array_by_type_computed(self, resource):
@@ -369,5 +366,3 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
     #                                  schema)
     #             return True
     #     return False
-
-

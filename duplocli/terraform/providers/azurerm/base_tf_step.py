@@ -1,4 +1,3 @@
-
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.schema.tf_schema import TfSchema
@@ -7,12 +6,12 @@ import os
 import psutil
 
 
-class AzureBaseTfImportStep :
-
+class AzureBaseTfImportStep:
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
+
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)
@@ -28,7 +27,6 @@ class AzureBaseTfImportStep :
     #####################################################
     def add_env_azurerm(self):
         pass
-
 
     #####################################################
 
@@ -64,7 +62,7 @@ class AzureBaseTfImportStep :
         resource_obj["version"] = ">= 2.15.0"
         resource_obj["features"] = {}
         self.tf_import_sh_list.append('terraform init ')
-        self.tf_import_sh_list.append("source {0}".format(self.file_utils.get_azure_env_sh()) )
+        self.tf_import_sh_list.append("source {0}".format(self.file_utils.get_azure_env_sh()))
 
         return resource_obj
 
@@ -77,5 +75,5 @@ class AzureBaseTfImportStep :
     ############ helper  ##########
 
     ############ download_key public resources ##########
-    def download_key(self,  aws_obj_list=[] ):
+    def download_key(self, aws_obj_list=[]):
         pass

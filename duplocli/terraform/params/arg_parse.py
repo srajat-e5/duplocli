@@ -22,7 +22,6 @@ class ArgParse:
         self.args_param_list = args_param_list
         self.default_params = default_params
 
-
     ######## ####  parser   ######## ####
     def get_parser(self):
         help = get_help(self.args_param_list, self.provider)
@@ -115,7 +114,8 @@ class ArgParse:
                     if tenant_id != "":
                         tenant_ids.append(tenant_id)
                 if len(tenants_arr) != len(tenant_ids_arr):
-                    self._raise_error(self.parsed_args_params, "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
+                    self._raise_error(self.parsed_args_params,
+                                      "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
         tf_modules = {}
         for index in range(len(tenants)):
@@ -130,7 +130,6 @@ class ArgParse:
             tf_modules[tenant_name] = tf_module
         return tf_modules
 
-
     ############ helpers ########################
     def _raise_error(self, params, message):
         print("============== ERROR ============== ")
@@ -141,7 +140,7 @@ class ArgParse:
         raise Exception(message)
 
     def _check_required_fields(self, required_fields):
-        parameters = vars(self.parsed_args_params,)
+        parameters = vars(self.parsed_args_params, )
         self.validate_required_fields(parameters, required_fields)
 
     def validate_required_fields(self, parameters, required_fields):
@@ -182,6 +181,7 @@ class ArgParse:
             tenants_arr = params['tenant_name'].split(",")
             tenant_ids_arr = params['tenant_id'].split(",")
             if len(tenants_arr) > 0 and len(tenants_arr) != len(tenant_ids_arr):
-                self._raise_error(self.parsed_args_params, "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
+                self._raise_error(self.parsed_args_params,
+                                  "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
         return params

@@ -5,15 +5,17 @@ import os
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.schema.tf_resource_schema import TfResourceSchema
 
+
 class TfSchema:
-    tfschema={}
+    tfschema = {}
     tf_resource_list = {}
     tf_resource_list_inited = False
     debug = False
-    def __init__(self,  params ):
+
+    def __init__(self, params):
         self.params = params
         self.utils = TfUtils(self.params)
-        json_file  = self.get_schema_file()
+        json_file = self.get_schema_file()
         with open(json_file) as f:
             self.tfschema = json.load(f)
 
@@ -30,25 +32,25 @@ class TfSchema:
         return list(self.get_tf_resource_list().keys())
 
     def data_dict_tf_resource_list(self):
-        data={}
+        data = {}
         list = self.get_tf_resource_list()
         for key, tf_resource in list.items():
             data[key] = tf_resource.data_dict()
         return data
-     ######## debug ########
 
+    ######## debug ########
 
     def get_schema_raw(self, tf_obj_name):
-        #registry.terraform.io/hashicorp/azurerm
-        schema_path=  self.params.provider
-        if self.params.provider =="azurerm":
+        # registry.terraform.io/hashicorp/azurerm
+        schema_path = self.params.provider
+        if self.params.provider == "azurerm":
             schema_path = 'registry.terraform.io/hashicorp/azurerm'
         return self.tfschema['provider_schemas'][schema_path]['resource_schemas'][tf_obj_name]
-        #return self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'][tf_obj_name]
+        # return self.tfschema['provider_schemas'][self.params.provider]['resource_schemas'][tf_obj_name]
 
     def get_tf_resource_list(self):
         if not self.tf_resource_list_inited:
-            #load once and catch
+            # load once and catch
             schema_path = self.params.provider
             if self.params.provider == "azurerm":
                 schema_path = 'registry.terraform.io/hashicorp/azurerm'
@@ -59,7 +61,7 @@ class TfSchema:
 
     def get_tf_resource(self, tf_obj_name):
         try:
-            if tf_obj_name  in self.tf_resource_list.keys():
+            if tf_obj_name in self.tf_resource_list.keys():
                 pass
                 # print("**** SCHEMA: get_tf_resource ******* ",tf_obj_name," exist in catch")
             else:
@@ -71,7 +73,7 @@ class TfSchema:
                 #   "*********** DONE")
             return self.tf_resource_list[tf_obj_name]
         except KeyboardInterrupt:
-         quit()
+            quit()
         except Exception as e:
             print("**** SCHEMA: get_tf_resource Failed to generate " + tf_obj_name)
             print('**** SCHEMA: get_tf_resource Error: {}'.format(sys.exc_info()[0]))
@@ -86,7 +88,7 @@ class TfSchema:
         tf_object = self.get_schema_raw(tf_obj_name)
         tf_resource = TfResourceSchema(tf_obj_name, tf_object)
         self._process_attributes(tf_resource)
-        if 'block_types' in  tf_resource.tf_object['block']:
+        if 'block_types' in tf_resource.tf_object['block']:
             self._process_blocks_nested(tf_resource)
         return tf_resource.copy()
 
@@ -94,13 +96,13 @@ class TfSchema:
     def _process_attributes(self, tf_resource):
         try:
             if 'attributes' in tf_resource.tf_object['block']:
-                for attrname, attr in  tf_resource.tf_object['block']['attributes'].items():
+                for attrname, attr in tf_resource.tf_object['block']['attributes'].items():
                     computed = False
                     sensitive = False
                     optional = False
                     required = False
-                    opts=[]
-                    type=None
+                    opts = []
+                    type = None
                     tf_resource.all_attributes.append(attrname)
                     for key1, val1 in attr.items():
                         if key1 != 'type':
@@ -116,7 +118,7 @@ class TfSchema:
                             # tf_resource.required.append(attrname)
                         elif key1 == 'type':
                             type = val1
-                            tf_resource.data_type[attrname]= str(val1)
+                            tf_resource.data_type[attrname] = str(val1)
 
                     if sensitive:
                         tf_resource.sensitive.append(attrname)
@@ -125,14 +127,14 @@ class TfSchema:
                     if optional:
                         tf_resource.optional.append(attrname)
 
-                    if computed :
-                        #TF has bugs ?... needs some additional work based on bugs
+                    if computed:
+                        # TF has bugs ?... needs some additional work based on bugs
                         # todo check if its set, list, dict,tupple etc
                         # tf_resource.computed.append(attrname)
                         # if not "optional" in opts:
                         #     tf_resource.computed.append(attrname)
                         # el
-                        if  not self.is_native_type(type) :
+                        if not self.is_native_type(type):
                             tf_resource.non_computed.append(attrname)
                         else:
                             tf_resource.computed.append(attrname)
@@ -141,7 +143,7 @@ class TfSchema:
         except KeyboardInterrupt:
             quit()
         except Exception as e:
-            print("**** SCHEMA: _process_attributes Failed to generate " +  tf_resource.tf_obj_name)
+            print("**** SCHEMA: _process_attributes Failed to generate " + tf_resource.tf_obj_name)
             print('**** SCHEMA: _process_attributes Error: {}'.format(sys.exc_info()[0]))
         # print("**** SCHEMA: _process_attributes******* ", tf_resource.tf_obj_name, "*********** END")
 
@@ -166,7 +168,7 @@ class TfSchema:
             if spec_key == 'block' or spec_key == 'block_types':
                 pass
             else:
-                tf_resource.spec[spec_key]=spec_val
+                tf_resource.spec[spec_key] = spec_val
 
     ## use from common utils
     def default(self, o):
@@ -188,23 +190,27 @@ class TfSchema:
             type_b = isinstance(object, (list, tuple, set, dict))
             return not type_b
         except TypeError:
-            print ("Can't convert", object)
+            print("Can't convert", object)
             return True
+
 
 # ##### test ##########
 from duplocli.terraform.providers.aws.aws_params import AwsParams
+
+
 def main1():
     params = AwsParams()
-    params.provider="azurerm"
+    params.provider = "azurerm"
     awsParseSchema = TfSchema(params)
     data_dict_tf_resource_list = awsParseSchema.data_dict_tf_resource_list()
-    json_schema_path="../schema/json_azurerm_tf_schema.json"
+    json_schema_path = "../schema/json_azurerm_tf_schema.json"
     awsParseSchema.save_json(data_dict_tf_resource_list, "duplo_{0}_tf_schema.json".format(params.provider))
     print(json.dumps(data_dict_tf_resource_list))
 
     tf_resource_names_list = awsParseSchema.get_tf_resource_names_list()
     print(json.dumps(tf_resource_names_list))
     awsParseSchema.save_json(tf_resource_names_list, "../data/{0}_resources.json".format(params.provider))
+
 
 if __name__ == '__main__':
     main1()

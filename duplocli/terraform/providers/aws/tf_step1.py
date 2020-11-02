@@ -10,17 +10,18 @@ import requests
 # },
 # ]
 dummy_values = {
-    "cidr_block":"0.0.0.0/0",
-    "ipv6_cidr_block":"0.0.0.0/0"
+    "cidr_block": "0.0.0.0/0",
+    "ipv6_cidr_block": "0.0.0.0/0"
 }
+
 
 class AwsTfImportStep1(AwsBaseTfImportStep):
 
-    def __init__(self,  params):
-       super(AwsTfImportStep1, self).__init__(params)
+    def __init__(self, params):
+        super(AwsTfImportStep1, self).__init__(params)
 
     ############ execute_step public resources ##########
-    def execute(self,  aws_obj_list=[]):
+    def execute(self, aws_obj_list=[]):
         self.file_utils.save_to_json(self.file_utils.tf_resources_file(), aws_obj_list)
         self.file_utils.save_to_json(self.file_utils.tf_resources_file_for_step("step2"), aws_obj_list)
         self._tf_resources(aws_obj_list)
@@ -39,7 +40,7 @@ class AwsTfImportStep1(AwsBaseTfImportStep):
             self._tf_resource(aws_obj)
 
     def _tf_resource(self, aws_obj):
-        tf_resource_type=aws_obj['tf_resource_type']
+        tf_resource_type = aws_obj['tf_resource_type']
         resource_obj = self._init_tf_resource(aws_obj)
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         for required_name in schema.required:
@@ -52,7 +53,7 @@ class AwsTfImportStep1(AwsBaseTfImportStep):
 
     def _init_tf_resource(self, aws_obj):
         tf_resource_type = aws_obj['tf_resource_type']
-        tf_resource_var_name= aws_obj['tf_variable_id']
+        tf_resource_var_name = aws_obj['tf_variable_id']
         tf_resource_type_sync_id = aws_obj['tf_import_id']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
@@ -60,7 +61,3 @@ class AwsTfImportStep1(AwsBaseTfImportStep):
         self.tf_import_sh_list.append(
             'terraform import "' + tf_resource_type + '.' + tf_resource_var_name + '"  "' + tf_resource_type_sync_id + '"')
         return resource_obj
-
-
-
-

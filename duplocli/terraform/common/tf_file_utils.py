@@ -5,6 +5,7 @@ import os
 import psutil
 import shutil
 
+
 class TfFileUtils:
     _tf_file_name = "main.tf.json"
     _tf_resources_file_name = "resources.json"
@@ -20,7 +21,8 @@ class TfFileUtils:
             self.root_folder = self.root_folder.replace("/", "\\")
 
     def stage_prefix(self, msg=""):
-       return  "**** import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type, msg)
+        return "**** import {0} {0} {2} {3}: ".format(self.params.provider, self.params.step, self.params.step_type,
+                                                      msg)
 
     ### env azure ###
 
@@ -34,10 +36,11 @@ class TfFileUtils:
     def get_azure_env_sh(self):
         env_sh = ".duplo_env.sh"
         home_folder = os.getenv("HOME")
-        self.env_sh_path = os.path.join(home_folder, env_sh) #os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
-        if not os.path.exists(self.env_sh_path ):
+        self.env_sh_path = os.path.join(home_folder,
+                                        env_sh)  # os.path.join(os.path.dirname(os.path.abspath(__file__)), env_sh)
+        if not os.path.exists(self.env_sh_path):
             self.env_sh_path = "/shell/.duplo_env.sh"
-            if  os.path.exists(self.env_sh_path):
+            if os.path.exists(self.env_sh_path):
                 print("using", self.env_sh_path)
             os.system("touch {0}; chmod  777 {1} ".format(self.env_sh_path, self.env_sh_path))
         return self.env_sh_path
@@ -45,8 +48,10 @@ class TfFileUtils:
     ###  work folder
     def work_folder(self):
         return self._folder_temp_sub_folder(self.params.step, self.params.step_type)
+
     def work_folder_for_step(self, step):
         return self._folder_temp_sub_folder(step, self.params.step_type)
+
     def tf_state_file_for_step(self, step):
         return os.path.join(self.work_folder_for_step(step), self._tf_state_file_name)
 
@@ -124,18 +129,22 @@ class TfFileUtils:
     ####### save to files
     def save_main_file(self, data_dict):
         self.save_to_json(self.tf_main_file(), data_dict)
+
     def save_state_file(self, data_dict):
         self.save_to_json(self.tf_state_file(), data_dict)
+
     def save_tf_import_script(self, data_list):
         self.save_run_script(self.tf_import_script(), data_list)
+
     def save_key_file(self, key_name, response_content):
         self._ensure_folder(self.keys_folder())
         self._save_key_file(self._file_inkeys_folder(key_name), response_content)
+
     def save_tf_run_script(self):
-        run_sh_list=[]
+        run_sh_list = []
         # print(os.getcwd())
         tf_import_script_file = os.path.basename(self.tf_import_script())
-        if psutil.WINDOWS :
+        if psutil.WINDOWS:
             run_sh_list.append("cd \"{0}\" ".format(self.work_folder()))
             run_sh_list.append("SET CURRENTDIR=\"%cd%\";  echo %CURRENTDIR%  ".format(self.work_folder()))
             run_sh_list.append("call \"{0}\" ".format(tf_import_script_file))
@@ -144,6 +153,7 @@ class TfFileUtils:
             run_sh_list.append("chmod 777 *.sh")
             run_sh_list.append("bash {0}  ".format(tf_import_script_file))
         self.save_run_script(self.tf_run_script(), run_sh_list)
+
     #######
 
     #######
@@ -168,11 +178,12 @@ class TfFileUtils:
         # delete terraform binaries
         print("**************** deleting terraform binaries **************** ")
         self.empty_terraform_binary_folder()
-        print("**************** deleted terraform binaries : for testing - you may run ' terrafrom init ' **************** ")
+        print(
+            "**************** deleted terraform binaries : for testing - you may run ' terrafrom init ' **************** ")
 
     ######
-    def file_exists(self,  final_sub_folder):
-        if  os.path.exists(final_sub_folder):
+    def file_exists(self, final_sub_folder):
+        if os.path.exists(final_sub_folder):
             return True;
         return False;
 
@@ -201,15 +212,15 @@ class TfFileUtils:
             cmd_mod = "rm -rf  {0} ".format(folder)
         resp = os.system(cmd_mod)
         print("DONE delete_folder ", cmd_mod, "resp ", resp)
-        
+
     def empty_folder(self):
         self.recreate_folder(self.work_folder())
         self._ensure_folders()
-        #print("DONE empty_folder")
+        # print("DONE empty_folder")
 
     def ensure_folder_by_path(self, path):
         self._ensure_folder(path)
-        #print("DONE ensure_folder_by_path ", path)
+        # print("DONE ensure_folder_by_path ", path)
 
     def recreate_folder(self, folder):
         if psutil.WINDOWS:
@@ -217,7 +228,7 @@ class TfFileUtils:
         else:
             cmd_mod = "rm -rf  {0}/*; mkdir -p {0}; ls  {0}".format(folder)
         resp = os.system(cmd_mod)
-        #print("DONE recreate_folder ", cmd_mod, "resp ", resp)
+        # print("DONE recreate_folder ", cmd_mod, "resp ", resp)
 
     def ls_folder(self, folder):
         if psutil.WINDOWS:
@@ -231,7 +242,7 @@ class TfFileUtils:
             cmd_mod = "md \"{0}\"  2>NUL; dir \"{0}\" ".format(folder)
         else:
             cmd_mod = "mkdir -p {0}; ls  {0}".format(folder)
-        #print("DONE _ensure_folder", cmd_mod)
+        # print("DONE _ensure_folder", cmd_mod)
         os.system(cmd_mod)
 
     def empty_terraform_binary_folder(self):
@@ -240,7 +251,6 @@ class TfFileUtils:
         print("****************  DONE empty_terraform_binary_folder **************** ")
 
     ##########
-
 
     def copy_to_final_folder(self, final_folder, copy_files):
         self._ensure_folder(self.final_folder())
@@ -261,17 +271,16 @@ class TfFileUtils:
         self.copy_to_final_folder(final_folder, copy_files)
         now = datetime.datetime.now()
         now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
-        zipfile_name="import-{0}-{1}".format(tenant, now_str)
-        #save to out
-        zip_file_to_zip_folder= "{0}{1}{2}".format(zip_folder, os.path.sep, zipfile_name)
+        zipfile_name = "import-{0}-{1}".format(tenant, now_str)
+        # save to out
+        zip_file_to_zip_folder = "{0}{1}{2}".format(zip_folder, os.path.sep, zipfile_name)
 
         shutil.make_archive(zip_file_to_zip_folder, 'zip', root_dir=final_folder)
-        #if zip folder is not same
+        # if zip folder is not same
         if self.params.zip_file_path is not None and self.params.zip_file_path != self.zip_folder():
-            shutil.make_archive( self.params.zip_file_path, 'zip', root_dir=final_folder)
+            shutil.make_archive(self.params.zip_file_path, 'zip', root_dir=final_folder)
 
-
-   #######
+    #######
     def load_json_file(self, file):
         with open(file) as f:
             data = json.load(f)
@@ -284,13 +293,13 @@ class TfFileUtils:
                                default=self.default)
         print(resp_json)
 
-    def _save_key_file (self, file_name, content):
+    def _save_key_file(self, file_name, content):
         f = open(file_name, "wb")
         f.write(content)
         f.close()
 
     def save_run_script(self, file_name, data_dict, mode="w"):
-        new_line="\n"
+        new_line = "\n"
         if psutil.WINDOWS:
             new_line = "\r\n"
         f = open(file_name, mode)
@@ -326,7 +335,6 @@ class TfFileUtils:
         resp_json = json.dumps(response, default=self.default)
         return resp_json.replace('"', '\\"')
 
-
     ########
     ## windows vs bash
     def _script_ext(self):
@@ -342,6 +350,7 @@ class TfFileUtils:
     def _temp_child_folder(self, sub_folder):
         return os.path.join(self.params.temp_folder_path, sub_folder)
         # return "{0}{1}{2}".format(self.temp_folder_path, os.path.sep, sub_folder)
+
     #
     # def work_folder(self):
     #     return self._temp_child_folder(self.params.step)
@@ -350,7 +359,7 @@ class TfFileUtils:
         return self._temp_child_folder("keys")
 
     def zip_folder(self):
-        return self.params.zip_folder_path #_temp_child_folder("zip")
+        return self.params.zip_folder_path  # _temp_child_folder("zip")
 
     def final_folder(self):
         return self._temp_child_folder("final")

@@ -4,6 +4,7 @@ from collections import defaultdict
 import os
 import psutil
 
+
 class TfUtils:
 
     def __init__(self, params):
@@ -11,8 +12,8 @@ class TfUtils:
 
     #######
     def get_tenant_id(self, tenant_name):
-        tenant_name_prafix="duploservices"
-        tenant_id= "{0}-{1}".format(tenant_name_prafix,tenant_name)
+        tenant_name_prafix = "duploservices"
+        tenant_id = "{0}-{1}".format(tenant_name_prafix, tenant_name)
         return tenant_id
 
     ####### rea from dict json
@@ -28,7 +29,7 @@ class TfUtils:
             for inst in insts:
                 key = inst["Key"]
                 val = inst["Value"]
-                vals[key]=val
+                vals[key] = val
         except:
             return vals
         return vals

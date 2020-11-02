@@ -1,4 +1,4 @@
 [
- "helm_release",
- "helm_repository"
+  "helm_release",
+  "helm_repository"
 ]

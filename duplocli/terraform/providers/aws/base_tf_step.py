@@ -6,12 +6,12 @@ import os
 import psutil
 
 
-class AwsBaseTfImportStep :
-
+class AwsBaseTfImportStep:
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
+
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)
@@ -104,7 +104,7 @@ class AwsBaseTfImportStep :
         # print(state_dict)
 
     ############ download_key public resources ##########
-    def download_key(self,  aws_obj_list=[] ):
+    def download_key(self, aws_obj_list=[]):
         if self.params.provider != 'aws':
             print(self.file_utils.stage_prefix(), " SKIP ", self.params.provider, " key download_keys ")
             return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), "")
@@ -113,18 +113,16 @@ class AwsBaseTfImportStep :
         url = self.params.url
         tenant_id = self.params.tenant_id
         api_token = self.params.api_token
-        if  url is None or tenant_id is None  or api_token is None :
-            raise  Exception("to download_keys  - url, tenant_id, api_token are required.")
+        if url is None or tenant_id is None or api_token is None:
+            raise Exception("to download_keys  - url, tenant_id, api_token are required.")
 
-        for aws_key_pair_instance in  aws_obj_list:
-            #aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
+        for aws_key_pair_instance in aws_obj_list:
+            # aws_obj = {"name":name, "key_name":key_name, "instanceId":instanceId}
             key_name = aws_key_pair_instance['key_name']
             instanceId = aws_key_pair_instance['instanceId']
-            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(url   , tenant_id  , instanceId)
-            headers = {"Authorization": "Bearer {0}".format( api_token )}
-            response = requests.get(endpoint,   headers=headers)
-            self.file_utils.save_key_file(key_name, response.content )
+            endpoint = "{0}/subscriptions/{1}/getKeyPair/{2}".format(url, tenant_id, instanceId)
+            headers = {"Authorization": "Bearer {0}".format(api_token)}
+            response = requests.get(endpoint, headers=headers)
+            self.file_utils.save_key_file(key_name, response.content)
             print(self.file_utils.stage_prefix(), " save_key_file ", key_name, instanceId)
         return (self.file_utils.tf_main_file(), self.file_utils.tf_state_file(), self.file_utils.keys_folder())
-
-

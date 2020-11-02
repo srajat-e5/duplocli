@@ -2,8 +2,8 @@ from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportS
 import random
 from datetime import datetime
 
-class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
+class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     is_allow_none = True
     states_dict = {}
 
@@ -24,9 +24,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
 
     def execute(self):
-        #copy step2 main file
-        #copy resources file
-        #add new fields- new name, replace id with json interpolation
+        # copy step2 main file
+        # copy resources file
+        # add new fields- new name, replace id with json interpolation
         #
         self._tf_resources()
         return self.file_utils.tf_main_file()
@@ -39,20 +39,21 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     def _states_by_id_dict(self):
         self.states_by_id_dict = {}
-        if "resources" in  self.states_dict:
+        if "resources" in self.states_dict:
             resources = self.states_dict['resources']
         else:
             resources = self.states_dict['resource']
         for resource in resources:
             try:
                 attributes = resource['instances'][0]['attributes']
-                attributes["tf_resource_type"]= resource["type"]
+                attributes["tf_resource_type"] = resource["type"]
                 attributes["tf_resource_var_name"] = resource["name"]
                 self.states_by_id_dict[attributes["id"]] = attributes
             except Exception as e:
-                print("ERROR:Step2:","_tf_resources", e)
+                print("ERROR:Step2:", "_tf_resources", e)
 
         return self.states_by_id_dict
+
     ######  TfImportStep3 ################################################
     def _tf_resources(self):
         self.resources_by_id_dict = self._resources_by_id_dict()
@@ -60,5 +61,4 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         # create unique names for storage
         # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
         # ie. simple json interpolation  referenced-id replacement in main tf
-        #also create resource, and simple json interpolation location and resource-id replacement in main tf
-
+        # also create resource, and simple json interpolation location and resource-id replacement in main tf

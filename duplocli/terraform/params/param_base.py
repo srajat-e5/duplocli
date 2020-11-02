@@ -9,8 +9,8 @@ from duplocli.terraform.params.arg_parse import TfModule, ArgParse
 
 class ParamBase:
 
-    def __init__(self, provider, args_param_list,   default_params):
-        self.paramHelper = ArgParse( provider, args_param_list,   default_params)
+    def __init__(self, provider, args_param_list, default_params):
+        self.paramHelper = ArgParse(provider, args_param_list, default_params)
         self.args_param_list = args_param_list
         self.default_params = default_params
         self.provider = provider
@@ -42,23 +42,22 @@ class ParamBase:
     def parsed_args(self, parsed_args):
         if self.provider == 'aws':
             self.infer_import_module(parsed_args)
-        else: #elif self.provider == 'azurerm':
+        else:  # elif self.provider == 'azurerm':
             self.infer_import_module_azurerm(parsed_args)
         # self.parsed_args_params = parsed_args
         parameters = self.paramHelper.parsed_args(parsed_args)
 
         # set as attributes
         self._set_attributes(parameters)
-        self.tf_modules =  self.paramHelper.getTfModules(parameters)
+        self.tf_modules = self.paramHelper.getTfModules(parameters)
 
         ### create_work_file_paths
         self._create_work_file_paths()
 
-
         print("########## final parameters ########## ")
         parameters_cur = vars(self)
         for key in parameters_cur:
-            print("final parameters:", key, "=",getattr(self, key))
+            print("final parameters:", key, "=", getattr(self, key))
         # print(parameters_cur)
         print("########## final parameters ########## ")
         return parameters
@@ -78,11 +77,11 @@ class ParamBase:
     def _create_work_file_paths(self):
         params = self
         self.file_utils = TfFileUtils(self)
-        if self.import_name is None: # use self.import_name for debug
+        if self.import_name is None:  # use self.import_name for debug
             now = datetime.datetime.now()
             now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
             self.import_name = "{0}-{1}".format(self.provider, now_str)
-        self.parameters_default = self.default_params  #self.file_utils.load_json_file(self.default_params_path)
+        self.parameters_default = self.default_params  # self.file_utils.load_json_file(self.default_params_path)
         if self.parameters_default["temp_folder"] == self.temp_folder:
             self.temp_folder = os.path.join(self.temp_folder, self.tenant_name, self.import_name)
             self.zip_folder = os.path.join(self.temp_folder, "zip")
@@ -92,10 +91,10 @@ class ParamBase:
         self.zip_folder_path = self.zip_folder
 
     def _check_required_fields(self, required_fields):
-        parameters = vars(self )
+        parameters = vars(self)
         self.paramHelper.validate_required_fields(parameters, required_fields)
 
-    def infer_import_module(self, parsed_args ):
+    def infer_import_module(self, parsed_args):
         #
         default_import_module = 'infra'
         if 'default_import_module' in self.default_params.keys():
@@ -104,7 +103,7 @@ class ParamBase:
         tenant_name = parsed_args.tenant_name
         #
         if tenant_name is None:
-             import_module = default_import_module
+            import_module = default_import_module
         else:
             if tenant_name in ["all", "infra"]:
                 import_module = tenant_name
@@ -114,7 +113,7 @@ class ParamBase:
                 import_module = "tenant"
         parsed_args.import_module = import_module
 
-    def infer_import_module_azurerm(self, parsed_args ):
+    def infer_import_module_azurerm(self, parsed_args):
         if parsed_args.import_module in ["infra"]:
             parsed_args.tenant_name = parsed_args.infra_name
 

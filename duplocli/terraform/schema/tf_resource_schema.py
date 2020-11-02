@@ -1,22 +1,22 @@
 import json
 
 
-class TfResourceSchema :
-    def __init__(self,  tf_obj_name, tf_object):
-        self.tf_obj_name=tf_obj_name
-        self.tf_object=tf_object
-        #attributes
+class TfResourceSchema:
+    def __init__(self, tf_obj_name, tf_object):
+        self.tf_obj_name = tf_obj_name
+        self.tf_object = tf_object
+        # attributes
         self.non_computed = []
         self.computed = []
         self.optional = []
         self.required = []
         self.sensitive = []
-        #?
+        # ?
         self.all_attributes = []
         self.data_type = {}
         # nested hash-table
-        self.nested_block  = {}
-        self.spec= {"nesting_mode": ""}
+        self.nested_block = {}
+        self.spec = {"nesting_mode": ""}
         self.nested = []
 
     def __str__(self):
@@ -36,7 +36,7 @@ class TfResourceSchema :
         tf.spec = self.spec
         tf.nested = self.nested
         tf.nested_block = self.nested_block
-        return  tf
+        return tf
 
     def update_nested(self):
         self.nested = []

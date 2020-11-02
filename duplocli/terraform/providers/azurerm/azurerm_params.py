@@ -1,7 +1,8 @@
 from duplocli.terraform.params.param_base import ParamBase
 from duplocli.terraform.params.arg_parse import ArgParse, TfModule
 
-class AzurermParams(ParamBase) :
+
+class AzurermParams(ParamBase):
     provider = "azurerm"
     attr_names = ["tenant_name",
                   "import_module",
@@ -19,6 +20,7 @@ class AzurermParams(ParamBase) :
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
 
+        # defaults
         "tenant_name": "infra",
         "import_module": "infra",
         "default_import_module": "infra",
@@ -26,22 +28,19 @@ class AzurermParams(ParamBase) :
         "state_file": None,
         "zip_file_path": None,
 
-        "download_aws_keys": "no",
+        "download_aws_keys": "no",  # should not be part of export, but it could be a separate cmd.
         "url": "all",
         "tenant_id": "all",
         "api_token": "all",
 
         "is_tenant_id_needed": False,
-        "import_module": "tenant",
         "aws_region": "us-west-2",
         "provider": "azurerm"
 
     }
 
-
     def __init__(self):
-        super(AzurermParams, self).__init__(self.provider, self.attr_names, self.default_parameters )
-
+        super(AzurermParams, self).__init__(self.provider, self.attr_names, self.default_parameters)
 
     def validate(self):
         super().validate()
@@ -52,4 +51,3 @@ class AzurermParams(ParamBase) :
         # else:
         #     required_fields = ["tenant_name", "aws_region"]
         # self._check_required_fields(required_fields)
-

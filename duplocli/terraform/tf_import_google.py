@@ -1,6 +1,7 @@
 import sys
-sys.path.insert(0,'..')
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, '..')
+sys.path.insert(0, '../..')
 
 from duplocli.terraform.providers.google.google_params import GoogleParams
 from duplocli.terraform.providers.google.tf_steps import GoogleTfSteps
@@ -10,6 +11,7 @@ from duplocli.terraform.providers.google.tf_steps import GoogleTfSteps
 def main(params):
     tenant = AwsTfSteps(params)
     tenant.execute()
+
 
 if __name__ == '__main__':
     params_resovler = AwsParams()

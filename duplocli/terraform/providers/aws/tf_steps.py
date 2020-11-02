@@ -11,15 +11,16 @@ from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolder
 
 import os
 
+
 class AwsTfSteps:
-    disable_step1 = False #False
-    disable_step2 = False #True
+    disable_step1 = False  # False
+    disable_step2 = False  # True
     disable_step3 = True
+
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
         self.params = params
-
 
     ######## modules == tenant, infra or all customer objects ######
 
@@ -31,7 +32,7 @@ class AwsTfSteps:
             self._module_execute(module)
         ### post execute
         self.post_execute()
-        return  [ self.params.temp_folder , self.params.import_name, self.params.zip_file_path+".zip"]
+        return [self.params.temp_folder, self.params.import_name, self.params.zip_file_path + ".zip"]
 
     ######### _module_execute ######
 
@@ -41,7 +42,6 @@ class AwsTfSteps:
         self._step2_tf_main()
         self._step3_tf_vars_extract()
 
-
     ######### steps ######
 
     def _step1_tf_state(self):
@@ -50,17 +50,17 @@ class AwsTfSteps:
         self.params.set_step("step1")
         print("\n")
         print(self.file_utils.stage_prefix(), "step1_tf_state")
-        #step1
+        # step1
         api = self._api()
         if self.params.module == 'infra':
-            #cloud_resources = api.get_infra_resources()
+            # cloud_resources = api.get_infra_resources()
             cloud_resources = api.get_all_resources()
         elif self.params.module == 'all':
             cloud_resources = api.get_all_resources()
         else:
             cloud_resources = api.get_tenant_resources()
-        #step2
-        #print(cloud_resources)
+        # step2
+        # print(cloud_resources)
         self.step1 = self._init_step1()
         self.step1.execute(cloud_resources)
         # download_aws_keys
@@ -73,7 +73,6 @@ class AwsTfSteps:
                 self.step1.download_key(tenant_key_pairs)
         print(" ====== execute_infra_step1 ====== DONE\n")
 
-
     def _step2_tf_main(self):
         if self.disable_step2:
             return
@@ -83,7 +82,7 @@ class AwsTfSteps:
         self.step2.execute()
         print("temp_folder  ***** ", self.params.temp_folder)
         print("import_name  ***** ", self.params.import_name)
-        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path+".zip"))
+        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
         print(" ====== execute_step2 ====== DONE\n")
 
     def _step3_tf_vars_extract(self):
@@ -97,10 +96,9 @@ class AwsTfSteps:
         print("import_name  ***** ", self.params.import_name)
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
         print(" ====== execute_step3 ====== DONE\n")
-        #AwsTfVarsExtract
+        # AwsTfVarsExtract
+
     ############# ######
-
-
 
     ############# ######
     def pre_execute(self):
@@ -142,7 +140,6 @@ class AwsTfSteps:
         self.step3 = AwsTfVarsExtract(self.params)
         return self.step3
 
-
     ######################
 
     def _backup(self):
@@ -158,8 +155,7 @@ class AwsTfSteps:
             eackupImportFolders = BackupImportFolders(self.params, backup_settings_json=backup_settings_json)
             eackupImportFolders.backup_folders()
         except Exception as e:
-            print("ERROR:Steps:","backup", e)
-
+            print("ERROR:Steps:", "backup", e)
 
     def _get_backup_settings_json(self):
         json_file = "backup_settings.json"
@@ -179,6 +175,7 @@ class AwsTfSteps:
                                          self.file_utils.final_folder(),
                                          self.file_utils.zip_folder(),
                                          copy_files)
+
     ############
 
     ###############

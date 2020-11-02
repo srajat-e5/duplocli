@@ -13,4 +13,3 @@ class GoogleResources:
 
     def get_infra_resources(self):
         return self.tf_cloud_obj_list
-

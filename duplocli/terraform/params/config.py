@@ -6,7 +6,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 # app params for all providers = aws/azure
 # import_name zip_file_name
-#import_module import_module
+# import_module import_module
 arg_params = {
     "import_module": {"short_name": "m", "disc": "import_module=infra, tenant, tenant_list, all. default is tenant,"},
     "import_name": {"short_name": "i", "disc": "zip file path to save imported terraform files in zip format "},
@@ -14,7 +14,8 @@ arg_params = {
     "download_aws_keys": {"short_name": "k", "disc": "Aws keypair=yes/no, private key used for ssh into EC2 servers"},
     "tenant_name": {"short_name": "n", "disc": "Tenant Name(s) comma separated e.g. webdev or  webdev,website,default"},
     "infra_name": {"short_name": "s", "disc": "Infra Name(s)"},
-    "tenant_id": {"short_name": "t", "disc": "TenantId(s) comma separated e.g.  xxxxxx,yyy,97a833a4-2662-4e9c-9867-222565ec5cb6"},
+    "tenant_id": {"short_name": "t",
+                  "disc": "TenantId(s) comma separated e.g.  xxxxxx,yyy,97a833a4-2662-4e9c-9867-222565ec5cb6"},
     "api_token": {"short_name": "a", "disc": "Duplo API Token. API Token must be with admin rights for multi-tenant."},
     "url": {"short_name": "u", "disc": "Duplo URL  e.g. https://msp.duplocloud.net"},
     "params_json_file_path": {"short_name": "j", "disc": "All params passed as single JSON file."},
@@ -26,8 +27,7 @@ arg_params = {
 ####################### params #############################################################
 ####################### params #############################################################
 
-def get_help(attr_names , provider):
-
+def get_help(attr_names, provider):
     help_str = []
     help_str.append("Terraform provider: " + provider)
     help_str.append("")

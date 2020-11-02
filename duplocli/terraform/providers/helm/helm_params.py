@@ -1,7 +1,8 @@
 from duplocli.terraform.params.param_base import ParamBase
 from duplocli.terraform.params.arg_parse import ArgParse, TfModule
 
-class HelmParams(ParamBase) :
+
+class HelmParams(ParamBase):
     provider = "aws"
     attr_names = ["tenant_name",
                   "import_module",
@@ -32,16 +33,14 @@ class HelmParams(ParamBase) :
         "import_module": "tenant"
     }
 
-
     def __init__(self):
-        super(HelmParams, self).__init__(self.provider, self.attr_names, self.default_parameters )
+        super(HelmParams, self).__init__(self.provider, self.attr_names, self.default_parameters)
 
     def validate(self):
         super().validate()
         # validate params
         if self.import_module in ["infra", "all"]:
-            pass #required_fields = ["aws_region"]
+            pass  # required_fields = ["aws_region"]
         else:
             required_fields = ["tenant_name", "aws_region"]
         self._check_required_fields(required_fields)
-

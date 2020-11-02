@@ -38122,7 +38122,6 @@
                                 "sse_s3": {
                                   "nesting_mode": "list",
                                   "block": {
-
                                   },
                                   "max_items": 1
                                 }
