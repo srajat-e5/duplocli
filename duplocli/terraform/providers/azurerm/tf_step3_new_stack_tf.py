@@ -23,6 +23,11 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
         self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
 
+    def _save_files(self, folder):
+        self.file_utils.save_to_json( self.file_utils.tf_resources_file(), self.resources_dict )
+        self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
+        self.file_utils.file_save_as_text(self.file_utils.tf_main_file(), self.main_tf_text)
+
     def execute(self):
         # copy step2 main file
         # copy resources file
@@ -92,3 +97,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             self._update_resource_for_id(self, resources_id)
             resource = self.resources_by_id_dict[resources_id]
             self._replace_id_with_reference(resource)
+        #save resources and tf
+        #todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
+        self._save_files()
+
