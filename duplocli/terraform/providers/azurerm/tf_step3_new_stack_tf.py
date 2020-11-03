@@ -9,10 +9,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     is_allow_none = True
 
     states_dict = {}
-    main_tf_dict = {}
     resources_dict = {}
+
     main_tf_text = ""
-    main_tf_json = {}
+    main_tf_dict = {}
 
     resources_by_id_dict = {}
     states_by_id_dict = {}
@@ -24,6 +24,15 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
 
+
+    def execute(self):
+        # simple json manipulation to extract variables and dependency id replacement
+        self._load_files()
+        self._tf_resources()
+        self._save_files("")
+        return self.file_utils.tf_main_file()
+
+    ##### helper load and save files ##############
     def _load_files(self):
         self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step2")
         self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
@@ -32,38 +41,22 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         if not self.file_utils.file_exists(self.state_read_from_file):
             raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
         self.states_dict = self.file_utils.load_json_file(self.state_read_from_file)
-        self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)
+        # self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)
         self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
         self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
 
     def _save_files(self, folder):
         self.file_utils.save_to_json( self.file_utils.tf_resources_file(), self.resources_dict )
         self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
-        self.file_utils.file_save_as_text(self.file_utils.tf_main_file(), self.main_tf_text)
+        self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
+        # self.file_utils.file_save_as_text(self.file_utils.tf_main_file(), self.main_tf_text)
 
-    def execute(self):
-        # simple json manipulation to extract variables and dependency id replacement
-        # copy step2 main file
-        # copy resources file
-        # add new fields- new name, replace id with json interpolation
-        self._load_files()
-        self._tf_resources()
-        self._save_files("")
-        return self.file_utils.tf_main_file()
-
-    ##### manage files and state ##############
+    ##### helper for parameterization resources and state dict ##############
     def _resources_by_id_dict(self):
         # self.resources_by_id_dict = {}
         for duplo_resource in self.resources_dict:
             self.resources_by_id_dict[duplo_resource["tf_import_id"]] = duplo_resource
         return self.resources_by_id_dict
-
-    def _unique_variable_name_list(self, resource_type, field_name, value):
-        while(True):
-            variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-            if variable_name not in self.unique_variable_name_list:
-                self.unique_variable_name_list[variable_name] = value
-                return variable_name
 
     def _states_by_id_dict(self):
         # self.states_by_id_dict = {}
@@ -82,29 +75,56 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
         return self.states_by_id_dict
 
+    ###### resource_groups name and location parameterization #############
+    def _unique_variable_name(self, resource_type, field_name, value):
+        while(True):
+            variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+            if variable_name not in self.unique_variable_name_list:
+                self.unique_variable_name_list[variable_name] = value
+                return variable_name
+
     def _unique_resource_groups_dict(self):
         # self.unique_resource_groups_dict={}
         for resource in self.states_by_id_dict:
             try:
                 location = resource["location"]
                 resource_group_name = resource["resource_group_name"]
-                unique_resource_group_name = "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-                self.unique_resource_groups_dict[resource_group_name] = {"location":location, "resource_group_name":resource_group_name, "variable_name":unique_resource_group_name}
+                unique_resource_group_name = self._unique_variable_name("resource_group", resource_group_name,resource_group_name )
+                unique_resource_group_location = self._unique_variable_name("resource_group", resource_group_name+"_location",
+                                                                        location)
+                self.unique_resource_groups_dict[resource_group_name] = {"location":location,
+                                                                         "resource_group_name":resource_group_name,
+                                                                         "var_resource_group_name":unique_resource_group_name,
+                                                                         "var_resource_group_location": unique_resource_group_location,
+                                                                         }
             except Exception as e:
                 print("ERROR:AzurermTfStep3NewStack:", "_unique_resource_groups_dict", e)
         return self.states_by_id_dict
 
+    def _replace_resource_group_with_variable(self):
+        resource_types = self.main_tf_dict["resource"]
+        for resource_type in resource_types:
+            resources = resource_types[resource_type]
+            for resource_key in resources:
+                resource = resources[resource_key]
+                resource_group_name = resource["resource_group_name"]
+                resource_group = self.unique_resource_groups_dict[resource_group_name]
+                resource["resource_group_name"] = "\"${var." + resource_group["var_resource_group_name"] +"}\""
+                resource["location"] = "\"${var." + resource_group["var_resource_group_location"] +"}\""
+
+    ###### resource_groups name and location parameterization #############
+
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _create_unique_tf_variable(self,):
-        self.main_tf_json = json.loads(self.main_tf_text)
-        resource_types = self.main_tf_json["resource"]
+        resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
                 resource  = resources[resource_key]
                 print(resource_key)
+
     def _create_vars(self):
-        self.main_tf_json = json.loads(self.main_tf_text)
-        resource_types = self.main_tf_json["resource"]
+        resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
@@ -116,6 +136,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         #assign variable for resource_group_name, location, add to variables dict if does not exits already
         #Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
 
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
     ############
 
@@ -144,8 +165,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         #interpolation_id= "${azurerm_resource_group.tfduplosvs-aztf7.name}"
         #TODO:  if id contains '$' or '}' ?
         interpolation_id = "${"+tf_resource_type+"."+tf_variable_id_new+".id}"
-
-
         resource["interpolation_id"] = interpolation_id
         # self.resources_by_id_dict[tf_import_id]=resource
         return resource
@@ -200,6 +219,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 except Exception as e:
                     print("ERROR:AzurermTfStep3NewStack:text", "_tf_resources",resources_id, e)
 
+            ### extract resource group into vars
+            self.main_tf_dict = json.loads(self.main_tf_text)
+            self._replace_resource_group_with_variable()
+            ### extract missing infra or object ids into vars
             self._create_vars()
 
             print("DONE")
