@@ -436,6 +436,8 @@ class AzurermResources:
                         if self.should_import_resource_type(res):
                             self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                    tf_import_id=res.id, skip_if_exists=True)
+                            self._tf_cloud_resource_group(res.id, "azurerm_resource_group", instance)
+
                         else:
                             print("========ABORT 1 SKIPPED", res.type_name, "===", res.id)
                     else:
@@ -452,6 +454,16 @@ class AzurermResources:
         print("unique_unsupported_resouces", len(self.unique_unsupported_resouces), self.unique_unsupported_resouces)
         print("======================================================\n\n\n")
         return arrAzureResources
+
+    def _tf_cloud_resource_group(self, tf_import_id, type_name, tf_cloud_obj):
+        tf_import_id_arr = tf_import_id.split("/")
+        new_id_arr = tf_import_id_arr[1:5]
+        res_name = tf_import_id_arr[4]
+        new_id_temp= "/".join(new_id_arr)
+        tf_import_id_new =  "/{0}".format(new_id_temp)
+        self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
+                               tf_import_id=tf_import_id_new, skip_if_exists=True)
+
 
 #
 #
