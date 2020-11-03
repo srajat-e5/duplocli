@@ -16,8 +16,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     resources_by_id_dict = {}
     states_by_id_dict = {}
-    unique_resource_groups_dict = {}
+    unique_variable_name_list = {}
 
+    variables_dict = {}
+    unique_resource_group_names=[]
     def __init__(self, params):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
@@ -56,6 +58,13 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             self.resources_by_id_dict[duplo_resource["tf_import_id"]] = duplo_resource
         return self.resources_by_id_dict
 
+    def _unique_variable_name_list(self, resource_type, field_name, value):
+        while(True):
+            variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+            if variable_name not in self.unique_variable_name_list:
+                self.unique_variable_name_list[variable_name] = value
+                return variable_name
+
     def _states_by_id_dict(self):
         # self.states_by_id_dict = {}
         if "resources" in self.states_dict:
@@ -79,12 +88,20 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             try:
                 location = resource["location"]
                 resource_group_name = resource["resource_group_name"]
-                self.unique_resource_groups_dict[resource_group_name] = {"location":location, "resource_group_name":resource_group_name}
+                unique_resource_group_name = "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+                self.unique_resource_groups_dict[resource_group_name] = {"location":location, "resource_group_name":resource_group_name, "variable_name":unique_resource_group_name}
             except Exception as e:
-                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
+                print("ERROR:AzurermTfStep3NewStack:", "_unique_resource_groups_dict", e)
         return self.states_by_id_dict
 
-
+    def _create_unique_tf_variable(self,):
+        self.main_tf_json = json.loads(self.main_tf_text)
+        resource_types = self.main_tf_json["resource"]
+        for resource_type in resource_types:
+            resources = resource_types[resource_type]
+            for resource_key in resources:
+                resource  = resources[resource_key]
+                print(resource_key)
     def _create_vars(self):
         self.main_tf_json = json.loads(self.main_tf_text)
         resource_types = self.main_tf_json["resource"]
