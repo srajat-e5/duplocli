@@ -16,7 +16,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     resources_by_id_dict = {}
     states_by_id_dict = {}
-    unique_variable_name_list = {}
+    variable_list = {}
 
     variables_dict = {}
     unique_resource_groups_dict={}
@@ -90,6 +90,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
         self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
         # self.file_utils.file_save_as_text(self.file_utils.tf_main_file(), self.main_tf_text)
+        self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list)
 
     ##### helper for parameterization resources and state dict ##############
     def _resources_by_id_dict(self):
@@ -139,16 +140,16 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     while (True):
                         index = index + 1
                         variable_name = "resource_group_name_{0}_{1}".format(resource_group_name, index)  # "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-                        if variable_name not in self.unique_variable_name_list:
-                            unique_resource_group_name =    "resource_group_name_{0}_{1}".format(resource_group_name, index)
-                            unique_resource_group_location = "resource_group_location_{0}_{1}".format(resource_group_name, index)
+                        if variable_name not in self.variable_list:
+                            unique_resource_group_name =    "resource_group_{1}_name_{0}".format(resource_group_name, index)
+                            unique_resource_group_location = "resource_group_{1}_location_{0}".format(resource_group_name, index)
                             resouce_vars={"location":location, "resource_group_name":resource_group_name,
                                            "var_resource_group_name":unique_resource_group_name,
                                           "var_resource_group_location": unique_resource_group_location
                                          }
                             self.unique_resource_groups_dict[resource_group_name] = resouce_vars
-                            self.unique_variable_name_list[unique_resource_group_name] = resource_group_name
-                            self.unique_variable_name_list[unique_resource_group_location] = location
+                            self.variable_list[unique_resource_group_name] = resource_group_name
+                            self.variable_list[unique_resource_group_location] = location
 
                             break
             except Exception as e:
