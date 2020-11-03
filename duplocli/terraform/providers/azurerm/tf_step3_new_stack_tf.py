@@ -171,13 +171,13 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ###### resource_groups name and location parameterization #############
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-    def _create_unique_tf_variable(self,):
-        resource_types = self.main_tf_dict["resource"]
-        for resource_type in resource_types:
-            resources = resource_types[resource_type]
-            for resource_key in resources:
-                resource  = resources[resource_key]
-                print(resource_key)
+    # def _create_unique_tf_variable(self,):
+    #     resource_types = self.main_tf_dict["resource"]
+    #     for resource_type in resource_types:
+    #         resources = resource_types[resource_type]
+    #         for resource_key in resources:
+    #             resource  = resources[resource_key]
+    #             print(resource_key)
 
     def _create_vars(self):
         resource_types = self.main_tf_dict["resource"]
@@ -187,10 +187,42 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 resource  = resources[resource_key]
                 print(resource_key)
 
-    def _create_var(self, resource):
-        pass
-        #assign variable for resource_group_name, location, add to variables dict if does not exits already
-        #Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
+    def _create_var_for_dep_ids(self, resource):
+        # assign variable for resource_group_name, location, add to variables dict if does not exits already
+        # Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
+        for attribute_name, attribute in resource.items():
+            try:
+                if isinstance(attribute, dict):
+                    self._process_dict(resource, attribute_name, attribute)
+                elif isinstance(attribute, list):
+                    for nested_item in attribute:
+                        if isinstance(nested_item, dict):
+                            self._process_dict(resource, attribute_name, nested_item)
+                        else:
+                            # self.set_value_cout(nested_count, is_computed, parent_set, tf_resource_type,
+                            #                     tf_resource_var_name, nested_item, attribute_name)
+                            # resource_obj_dict.append(nested_item)
+                            pass
+            except Exception as e:
+                print("ERROR:Step2:", "_create_var", e)
+
+    def _process_dict(self, resource, nested_atr_name, nested_atr):
+        for attribute_name, attribute in nested_atr.items():
+            try:
+                if isinstance(attribute, list):
+                    for nested_item in attribute:
+                        if isinstance(nested_item, dict):
+                            self._process_dict(resource, nested_atr_name, nested_item)
+                        elif isinstance(nested_item, list):
+                            print("WARN:", self.file_utils.stage_prefix(),
+                                  " _process_nested  is list list nested list ???? ", nested_atr_name)
+                        else:
+                            pass
+                else:
+                    pass
+            except Exception as e:
+                print("ERROR:Step2:", "_process_dict", e)
+
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
@@ -209,7 +241,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         tf_resource_type = resource["tf_resource_type"]
         tf_variable_id = resource["tf_variable_id"]
         tf_import_id = resource["tf_import_id"]
-
 
         # must be unique for new terraform for global's like s3 or azure storage?
         if "tf_variable_id_new" not in resource:
