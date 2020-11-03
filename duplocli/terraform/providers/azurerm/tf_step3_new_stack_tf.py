@@ -157,11 +157,14 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         return self.unique_resource_groups_dict
 
     def _replace_resource_group_with_variable(self):
+        #TODO: re-define after including resouece in main.tf file
         resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
                 resource = resources[resource_key]
+                if resource["resource_group_name"] is not None:
+                    return  #TODO:
                 resource_group_name = resource["resource_group_name"]
                 resource_group = self.unique_resource_groups_dict[resource_group_name]
                 resource["resource_group_name"] = "${var." + resource_group["var_resource_group_name"] +"}"
@@ -171,13 +174,11 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ###### resource_groups name and location parameterization #############
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-    # def _create_unique_tf_variable(self,):
-    #     resource_types = self.main_tf_dict["resource"]
-    #     for resource_type in resource_types:
-    #         resources = resource_types[resource_type]
-    #         for resource_key in resources:
-    #             resource  = resources[resource_key]
-    #             print(resource_key)
+    def _get_unique_tf_variable(self,attribute, nested_atr_name, value):
+        if value is not None and value.startswith("/subscriptions/"):
+            print( nested_atr_name, value)
+            pass
+        return value
 
     def _create_vars(self):
         resource_types = self.main_tf_dict["resource"]
@@ -185,41 +186,43 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             resources = resource_types[resource_type]
             for resource_key in resources:
                 resource  = resources[resource_key]
-                print(resource_key)
+                self._create_var_for_dep_ids(resource)
+
 
     def _create_var_for_dep_ids(self, resource):
         # assign variable for resource_group_name, location, add to variables dict if does not exits already
         # Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
+        resource_obj_parent = resource
         for attribute_name, attribute in resource.items():
             try:
                 if isinstance(attribute, dict):
-                    self._process_dict(resource, attribute_name, attribute)
+                    self._process_dict(resource_obj_parent, attribute_name, attribute)
                 elif isinstance(attribute, list):
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._process_dict(resource, attribute_name, nested_item)
+                            self._process_dict(attribute, attribute_name, nested_item)
                         else:
                             # self.set_value_cout(nested_count, is_computed, parent_set, tf_resource_type,
                             #                     tf_resource_var_name, nested_item, attribute_name)
                             # resource_obj_dict.append(nested_item)
-                            pass
+                            self._get_unique_tf_variable(attribute, attribute_name, nested_item)
+                else:
+                    self._get_unique_tf_variable(resource_obj_parent, attribute_name, attribute)
+
             except Exception as e:
                 print("ERROR:Step2:", "_create_var", e)
 
-    def _process_dict(self, resource, nested_atr_name, nested_atr):
+    def _process_dict(self, resource_obj_parent, nested_atr_name, nested_atr):
         for attribute_name, attribute in nested_atr.items():
             try:
                 if isinstance(attribute, list):
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._process_dict(resource, nested_atr_name, nested_item)
-                        elif isinstance(nested_item, list):
-                            print("WARN:", self.file_utils.stage_prefix(),
-                                  " _process_nested  is list list nested list ???? ", nested_atr_name)
+                            self._process_dict(attribute, nested_atr_name, nested_item)
                         else:
-                            pass
+                             self._get_unique_tf_variable(attribute, nested_atr_name, nested_item)
                 else:
-                    pass
+                    self._get_unique_tf_variable(nested_atr, attribute_name, attribute)
             except Exception as e:
                 print("ERROR:Step2:", "_process_dict", e)
 

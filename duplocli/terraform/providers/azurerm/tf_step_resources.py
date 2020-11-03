@@ -235,7 +235,7 @@ class AzurermResources:
         # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
-        tf_resource_var_name = tf_resource_var_name.strip()
+        tf_resource_var_name = tf_resource_var_name.lower().strip()
         tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-").replace(" ", "-").replace("(",
                                                                                                                   "-").replace(
             ")", "-").replace("--", "-")
