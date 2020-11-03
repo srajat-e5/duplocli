@@ -94,10 +94,25 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         tf_import_id = resource["tf_import_id"]
         interpolation_id = resource["interpolation_id"]
         text = self.main_tf_text
-        text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
-        self.main_tf_text = text
+        index = self._has_id(tf_import_id)
 
-    ######  TfImportStep3 ################################################
+        if index >0:
+            print("DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
+            text = text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
+            text = text.replace( tf_import_id , interpolation_id )
+            self.main_tf_text = text
+            index = self._has_id(tf_import_id)
+            print("AFTE DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
+        else:
+            pass #print("DEP_NOT_FOUND:_replace_id_with_reference",   tf_import_id)
+    def _has_id(self, tf_import_id):
+        try:
+            return self.main_tf_text.index(tf_import_id)
+        except Exception as e:
+            pass
+         #print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
+        return -1
+        ######  TfImportStep3 ################################################
     def _tf_resources(self):
         try:
             self._resources_by_id_dict()
