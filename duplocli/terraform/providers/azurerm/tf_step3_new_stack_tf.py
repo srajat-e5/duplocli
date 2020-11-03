@@ -19,7 +19,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     unique_variable_name_list = {}
 
     variables_dict = {}
-    unique_resource_group_names=[]
+    unique_resource_groups_dict={}
     def __init__(self, params):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
@@ -31,6 +31,46 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self._tf_resources()
         self._save_files("")
         return self.file_utils.tf_main_file()
+
+    ######  TfImportStep3 ################################################
+
+    def _tf_resources(self):
+        try:
+            self._resources_by_id_dict()
+            self._states_by_id_dict()
+            self._unique_resource_groups_dict()
+
+            # create unique names for storage
+            # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
+            # ie. simple json interpolation  referenced-id replacement in main tf
+            # also create resource, and simple json interpolation location and resource-id replacement in main tf
+
+            keys = self.resources_by_id_dict.keys()
+            for resources_id in keys:
+                try:
+                    self._update_resource_for_id(resources_id)
+                except Exception as e:
+                    print("ERROR:AzurermTfStep3NewStack:res", "_tf_resources", resources_id, e)
+
+            for resources_id in self.resources_by_id_dict:
+                try:
+                    resource = self.resources_by_id_dict[resources_id]
+                    self._replace_id_with_reference(resource)
+                except Exception as e:
+                    print("ERROR:AzurermTfStep3NewStack:text", "_tf_resources", resources_id, e)
+
+            ### extract resource group into vars
+            self.main_tf_dict = json.loads(self.main_tf_text)
+            self._replace_resource_group_with_variable()
+            ### extract missing infra or object ids into vars
+            self._create_vars()
+
+            print("DONE")
+        except Exception as e:
+            print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
+        # save resources and tf
+        # todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
+        # self._save_files()
 
     ##### helper load and save files ##############
     def _load_files(self):
@@ -76,30 +116,44 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         return self.states_by_id_dict
 
     ###### resource_groups name and location parameterization #############
-    def _unique_variable_name(self, resource_type, field_name, value):
-        while(True):
-            variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-            if variable_name not in self.unique_variable_name_list:
-                self.unique_variable_name_list[variable_name] = value
-                return variable_name
+    # def _unique_resource_groups_variable_name(self, resource_type, field_name, value):
+    #     while(True):
+    #         variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+    #         if variable_name not in self.unique_variable_name_list:
+    #             self.unique_variable_name_list[variable_name] = value
+    #             return variable_name
 
     def _unique_resource_groups_dict(self):
         # self.unique_resource_groups_dict={}
-        for resource in self.states_by_id_dict:
+        index=0
+        for resource_key in self.states_by_id_dict:
             try:
-                location = resource["location"]
+                resource = self.states_by_id_dict[resource_key]
+                if "resource_group_name" not in resource:
+                    continue
+                location = None
+                if "location"   in resource:
+                    location = resource["location"]
                 resource_group_name = resource["resource_group_name"]
-                unique_resource_group_name = self._unique_variable_name("resource_group", resource_group_name,resource_group_name )
-                unique_resource_group_location = self._unique_variable_name("resource_group", resource_group_name+"_location",
-                                                                        location)
-                self.unique_resource_groups_dict[resource_group_name] = {"location":location,
-                                                                         "resource_group_name":resource_group_name,
-                                                                         "var_resource_group_name":unique_resource_group_name,
-                                                                         "var_resource_group_location": unique_resource_group_location,
-                                                                         }
+                if resource_group_name not in self.unique_resource_groups_dict:
+                    while (True):
+                        index = index + 1
+                        variable_name = "resource_group_name_{0}_{1}".format(resource_group_name, index)  # "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+                        if variable_name not in self.unique_variable_name_list:
+                            unique_resource_group_name =    "resource_group_name_{0}_{1}".format(resource_group_name, index)
+                            unique_resource_group_location = "resource_group_location_{0}_{1}".format(resource_group_name, index)
+                            resouce_vars={"location":location, "resource_group_name":resource_group_name,
+                                           "var_resource_group_name":unique_resource_group_name,
+                                          "var_resource_group_location": unique_resource_group_location
+                                         }
+                            self.unique_resource_groups_dict[resource_group_name] = resouce_vars
+                            self.unique_variable_name_list[unique_resource_group_name] = resource_group_name
+                            self.unique_variable_name_list[unique_resource_group_location] = location
+
+                            break
             except Exception as e:
                 print("ERROR:AzurermTfStep3NewStack:", "_unique_resource_groups_dict", e)
-        return self.states_by_id_dict
+        return self.unique_resource_groups_dict
 
     def _replace_resource_group_with_variable(self):
         resource_types = self.main_tf_dict["resource"]
@@ -109,8 +163,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 resource = resources[resource_key]
                 resource_group_name = resource["resource_group_name"]
                 resource_group = self.unique_resource_groups_dict[resource_group_name]
-                resource["resource_group_name"] = "\"${var." + resource_group["var_resource_group_name"] +"}\""
-                resource["location"] = "\"${var." + resource_group["var_resource_group_location"] +"}\""
+                resource["resource_group_name"] = "${var." + resource_group["var_resource_group_name"] +"}"
+                if resource["location"]  is not None:
+                    resource["location"] = "${var." + resource_group["var_resource_group_location"] +"}"
 
     ###### resource_groups name and location parameterization #############
 
@@ -193,42 +248,4 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
          #print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
         return -1
 
-        ######  TfImportStep3 ################################################
-    def _tf_resources(self):
-        try:
-            self._resources_by_id_dict()
-            self._states_by_id_dict()
-            self._unique_resource_groups_dict()
-
-            # create unique names for storage
-            # create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
-            # ie. simple json interpolation  referenced-id replacement in main tf
-            # also create resource, and simple json interpolation location and resource-id replacement in main tf
-
-            keys =  self.resources_by_id_dict.keys()
-            for resources_id in keys:
-                try:
-                    self._update_resource_for_id(resources_id)
-                except Exception as e:
-                    print("ERROR:AzurermTfStep3NewStack:res", "_tf_resources", resources_id, e)
-
-            for resources_id in self.resources_by_id_dict:
-                try:
-                    resource = self.resources_by_id_dict[resources_id]
-                    self._replace_id_with_reference(resource)
-                except Exception as e:
-                    print("ERROR:AzurermTfStep3NewStack:text", "_tf_resources",resources_id, e)
-
-            ### extract resource group into vars
-            self.main_tf_dict = json.loads(self.main_tf_text)
-            self._replace_resource_group_with_variable()
-            ### extract missing infra or object ids into vars
-            self._create_vars()
-
-            print("DONE")
-        except Exception as e:
-            print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
-        #save resources and tf
-        #todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
-        # self._save_files()
 
