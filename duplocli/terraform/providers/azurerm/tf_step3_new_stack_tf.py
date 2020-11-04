@@ -121,15 +121,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         return self.states_by_id_dict
 
     ###### resource_groups name and location parameterization #############
-    # def _unique_resource_groups_variable_name(self, resource_type, field_name, value):
-    #     while(True):
-    #         variable_name = "{0}_{1}_{2}".format( resource_type, field_name ,random.randint(1,99)) #"resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-    #         if variable_name not in self.unique_variable_name_list:
-    #             self.unique_variable_name_list[variable_name] = value
-    #             return variable_name
-
     def _unique_resource_groups_dict(self):
-        # self.unique_resource_groups_dict={}
         for resource_key in self.states_by_id_dict:
             try:
                 resource = self.states_by_id_dict[resource_key]
@@ -177,8 +169,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ###### resource_groups name and location parameterization #############
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-
-
     def _create_vars(self):
         resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
@@ -251,7 +241,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 else:
                     print(is_list, "@@@@NOT found ",nested_atr_name, value, attribute)
                 #print( nested_atr_name, value)
-                pass
         return value
 
     def _get_variable_id_for_dep_id(self, id):

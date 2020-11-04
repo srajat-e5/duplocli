@@ -93,17 +93,11 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     self._process_nested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name,
                                          attribute, resource_obj, schema)
                 elif isinstance(attribute, dict):
-                    # if is_computed:
-                    #     pass
-                    # else:
                     resource_obj_dict = {}
                     resource_obj[attribute_name] = resource_obj_dict
                     self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj_dict,
                                        attribute_name, attribute, None)
                 elif isinstance(attribute, list):
-                    # if is_computed:
-                    #     pass
-                    # el
                     if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
                         pass
                     elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
@@ -124,9 +118,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             else:
                                 resource_obj_dict.append(nested_item)
                     if len(resource_obj_dict) > 0:
-                        # if is_computed:
-                        #     pass
-                        # else:
                         resource_obj[attribute_name] = resource_obj_dict
                 elif is_optional or not is_computed:
                     if attribute_name == "id":
@@ -168,18 +159,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 }
         # set
         tf_resource_type_root[tf_resource_var_name] = resource_obj
-        # resource_obj = self._post_tf_resource(resource, tf_resource_type_root, tf_resource_var_name, resource_obj)
-
-    # def _post_tf_resource(self, resource, tf_resource_type_root,  tf_resource_var_name, resource_obj):
-    #     try:
-    #         nornd = "{}-{}".format(random.randint(11, 9999) , random.randint(11, 9999))
-    #         tf_resource_type = resource["type"]
-    #         if tf_resource_type in ['azurerm_storage_account', "azurerm_app_service", 'azurerm_container_group']:
-    #             resource_obj["name"] = "{0}-{1}".format(self.params.tenant_name.lower(), nornd)
-    #     except Exception as e:
-    #         print("ERROR:Step2:", "_tf_resource", e)
-    #     tf_resource_type_root[tf_resource_var_name] = resource_obj
-    #     return resource_obj
 
     def _process_dict(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj, nested_atr_name,
                       nested_atr, schema):
@@ -187,8 +166,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         # https://registry.terraform.io/modules/innovationnorway/sql-server/azurerm/latest
         for attribute_name, attribute in nested_atr.items():
             try:
-                # if tf_resource_type == "azurerm_container_group":
-                #     pass
                 if self._processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name,
                                          attribute, resource_obj, schema):
                     return
@@ -200,8 +177,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         pass  # skip
                     elif attribute == 0:
                         pass
-                    # if tf_resource_type == 'azurerm_route_table' and nested_atr_name == 'route' and attribute_name == 'next_hop_in_ip_address':
-                    #     pass
                     elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
                         resource_obj[attribute_name] = attribute
                     else:
@@ -224,10 +199,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             self._set_val(resource_obj, "source_address_prefix", "")
             self._set_val(resource_obj, "source_address_prefixes", [])
             self._set_val(resource_obj, "source_port_ranges", [])
-            # self._set_val(resource_obj, "source_port_range", "")
-        # if tf_resource_type == 'azurerm_virtual_machine' and nested_atr_name == 'identity':
-        #     self._set_val(resource_obj, "identity_ids", [{
-        #         "identity_ids": [] }])
         if tf_resource_type == 'azurerm_virtual_machine' and nested_atr_name == 'boot_diagnostics':
             self._set_val(resource_obj, "enabled", False)
             self._set_val(resource_obj, "storage_uri", "")

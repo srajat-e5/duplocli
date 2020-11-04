@@ -1,14 +1,7 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 import requests
 
-# aws_resources
-# [
-# {
-#     "tf_import_id": "duploservices-bigdata01",
-#     "tf_resource_type": "aws_iam_role",
-#     "tf_variable_id": "AROARKHYLTX2Z5RQWNRSM"
-# },
-# ]
+
 dummy_values = {
     "cidr_block": "0.0.0.0/0",
     "ipv6_cidr_block": "0.0.0.0/0"
