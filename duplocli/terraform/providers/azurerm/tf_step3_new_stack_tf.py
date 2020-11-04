@@ -20,6 +20,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     variables_dict = {}
     unique_resource_groups_dict={}
+    unique_dep_ids_dict={}
+
+    #variable index
+    index = 0
     def __init__(self, params):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
@@ -126,7 +130,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     def _unique_resource_groups_dict(self):
         # self.unique_resource_groups_dict={}
-        index=0
         for resource_key in self.states_by_id_dict:
             try:
                 resource = self.states_by_id_dict[resource_key]
@@ -138,11 +141,11 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 resource_group_name = resource["resource_group_name"]
                 if resource_group_name not in self.unique_resource_groups_dict:
                     while (True):
-                        index = index + 1
-                        variable_name = "resource_group_name_{0}_{1}".format(resource_group_name, index)  # "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
+                        self.index = self.index + 1
+                        variable_name = "resource_group_name_{0}_{1}".format(resource_group_name, self.index)  # "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
                         if variable_name not in self.variable_list:
-                            unique_resource_group_name =    "resource_group_{1}_name_{0}".format(resource_group_name, index)
-                            unique_resource_group_location = "resource_group_{1}_location_{0}".format(resource_group_name, index)
+                            unique_resource_group_name =    "resource_group_{1}_name_{0}".format(resource_group_name, self.index)
+                            unique_resource_group_location = "resource_group_{1}_location_{0}".format(resource_group_name, self.index)
                             resouce_vars={"location":location, "resource_group_name":resource_group_name,
                                            "var_resource_group_name":unique_resource_group_name,
                                           "var_resource_group_location": unique_resource_group_location
@@ -182,22 +185,21 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             resources = resource_types[resource_type]
             for resource_key in resources:
                 resource  = resources[resource_key]
-                self._create_var_for_dep_ids(resource)
+                self._process_resource_for_dep_ids(resource)
 
-
-    def _create_var_for_dep_ids(self, resource):
+    def _process_resource_for_dep_ids(self, resource):
         # assign variable for resource_group_name, location, add to variables dict if does not exits already
         # Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
         resource_obj_parent = resource
         for attribute_name, attribute in resource.items():
             try:
                 if isinstance(attribute, dict):
-                    self._process_dict(resource_obj_parent, attribute_name, attribute)
+                    self._process_resource_dict_for_dep_ids(resource_obj_parent, attribute_name, attribute)
                 elif isinstance(attribute, list):
                     is_string=False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._process_dict(attribute, attribute_name, nested_item)
+                            self._process_resource_dict_for_dep_ids(attribute, attribute_name, nested_item)
                         elif isinstance(nested_item, list):
                             print("isinstance(attribute, list):", "_process_dict", attribute_name)
                         else:
@@ -210,14 +212,14 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:", "_create_var", e)
 
-    def _process_dict(self, resource_obj_parent, nested_atr_name, nested_atr):
+    def _process_resource_dict_for_dep_ids(self, resource_obj_parent, nested_atr_name, nested_atr):
         for attribute_name, attribute in nested_atr.items():
             try:
                 if isinstance(attribute, list):
                     is_string = False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._process_dict(attribute, nested_atr_name, nested_item)
+                            self._process_resource_dict_for_dep_ids(attribute, nested_atr_name, nested_item)
                         elif isinstance(nested_item, list):
                             print("isinstance(attribute, list):", "_process_dict", nested_atr_name)
                         else:
@@ -234,17 +236,37 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             values = []
             for value_item in value:
                 if value_item is not None and "{0}".format(value_item).startswith("/subscriptions/"):
-                    print(is_list, "@@@@found ", nested_atr_name, value)
-
+                    # print(is_list, "@@@@found ", nested_atr_name, value)
+                    variable_id = self._get_variable_id_for_dep_id(value_item)
+                    values.append(variable_id)
+            attribute[nested_atr_name] = values
+            return values
         else:
             if value is not None and "{0}".format(value).startswith("/subscriptions/"):
                 if nested_atr_name in attribute:
-                    print(is_list, "@@@@found ",nested_atr_name, value )
+                    # print(is_list, "@@@@found ",nested_atr_name, value )
+                    variable_id = self._get_variable_id_for_dep_id(value)
+                    attribute[nested_atr_name] = variable_id
+                    return variable_id
                 else:
                     print(is_list, "@@@@NOT found ",nested_atr_name, value, attribute)
                 #print( nested_atr_name, value)
                 pass
         return value
+
+    def _get_variable_id_for_dep_id(self, id):
+        if id in self.unique_dep_ids_dict:
+            var_name_repl = self.unique_dep_ids_dict[id]
+        else:
+            id_arr = id.split("/")
+            len_arr= len(id_arr)
+            name = id_arr[len_arr-1]
+            self.index = self.index + 1
+            var_name = "variable_{0}_{1}".format(self.index, name)
+            var_name_repl = "${var." + var_name + "}"
+            self.variable_list[var_name] = id
+            self.unique_dep_ids_dict[id] = var_name_repl
+        return var_name_repl
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
     ############
@@ -281,21 +303,21 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         tf_import_id = resource["tf_import_id"]
         interpolation_id = resource["interpolation_id"]
         text = self.main_tf_text
-        index = self._has_id(tf_import_id)
+        self.index = self._has_id(tf_import_id)
 
-        if index >0:
-            print("DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
+        if self.index >0:
+            print("DEP_FOUND:_replace_id_with_reference", self.index, tf_import_id)
             text = text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
             #text = text.replace( tf_import_id , interpolation_id )
             self.main_tf_text = text
-            index = self._has_id(tf_import_id)
-            print("AFTE DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
+            self.index = self._has_id(tf_import_id)
+            print("AFTE DEP_FOUND:_replace_id_with_reference", self.index, tf_import_id)
         else:
             pass #print("DEP_NOT_FOUND:_replace_id_with_reference",   tf_import_id)
 
     def _has_id(self, tf_import_id):
         try:
-            return self.main_tf_text.index(tf_import_id+"\"")
+            return self.main_tf_text.self.index(tf_import_id+"\"")
         except Exception as e:
             pass
          #print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
