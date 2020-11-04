@@ -174,11 +174,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ###### resource_groups name and location parameterization #############
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-    def _get_unique_tf_variable(self,attribute, nested_atr_name, value):
-        if value is not None and value.startswith("/subscriptions/"):
-            print( nested_atr_name, value)
-            pass
-        return value
+
 
     def _create_vars(self):
         resource_types = self.main_tf_dict["resource"]
@@ -198,16 +194,18 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 if isinstance(attribute, dict):
                     self._process_dict(resource_obj_parent, attribute_name, attribute)
                 elif isinstance(attribute, list):
+                    is_string=False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
                             self._process_dict(attribute, attribute_name, nested_item)
+                        elif isinstance(nested_item, list):
+                            print("isinstance(attribute, list):", "_process_dict", attribute_name)
                         else:
-                            # self.set_value_cout(nested_count, is_computed, parent_set, tf_resource_type,
-                            #                     tf_resource_var_name, nested_item, attribute_name)
-                            # resource_obj_dict.append(nested_item)
-                            self._get_unique_tf_variable(attribute, attribute_name, nested_item)
+                            is_string = True
+                    if is_string:
+                        self._get_unique_tf_variable(attribute, attribute_name, nested_item,  True)
                 else:
-                    self._get_unique_tf_variable(resource_obj_parent, attribute_name, attribute)
+                    self._get_unique_tf_variable(resource_obj_parent, attribute_name, attribute, False)
 
             except Exception as e:
                 print("ERROR:Step2:", "_create_var", e)
@@ -216,17 +214,37 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         for attribute_name, attribute in nested_atr.items():
             try:
                 if isinstance(attribute, list):
+                    is_string = False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
                             self._process_dict(attribute, nested_atr_name, nested_item)
+                        elif isinstance(nested_item, list):
+                            print("isinstance(attribute, list):", "_process_dict", nested_atr_name)
                         else:
-                             self._get_unique_tf_variable(attribute, nested_atr_name, nested_item)
+                            is_string = True
+                    if is_string:
+                        self._get_unique_tf_variable(nested_atr, attribute_name, attribute, True)
                 else:
-                    self._get_unique_tf_variable(nested_atr, attribute_name, attribute)
+                    self._get_unique_tf_variable(nested_atr, attribute_name, attribute, False)
             except Exception as e:
                 print("ERROR:Step2:", "_process_dict", e)
 
+    def _get_unique_tf_variable(self, attribute, nested_atr_name, value, is_list ):
+        if is_list and isinstance(value, list) and nested_atr_name in attribute:
+            values = []
+            for value_item in value:
+                if value_item is not None and "{0}".format(value_item).startswith("/subscriptions/"):
+                    print(is_list, "@@@@found ", nested_atr_name, value)
 
+        else:
+            if value is not None and "{0}".format(value).startswith("/subscriptions/"):
+                if nested_atr_name in attribute:
+                    print(is_list, "@@@@found ",nested_atr_name, value )
+                else:
+                    print(is_list, "@@@@NOT found ",nested_atr_name, value, attribute)
+                #print( nested_atr_name, value)
+                pass
+        return value
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
     ############
@@ -268,7 +286,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         if index >0:
             print("DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
             text = text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
-            text = text.replace( tf_import_id , interpolation_id )
+            #text = text.replace( tf_import_id , interpolation_id )
             self.main_tf_text = text
             index = self._has_id(tf_import_id)
             print("AFTE DEP_FOUND:_replace_id_with_reference", index, tf_import_id)
@@ -277,7 +295,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     def _has_id(self, tf_import_id):
         try:
-            return self.main_tf_text.index(tf_import_id)
+            return self.main_tf_text.index(tf_import_id+"\"")
         except Exception as e:
             pass
          #print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
