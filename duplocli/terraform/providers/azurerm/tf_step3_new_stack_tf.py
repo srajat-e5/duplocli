@@ -54,6 +54,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     unique_resource_groups_dict = {}
     unique_dep_ids_dict = {}
 
+    #tenant_names
+    tenant_names_dict={}
+    #duploservices-azdemo1
     def __init__(self, params):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
@@ -97,15 +100,22 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
 
     ###### resource_groups name and location parameterization #############
+    def _encode_tenant(self, resource_group_name ):
+        if "duploservices-" in resource_group_name:
+            tenant_name = resource_group_name.replace( "duploservices-", "")
+            self.tenant_names_dict[tenant_name] = tenant_name
+            # "duploservices-azdemo1"
+
     def _interplation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
         try:
-            var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name, index)
-            var_res_grp_loc = "resource_group_{1}_location_{0}".format(resource_group_name, index)
+
+            var_res_grp_name = "resource_group_{0}_name".format(index)
+            var_res_grp_loc = "resource_group_{0}_location".format(index)
             self.variable_list_dict[var_res_grp_name] = resource_group_name
             self.variable_list_dict[var_res_grp_loc] = location
             # not needed if exists_in_import=False
-            interpolation_res_grp_id = "azurerm_resource_group.{0}.name".format(resource_group_name)
-            interpolation_res_grp_loc = "azurerm_resource_group.{0}.location".format(resource_group_name)
+            interpolation_res_grp_id = "azurerm_resource_group.{0}.name".format(index)
+            interpolation_res_grp_loc = "azurerm_resource_group.{0}.location".format(index)
             resource_group_vars = {
                 "location": location,
                 "resource_group_name": resource_group_name,
@@ -168,7 +178,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
              if "name" in resource:
                  name = resource["name"]
                  self.index = self.index + 1
-                 var_name = "{0}_{1}_name_{2}".format(resource_type, self.index,  resource_group_name)
+                 var_name = "{0}_{1}_name".format(resource_type, self.index)
                  self.variable_list_dict[var_name] = name
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
@@ -247,13 +257,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 # print( nested_atr_name, value)
         return value
 
-    def _has_id(self, tf_import_id):
-        try:
-            return self.main_tf_text.self.index(tf_import_id + "\"")
-        except Exception as e:
-            pass
-        # print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
-        return -1
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _get_variable_id_for_dep_id(self, id):
@@ -266,7 +269,15 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             len_arr = len(id_arr)
             name = id_arr[len_arr - 1]
             self.index = self.index + 1
-            var_name = "variable_{0}_{1}".format(self.index, name)
+            counter = 5
+            var_prefix_name = ""
+            while(True):
+                counter = counter + 2
+                if counter < len_arr:
+                    var_prefix_name = var_prefix_name +"_"+ id_arr[counter]
+                else:
+                    break
+            var_name = "variable_{0}{1}".format(self.index, var_prefix_name)
             var_name_repl = "${var." + var_name + "}"
             self.variable_list_dict[var_name] = id
             self.unique_dep_ids_dict[id] = var_name_repl
