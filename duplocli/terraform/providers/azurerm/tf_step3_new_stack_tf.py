@@ -81,36 +81,51 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
-                resource  = resources[resource_key]
-                self._parameterize_for_res_grp(resource_type, resource)
-                self._parameterize_res_for_dep_ids(resource_type, resource)
+                try:
+                    resource  = resources[resource_key]
 
+                    try:
+                        self._parameterize_for_res_grp(resource_type, resource)
+                    except Exception as e:
+                        print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
+
+                    try:
+                        self._parameterize_res_for_dep_ids(resource_type, resource)
+                    except Exception as e:
+                        print("ERROR:AzurermTfStep3NewStack:2", "_parameterize", e)
+
+                except Exception as e:
+                    print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
 
 
     ###### resource_groups name and location parameterization #############
     def _interplation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
-        var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name,index)
-        var_res_grp_loc = "resource_group_{1}_location_{0}".format(resource_group_name,index)
-        self.variable_list_dict[var_res_grp_name] = resource_group_name
-        self.variable_list_dict[var_res_grp_loc] = var_res_grp_loc
-        #not needed if exists_in_import=False
-        interpolation_res_grp_id = "azurerm_resource_group.{0}.id".format(resource_group_name)
-        interpolation_res_grp_loc  = "azurerm_resource_group.{0}.location".format(resource_group_name)
-        resource_group_vars = {
-            "location": location,
-            "resource_group_name": resource_group_name,
-            "index":  index,
-            "var_res_grp_name": var_res_grp_name,
-            "var_res_grp_loc": var_res_grp_loc,
-            "interpolation_res_grp_id": interpolation_res_grp_id,
-            "interpolation_res_grp_loc": interpolation_res_grp_loc,
-            "exists_in_import": exists_in_import
-        }
-        return resource_group_vars
+        try:
+            var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name, index)
+            var_res_grp_loc = "resource_group_{1}_location_{0}".format(resource_group_name,index)
+            self.variable_list_dict[var_res_grp_name] = resource_group_name
+            self.variable_list_dict[var_res_grp_loc] = var_res_grp_loc
+            #not needed if exists_in_import=False
+            interpolation_res_grp_id = "azurerm_resource_group.{0}.id".format(resource_group_name)
+            interpolation_res_grp_loc  = "azurerm_resource_group.{0}.location".format(resource_group_name)
+            resource_group_vars = {
+                "location": location,
+                "resource_group_name": resource_group_name,
+                "index":  index,
+                "var_res_grp_name": var_res_grp_name,
+                "var_res_grp_loc": var_res_grp_loc,
+                "interpolation_res_grp_id": interpolation_res_grp_id,
+                "interpolation_res_grp_loc": interpolation_res_grp_loc,
+                "exists_in_import": exists_in_import
+            }
+            return resource_group_vars
+        except Exception as e:
+            print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
+
 
     def _res_group_vars(self):
         resource_types = self.main_tf_dict["resource"]
-        res_groups_existing={}
+        self.res_groups={}
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
@@ -118,10 +133,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 if resource_type == "azurerm_resource_group":
                     location = resource["location"]
                     resource_group_name = resource["name"]
-                    if resource["name"] not in res_groups_existing:
+                    if resource_group_name not in self.res_groups:
                         self.index = self.index + 1
                         resource_group_vars = self._interplation_for_res_grp(self.index, resource_group_name, location, True)
-                        res_groups_existing[resource_group_name] = resource_group_vars
+                        self.res_groups[resource_group_name] = resource_group_vars
 
         for resource_type in resource_types:
             resources = resource_types[resource_type]
@@ -131,11 +146,11 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     if "resource_group_name"  in resource and  "location"  in resource:
                         location = resource["location"]
                         resource_group_name = resource["resource_group_name"]
-                        if resource_group_name not in res_groups_existing:
+                        if resource_group_name not in self.res_groups:
                             self.index = self.index + 1
-                            res_groups_existing = self._interplation_for_res_grp(self.index, resource_group_name, location, False)
-                            res_groups_existing[resource_group_name] = resource_group_vars
-        self.res_groups  = res_groups_existing
+                            resource_group_vars = self._interplation_for_res_grp(self.index, resource_group_name, location, False)
+                            self.res_groups[resource_group_name] = resource_group_vars
+
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _parameterize_for_res_grp(self, resource_type, resource):

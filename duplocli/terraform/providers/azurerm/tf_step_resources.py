@@ -388,7 +388,7 @@ class AzurermResources:
 
     def get_all_resources(self):
         print("\n\n\n======================================================")
-        self.DEBUG_EXPORT_ALL = False
+        self.DEBUG_EXPORT_ALL = False # False True
         if  self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:
