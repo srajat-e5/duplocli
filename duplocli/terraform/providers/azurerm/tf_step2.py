@@ -84,6 +84,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         if tf_resource_type == "azurerm_container_group":
             pass
+        if tf_resource_type == "azurerm_app_service":
+            pass
         for attribute_name, attribute in attributes.items():
             try:
                 is_nested = attribute_name in schema.nested
@@ -207,6 +209,28 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name, nested_atr,
                         resource_obj_parent, schema_nested):
         try:
+            if tf_resource_type == "azurerm_app_service":
+                #need values non empty as thery are optional + computed?
+                if nested_atr_name  == 'site_config':
+                    resource_obj_arr =[]
+                    for attribute_item in nested_atr:
+                        resource_obj = {}
+                        resource_obj_arr.append(resource_obj)
+                        for attribute_name, attribute in attribute_item.items():
+                            try:
+                               if attribute_name in ["app_command_line" ,  "auto_swap_slot_name" , "health_check_path" , "windows_fx_version" ]:
+                                   resource_obj[attribute_name] = attribute
+                               elif isinstance(attribute, str) :
+                                   if (attribute != "" and attribute is not None):
+                                       resource_obj[attribute_name] = attribute
+                               else:
+                                   resource_obj[attribute_name] = attribute
+                            except Exception as e:
+                             print("ERROR:Step2:", "site_config", e)
+                    resource_obj_parent[nested_atr_name] = resource_obj_arr
+                    return
+
+
             nested_count = nested_count_parent + 1
             schema = schema_nested.nested_block[nested_atr_name]
             if isinstance(nested_atr, dict):
