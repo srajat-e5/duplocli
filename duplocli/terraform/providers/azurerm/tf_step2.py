@@ -36,7 +36,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             try:
                 self._tf_resource(resource)
             except Exception as e:
-                print("ERROR:Step2:", "_tf_resources", e)
+                print("ERROR:Step2:", "_tf_resources", e, resource)
 
         return self.main_tf_json_dict
 
@@ -151,12 +151,13 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         if tf_resource_type in ['azurerm_container_group']:
             if not "ip_address_type" in resource_obj or resource_obj["ip_address_type"] is None:
                 resource_obj["ip_address_type"] = "Public"
-            container = resource_obj["container"]
-            if not "ports" in container:
-                container["ports"] = {
-                    "port": 80,  # 443
-                    "protocol": "TCP"
-                }
+            containers = resource_obj["container"]
+            for container in containers:
+                if not "ports" in container:
+                    container["ports"] = {
+                        "port": 80,  # 443
+                        "protocol": "TCP"
+                    }
         # set
         tf_resource_type_root[tf_resource_var_name] = resource_obj
 
