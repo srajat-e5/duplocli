@@ -215,7 +215,6 @@ class AzurermResources:
     def get_tenant_key_pair_list(self):
         return None
 
-
     ########### helpers ###########
 
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
@@ -232,8 +231,8 @@ class AzurermResources:
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_resource_var_name = tf_resource_var_name.lower().strip()
-        tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-").\
-                                replace(" ", "-").replace("(",  "-").replace(")", "-").replace("--", "-")
+        tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-"). \
+            replace(" ", "-").replace("(", "-").replace(")", "-").replace("--", "-")
         tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
 
         if tf_id in self.resources_unique_ids:
@@ -388,8 +387,8 @@ class AzurermResources:
 
     def get_all_resources(self):
         print("\n\n\n======================================================")
-        self.DEBUG_EXPORT_ALL = False # False True
-        if  self.DEBUG_EXPORT_ALL:
+        self.DEBUG_EXPORT_ALL = False  # False True
+        if self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:
             self.tenant_resource_debug()
@@ -452,8 +451,7 @@ class AzurermResources:
         tf_import_id_arr = tf_import_id.split("/")
         new_id_arr = tf_import_id_arr[1:5]
         res_name = tf_import_id_arr[4]
-        new_id_temp= "/".join(new_id_arr)
-        tf_import_id_new =  "/{0}".format(new_id_temp)
+        new_id_temp = "/".join(new_id_arr)
+        tf_import_id_new = "/{0}".format(new_id_temp)
         self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
                                tf_import_id=tf_import_id_new, skip_if_exists=True)
-

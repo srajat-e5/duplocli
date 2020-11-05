@@ -1,7 +1,6 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 import requests
 
-
 dummy_values = {
     "cidr_block": "0.0.0.0/0",
     "ipv6_cidr_block": "0.0.0.0/0"
