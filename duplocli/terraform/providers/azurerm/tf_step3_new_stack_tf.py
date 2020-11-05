@@ -179,7 +179,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                  name = resource["name"]
                  self.index = self.index + 1
                  var_name = "{0}_{1}_name".format(resource_type, self.index)
-                 resource["name"] = "${"+var_name+"}"
+                 resource["name"] = "${var."+var_name+"}"
                  self.variable_list_dict[var_name] = name
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
