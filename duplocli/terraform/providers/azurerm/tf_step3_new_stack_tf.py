@@ -114,8 +114,8 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             self.variable_list_dict[var_res_grp_name] = resource_group_name
             self.variable_list_dict[var_res_grp_loc] = location
             # not needed if exists_in_import=False
-            interpolation_res_grp_id = "azurerm_resource_group.{0}.name".format(index)
-            interpolation_res_grp_loc = "azurerm_resource_group.{0}.location".format(index)
+            interpolation_res_grp_id = "azurerm_resource_group.{0}.name".format(resource_group_name)
+            interpolation_res_grp_loc = "azurerm_resource_group.{0}.location".format(resource_group_name)
             resource_group_vars = {
                 "location": location,
                 "resource_group_name": resource_group_name,
