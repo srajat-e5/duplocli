@@ -116,22 +116,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     #     self._states_by_id_dict()
     #     self._unique_resource_groups_dict()
     #
-    def _states_by_id_dict(self):
-        if "resources" in self.states_dict:
-            resources = self.states_dict['resources']
-        else:
-            resources = self.states_dict['resource']
-        for resource in resources:
-            try:
-                attributes = resource['instances'][0]['attributes']
-                attributes["tf_resource_type"] = resource["type"]
-                attributes["tf_resource_var_name"] = resource["name"]
-                self.states_by_id_dict[attributes["id"]] = attributes
-                var_tf= "{0}.{1}".format(attributes["tf_resource_type"], attributes["tf_resource_var_name"])
-                self.states_tf_var_by_id_dict[attributes["id"]] = var_tf
-            except Exception as e:
-                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
-        return self.states_by_id_dict
+
 
     # def _unique_resource_groups_dict(self):
     #     for resource_key in self.states_by_id_dict:
@@ -202,6 +187,8 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     def _interplation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
         var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name,index)
         var_res_grp_loc = "resource_group_{1}_location_{0}".format(resource_group_name,index)
+        self.variable_list_dict[var_res_grp_name] = resource_group_name
+        self.variable_list_dict[var_res_grp_loc] = var_res_grp_loc
         #not needed if exists_in_import=False
         interpolation_res_grp_id = "azurerm_resource_group.{0}.id".format(resource_group_name)
         interpolation_res_grp_loc  = "azurerm_resource_group.{0}.location".format(resource_group_name)
@@ -220,7 +207,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     def _res_group_vars(self):
         resource_types = self.main_tf_dict["resource"]
         res_groups_existing={}
-        res_groups_not_existing = {}
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
@@ -241,13 +227,32 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     if "resource_group_name"  in resource and  "location"  in resource:
                         location = resource["location"]
                         resource_group_name = resource["resource_group_name"]
-                        if resource_group_name not in res_groups_existing and resource_group_name not in res_groups_existing:
+                        if resource_group_name not in res_groups_existing:
                             self.index = self.index + 1
                             res_groups_existing = self._interplation_for_res_grp(self.index, resource_group_name, location, False)
                             res_groups_existing[resource_group_name] = resource_group_vars
         self.res_groups  = res_groups_existing
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
+    def _parameterize_for_res_grp(self, resource_type, resource):
+        #if resource group use var
+        #else use resource group dep id
+        #first list all currently being imported resource_groups by {name:locartion}
+        if resource_type == "azurerm_resource_group":
+            resource_group_name = resource[ "name"]
+            resource_group_vars = self.res_groups[resource_group_name]
+            resource["name"]= "${"+resource_group_vars["var_res_grp_name"] +"}"
+            resource["location"] = "${" + resource_group_vars["var_res_grp_loc"] + "}"
+        else:
+            if "resource_group_name" in resource:
+                resource_group_name = resource["resource_group_name"]
+                resource_group_vars = self.res_groups[resource_group_name]
+                resource["resource_group_name"]= "${"+resource_group_vars["interpolation_res_grp_id"] +"}"
+                if "location" in resource:
+                    resource["location"]= "${"+resource_group_vars["interpolation_res_grp_loc"] +"}"
+
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
+
     def _parameterize(self):
         self._res_group_vars()
         resource_types = self.main_tf_dict["resource"]
@@ -256,18 +261,12 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             for resource_key in resources:
                 resource  = resources[resource_key]
                 self._parameterize_for_res_grp(resource_type, resource)
-                self._parameterize_res_for_dep_ids(resource)
-    def _create_res_grp_var(self, resource_group_name, location):
-        pass
-    def _parameterize_for_res_grp(self, resource_type, resource):
-        #if resource group use var
-        #else use resource group dep id
-        #first list all currently being imported resource_groups by {name:locartion}
-        if resource_type == "azurerm_resource_group":
-            variable_id = resource[ "name"]
+                self._parameterize_res_for_dep_ids(resource_type, resource)
 
-        else:
-            pass
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
+
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
+
 
     def _parameterize_res_for_dep_ids(self, resource_type, resource):
         resource_obj_parent = resource
@@ -338,32 +337,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     print(is_list, "@@@@NOT found ",nested_atr_name, value, attribute)
                 #print( nested_atr_name, value)
         return value
-
-    def _get_variable_id_for_dep_id(self, id):
-        if id in self.unique_dep_ids_dict:
-            var_name_repl = self.unique_dep_ids_dict[id]
-        else:
-            id_arr = id.split("/")
-            len_arr= len(id_arr)
-            name = id_arr[len_arr-1]
-            self.index = self.index + 1
-            var_name = "variable_{0}_{1}".format(self.index, name)
-            var_name_repl = "${var." + var_name + "}"
-            self.variable_list_dict[var_name] = id
-            self.unique_dep_ids_dict[id] = var_name_repl
-        return var_name_repl
-    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-
-    ############
-
-    def _gen_interpolation_ids_for_res(self):
-        for resource in self.resources_dict:
-            resource["tf_variable_id_new"] = resource["tf_variable_id"]
-            resource["interpolation_id"] = "${" + resource["tf_resource_type"] + "." + resource["tf_variable_id"] + ".id}"
-            self.resources_by_id_dict[resource["tf_import_id"]] = resource
-
-
-
     def _has_id(self, tf_import_id):
         try:
             return self.main_tf_text.self.index(tf_import_id+"\"")
@@ -371,5 +344,48 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             pass
          #print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
         return -1
+
+    ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
+    def _get_variable_id_for_dep_id(self, id):
+        if id in self.states_tf_var_by_id_dict:
+            var_name_repl = "${" + self.states_tf_var_by_id_dict[id] + ".id}"
+        elif id in self.unique_dep_ids_dict:
+            var_name_repl = self.unique_dep_ids_dict[id]
+        else:
+            id_arr = id.split("/")
+            len_arr = len(id_arr)
+            name = id_arr[len_arr - 1]
+            self.index = self.index + 1
+            var_name = "variable_{0}_{1}".format(self.index, name)
+            var_name_repl = "${var." + var_name + "}"
+            self.variable_list_dict[var_name] = id
+            self.unique_dep_ids_dict[id] = var_name_repl
+        return var_name_repl
+
+    ############
+    def _states_by_id_dict(self):
+        if "resources" in self.states_dict:
+            resources = self.states_dict['resources']
+        else:
+            resources = self.states_dict['resource']
+        for resource in resources:
+            try:
+                attributes = resource['instances'][0]['attributes']
+                attributes["tf_resource_type"] = resource["type"]
+                attributes["tf_resource_var_name"] = resource["name"]
+                self.states_by_id_dict[attributes["id"]] = attributes
+                var_tf = "{0}.{1}".format(attributes["tf_resource_type"], attributes["tf_resource_var_name"])
+                self.states_tf_var_by_id_dict[attributes["id"]] = var_tf
+            except Exception as e:
+                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
+        return self.states_by_id_dict
+
+    def _gen_interpolation_ids_for_res(self):
+        for resource in self.resources_dict:
+            resource["tf_variable_id_new"] = resource["tf_variable_id"]
+            resource["interpolation_id"] = "${" + resource["tf_resource_type"] + "." + resource["tf_variable_id"] + ".id}"
+            self.resources_by_id_dict[resource["tf_import_id"]] = resource
+    ############
+
 
 
