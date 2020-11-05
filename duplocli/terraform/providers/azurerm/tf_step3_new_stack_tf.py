@@ -22,6 +22,9 @@ from datetime import datetime
 # Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
 # interpolation_id= "${azurerm_resource_group.tfduplosvs-aztf7.name}"
 # TODO:  if id contains '$' or '}' ?
+# if resource group use var
+# else use resource group dep id
+# first list all currently being imported resource_groups by {name:locartion}
 class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     #dict
@@ -57,7 +60,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self._load_files()
         self._gen_interpolation_ids_for_res()
         self._states_by_id_dict()
-        # self._load_dicts()
         self._tf_resources()
         self._save_files("")
         return self.file_utils.tf_main_file()
@@ -65,20 +67,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ######  TfImportStep3 ################################################
     def _tf_resources(self):
         try:
-
-            # for resources_id in self.resources_by_id_dict:
-            #     try:
-            #         resource = self.resources_by_id_dict[resources_id]
-            #         self._replace_id_with_reference(resource)
-            #     except Exception as e:
-            #         print("ERROR:AzurermTfStep3NewStack:text", "_tf_resources", resources_id, e)
-
-            ### extract resource group into vars
-            self.main_tf_dict = json.loads(self.main_tf_text)
-            #self._replace_resource_group_with_variable()
-            ### extract missing infra or object ids into vars
             self._parameterize()
-
             print("DONE")
         except Exception as e:
             print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
@@ -86,103 +75,18 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         # todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
         # self._save_files()
 
-    ##### helper load and save files ##############
-
-    def _load_files(self):
-        #verify import worked
-        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
-        if not self.file_utils.file_exists(self.state_read_from_file):
-            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
-
-        #paths
-        self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step2")
-        self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
-
-        #load
-        self.states_dict = self.file_utils.load_json_file(self.state_read_from_file)
-
-        #
-        self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
-        self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
-
-    def _save_files(self, folder):
-        self.file_utils.save_to_json( self.file_utils.tf_resources_file(), self.resources_dict )
-        self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
-        self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
-        self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list_dict)
-
-    ##### helper for parameterization resources and state dict ##############
-    # def _load_dicts(self):
-    #     self._states_by_id_dict()
-    #     self._unique_resource_groups_dict()
-    #
+    def _parameterize(self):
+        self._res_group_vars()
+        resource_types = self.main_tf_dict["resource"]
+        for resource_type in resource_types:
+            resources = resource_types[resource_type]
+            for resource_key in resources:
+                resource  = resources[resource_key]
+                self._parameterize_for_res_grp(resource_type, resource)
+                self._parameterize_res_for_dep_ids(resource_type, resource)
 
 
-    # def _unique_resource_groups_dict(self):
-    #     for resource_key in self.states_by_id_dict:
-    #         try:
-    #             resource = self.states_by_id_dict[resource_key]
-    #             if "resource_group_name" not in resource:
-    #                 continue
-    #             location = None
-    #             if "location" in resource:
-    #                 location = resource["location"]
-    #             resource_group_name = resource["resource_group_name"]
-    #
-    #
-    #             if resource_group_name not in self.unique_resource_groups_dict:
-    #                 while (True):
-    #                     self.index = self.index + 1
-    #                     variable_name = "resource_group_name_{0}_{1}".format(resource_group_name,
-    #                                                                          self.index)  # "resource_group_{0}_{1}".format( resource_group_name ,random.randint(1,99))
-    #                     if variable_name not in self.variable_list_dict:
-    #                         unique_resource_group_name = "resource_group_{1}_name_{0}".format(resource_group_name,
-    #                                                                                           self.index)
-    #                         unique_resource_group_location = "resource_group_{1}_location_{0}".format(
-    #                             resource_group_name, self.index)
-    #                         resouce_vars = {"location": location, "resource_group_name": resource_group_name,
-    #                                         "var_resource_group_name": unique_resource_group_name,
-    #                                         "var_resource_group_location": unique_resource_group_location
-    #                                         }
-    #                         self.unique_resource_groups_dict[resource_group_name] = resouce_vars
-    #                         self.variable_list_dict[unique_resource_group_name] = resource_group_name
-    #                         self.variable_list_dict[unique_resource_group_location] = location
-    #
-    #                         break
-    #         except Exception as e:
-    #             print("ERROR:AzurermTfStep3NewStack:", "_unique_resource_groups_dict", e)
-    #     return self.unique_resource_groups_dict
-    #
-    # ###### resource_groups name and location parameterization #############
-    # def _replace_resource_group_with_variable(self):
-    #     #TODO: re-define after including resouece in main.tf file
-    #     resource_types = self.main_tf_dict["resource"]
-    #     for resource_type in resource_types:
-    #         resources = resource_types[resource_type]
-    #         for resource_key in resources:
-    #             resource = resources[resource_key]
-    #             if resource["resource_group_name"] is not None:
-    #                 return  #TODO:
-    #             resource_group_name = resource["resource_group_name"]
-    #             resource_group = self.unique_resource_groups_dict[resource_group_name]
-    #             resource["resource_group_name"] = "${var." + resource_group["var_resource_group_name"] +"}"
-    #             if resource["location"]  is not None:
-    #                 resource["location"] = "${var." + resource_group["var_resource_group_location"] +"}"
-    # def _replace_id_with_generated(self, resource):
-    #     tf_import_id = resource["tf_import_id"]
-    #     interpolation_id = resource["interpolation_id"]
-    #     text = self.main_tf_text
-    #     self.index = self._has_id(tf_import_id)
-    #
-    #     if self.index >0:
-    #         print("DEP_FOUND:_replace_id_with_generated", self.index, tf_import_id)
-    #         text = text.replace("\"" +tf_import_id + "\"", "\""+interpolation_id+"\"" )
-    #         #text = text.replace( tf_import_id , interpolation_id )
-    #         self.main_tf_text = text
-    #         self.index = self._has_id(tf_import_id)
-    #         print("AFTE DEP_FOUND:_replace_id_with_generated", self.index, tf_import_id)
-    #     else:
-    #         pass #print("DEP_NOT_FOUND:_replace_id_with_generated",   tf_import_id)
+
     ###### resource_groups name and location parameterization #############
     def _interplation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
         var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name,index)
@@ -235,9 +139,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _parameterize_for_res_grp(self, resource_type, resource):
-        #if resource group use var
-        #else use resource group dep id
-        #first list all currently being imported resource_groups by {name:locartion}
         if resource_type == "azurerm_resource_group":
             resource_group_name = resource[ "name"]
             resource_group_vars = self.res_groups[resource_group_name]
@@ -253,15 +154,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
-    def _parameterize(self):
-        self._res_group_vars()
-        resource_types = self.main_tf_dict["resource"]
-        for resource_type in resource_types:
-            resources = resource_types[resource_type]
-            for resource_key in resources:
-                resource  = resources[resource_key]
-                self._parameterize_for_res_grp(resource_type, resource)
-                self._parameterize_res_for_dep_ids(resource_type, resource)
+
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
@@ -388,4 +281,28 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     ############
 
 
+    ##### helper load and save files ##############
 
+    def _load_files(self):
+        #verify import worked
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        if not self.file_utils.file_exists(self.state_read_from_file):
+            raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+
+        #paths
+        self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step2")
+        self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
+
+        #load
+        self.states_dict = self.file_utils.load_json_file(self.state_read_from_file)
+
+        #
+        self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
+        # self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
+        self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file) #json.loads(self.main_tf_text)
+
+    def _save_files(self, folder):
+        self.file_utils.save_to_json( self.file_utils.tf_resources_file(), self.resources_dict )
+        self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
+        self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
+        self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list_dict)
