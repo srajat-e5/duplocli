@@ -104,7 +104,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             var_res_grp_name = "resource_group_{1}_name_{0}".format(resource_group_name, index)
             var_res_grp_loc = "resource_group_{1}_location_{0}".format(resource_group_name,index)
             self.variable_list_dict[var_res_grp_name] = resource_group_name
-            self.variable_list_dict[var_res_grp_loc] = var_res_grp_loc
+            self.variable_list_dict[var_res_grp_loc] = location
             #not needed if exists_in_import=False
             interpolation_res_grp_id = "azurerm_resource_group.{0}.id".format(resource_group_name)
             interpolation_res_grp_loc  = "azurerm_resource_group.{0}.location".format(resource_group_name)
@@ -157,8 +157,8 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         if resource_type == "azurerm_resource_group":
             resource_group_name = resource[ "name"]
             resource_group_vars = self.res_groups[resource_group_name]
-            resource["name"]= "${"+resource_group_vars["var_res_grp_name"] +"}"
-            resource["location"] = "${" + resource_group_vars["var_res_grp_loc"] + "}"
+            resource["name"]= "${var."+resource_group_vars["var_res_grp_name"] +"}"
+            resource["location"] = "${var." + resource_group_vars["var_res_grp_loc"] + "}"
         else:
             if "resource_group_name" in resource:
                 resource_group_name = resource["resource_group_name"]
@@ -321,3 +321,14 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
         self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
         self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list_dict)
+
+
+        ## save variables.tf.json
+        self.variables_tf_dict={}
+        variables_tf_root ={}
+        self.variables_tf_dict["variable"] = variables_tf_root
+        for variable_name in self.variable_list_dict:
+            variables_tf_root[variable_name] = {
+                     "description": "value e.g." + self.variable_list_dict[variable_name]
+            }
+        self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
