@@ -148,8 +148,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             if tf_resource_type == 'azurerm_app_service':
                 if "auth_settings" in resource_obj:
                     auth_settings = resource_obj["auth_settings"]
-                    if "token_refresh_extension_hours" in auth_settings and auth_settings["token_refresh_extension_hours"] ==0:
-                        auth_settings["token_refresh_extension_hours"] = 72
+                    for auth_setting in auth_settings:
+                        if "token_refresh_extension_hours" not in auth_setting: #and auth_settings["token_refresh_extension_hours"] ==0:
+                            auth_setting["token_refresh_extension_hours"] = 0
+
             if tf_resource_type in ["azurerm_mysql_server","azurerm_postgresql_server"] :
                 self._del_key(resource_obj, "storage_profile")
                 self._del_key(resource_obj, "ssl_enforcement")
