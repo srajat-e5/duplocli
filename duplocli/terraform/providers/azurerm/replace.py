@@ -41,9 +41,11 @@ def save_file(filename, data):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-s", "--src", required=True,
-                    help="src: text to replace ")
+                    help="src: text to replace. \n python replace.py --src duploservices --dest tfsvs"
+                         + "\n python replace.py --src azdemo1 --dest tftenant20 ")
     ap.add_argument("-d", "--dest", required=True,
-                    help="dest: text to replace with")
+                    help="dest: text to replace with \n python replace.py --src duploservices --dest tfsvs"
+                         + "\n python replace.py --src azdemo1 --dest tftenant20")
     args = vars(ap.parse_args())
     text_src = args["src"]
     text_dest = args["dest"]
