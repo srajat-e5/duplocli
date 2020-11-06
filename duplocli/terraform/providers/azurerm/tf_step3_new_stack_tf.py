@@ -384,7 +384,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
 
     def _copy_text_file(self, filename):
-        src_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-        dest_file = self.file_utils._file_inwork_folder(filename)
-        replace_py = self.file_utils.file_read_as_text(src_file)
-        self.file_utils.file_save_as_text(dest_file, replace_py)
+        try:
+            src_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+            dest_file = self.file_utils._file_inwork_folder(filename)
+            replace_py = self.file_utils.file_read_as_text(src_file)
+            self.file_utils.file_save_as_text(dest_file, replace_py)
+        except Exception as e:
+            print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
