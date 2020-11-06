@@ -143,23 +143,33 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             pass  # resource_obj = resource_obj  # resource_obj2
         else:
             resource_obj = resource_obj2
-        if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj:
-            self._del_key(resource_obj, "subnets")
-        if tf_resource_type in ['azurerm_monitor_metric_alert'] and (
-                not "name" in resource_obj or resource_obj["name"] == ""):
-            resource_obj["name"] = resource_obj["resource_group_name"]
-        if tf_resource_type in ['azurerm_storage_account']:
-            self._del_key(resource_obj, "queue_properties")
-        if tf_resource_type in ['azurerm_container_group']:
-            if not "ip_address_type" in resource_obj or resource_obj["ip_address_type"] is None:
-                resource_obj["ip_address_type"] = "Public"
-            containers = resource_obj["container"]
-            for container in containers:
-                if not "ports" in container:
-                    container["ports"] = {
-                        "port": 80,  # 443
-                        "protocol": "TCP"
-                    }
+
+        try:
+            if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj:
+                self._del_key(resource_obj, "subnets")
+            if tf_resource_type in ['azurerm_monitor_metric_alert'] and (
+                    not "name" in resource_obj or resource_obj["name"] == ""):
+                resource_obj["name"] = resource_obj["resource_group_name"]
+            if tf_resource_type in ['azurerm_storage_account']:
+                self._del_key(resource_obj, "queue_properties")
+                if "network_rules" in resource_obj:
+                    network_rules= resource_obj["network_rules"]
+                    for network_rule in network_rules:
+                        if "bypass" not in network_rule:
+                            network_rule["bypass"]= ["AzureServices"]
+
+            if tf_resource_type in ['azurerm_container_group']:
+                if not "ip_address_type" in resource_obj or resource_obj["ip_address_type"] is None:
+                    resource_obj["ip_address_type"] = "Public"
+                containers = resource_obj["container"]
+                for container in containers:
+                    if not "ports" in container:
+                        container["ports"] = {
+                            "port": 80,  # 443
+                            "protocol": "TCP"
+                        }
+        except Exception as e:
+            print("ERROR:Step2:", "_tf_resource", e)
         # set
         tf_resource_type_root[tf_resource_var_name] = resource_obj
 
@@ -209,6 +219,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name, nested_atr,
                         resource_obj_parent, schema_nested):
         try:
+
             if tf_resource_type == "azurerm_app_service":
                 #need values non empty as thery are optional + computed?
                 if nested_atr_name  == 'site_config':
@@ -218,7 +229,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         resource_obj_arr.append(resource_obj)
                         for attribute_name, attribute in attribute_item.items():
                             try:
-                               if attribute_name in ["app_command_line" ,  "auto_swap_slot_name" , "health_check_path" , "windows_fx_version" ]:
+                               if attribute_name in ["app_command_line" , "default_documents", "auto_swap_slot_name" , "health_check_path" , "windows_fx_version" ]:
                                    resource_obj[attribute_name] = attribute
                                elif isinstance(attribute, str) :
                                    if (attribute != "" and attribute is not None):

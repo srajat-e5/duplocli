@@ -27,10 +27,23 @@ class AzureTfStepResource:
             type_camel = arr[-1]
         else:
             type_camel = res.type
+        arr_id =  res.id.split("/")
+        self.provider =  ""
+        if len(arr_id) > 6:
+            self.provider = arr_id[6]
+        # print(self.provider)
         self.type_name = "azurerm_{0}".format(snakecase(type_camel))
         self.type_name_orig = self.type_name
+
+        if self.provider == "Microsoft.DBForMySQL":
+            self.type_name = "azurerm_mysql_server"
+        if self.provider == "Microsoft.DBForPostgreSQL":
+            self.type_name = "azurerm_mysql_server"
+
+        #azurerm_mysql_server
         if self.type_name == "azurerm_public_i_p_addresses":
             self.type_name = "azurerm_public_ip"
+
         if "/serverFarms/" in self.id:  # azurerm_app_service_plan
             self.id = self.id.replace("/serverFarms/", "/serverfarms/")
         self.type_name_singular = self.type_name[:-1]
@@ -49,6 +62,7 @@ class AzurermResources:
 
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
+        "azurerm_servers":"azurerm_sql_server",
         "azurerm_resource_providers": "azurerm_custom_provider",
         "azurerm_deployment_scripts": "azurerm_template_deployment",
         "azurerm_extensions": "azurerm_virtual_machine_extension",

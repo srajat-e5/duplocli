@@ -57,17 +57,34 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
     #tenant_names
     tenant_names_dict={}
     #duploservices-azdemo1
+
+    tf_import_sh_list = []
     def __init__(self, params):
         super(AzurermTfStep3NewStack, self).__init__(params)
         random.seed(datetime.now())
+        self.tf_import_sh_list = []
+        self.tf_import_sh_list.append("")
 
     def execute(self):
         self._load_files()
         self._gen_interpolation_ids_for_res()
         self._states_by_id_dict()
         self._tf_resources()
-        self._save_files("")
+        self._create_tf_state()
         return self.file_utils.tf_main_file()
+
+
+    def _create_tf_state(self):
+        self._plan()
+        self._save_files("")
+        self.file_utils.save_tf_import_script(self.tf_import_sh_list)
+        self.file_utils.save_tf_run_script()
+        self.file_utils.create_state(self.file_utils.tf_run_script())
+
+    def _plan(self):
+        self.tf_import_sh_list.append('terraform init ')
+        self.tf_import_sh_list.append('terraform refresh ')
+        self.tf_import_sh_list.append('terraform plan ')
 
     ######  TfImportStep3 ################################################
     def _tf_resources(self):
