@@ -12,7 +12,7 @@ import os
 
 
 class AzurermTfSteps:
-    disable_step1 = False
+    disable_step1 = True
     disable_step2 = False  # True False
     disable_step3 = False
 

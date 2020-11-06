@@ -102,7 +102,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             for resource_key in resources:
                 try:
                     resource = resources[resource_key]
-
                     try:
                         self._parameterize_for_res_grp(resource_type, resource)
                     except Exception as e:
@@ -125,7 +124,6 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     def _interplation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
         try:
-
             var_res_grp_name = "resource_group_{0}_name".format(index)
             var_res_grp_loc = "resource_group_{0}_location".format(index)
             self.variable_list_dict[var_res_grp_name] = resource_group_name
@@ -256,13 +254,16 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
             return value
 
         if isinstance(value, list):
+            found=False
             values = []  # array of ids?
             for value_item in value:
                 if value_item is not None and "{0}".format(value_item).startswith("/subscriptions/"):
                     variable_id = self._get_variable_id_for_dep_id(value_item)
                     values.append(variable_id)
-            attribute[nested_atr_name] = values
-            return values
+                    found=True
+            if found:
+                attribute[nested_atr_name] = values
+                return values
         else:
             if "{0}".format(value).startswith("/subscriptions/"):
                 if nested_atr_name in attribute:
@@ -338,15 +339,14 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
         # paths
         self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step2")
-        self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step1")
+        self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step2")
 
         # load
         self.states_dict = self.file_utils.load_json_file(self.state_read_from_file)
 
         #
         self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
-        # self.main_tf_text = self.file_utils.file_read_as_text(self.main_tf_read_from_file)
-        self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)  # json.loads(self.main_tf_text)
+        self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)
 
     def _save_files(self, folder):
         self.file_utils.save_to_json(self.file_utils.tf_resources_file(), self.resources_dict)
