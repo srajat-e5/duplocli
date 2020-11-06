@@ -367,6 +367,8 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.file_utils.save_to_json(self.file_utils.tf_resources_file(), self.resources_dict)
         self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
         self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
+
+        self._copy_replace_py()
         self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list_dict)
 
         ## save variables.tf.json
@@ -378,3 +380,9 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 "description": "value e.g." + self.variable_list_dict[variable_name]
             }
         self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
+
+    def _copy_replace_py(self):
+        src_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),  "replace.py")
+        dest_file = self.file_utils._file_inwork_folder("replace.py")
+        replace_py = self.file_utils.file_read_as_text(src_file)
+        self.file_utils.file_save_as_text(dest_file, replace_py)

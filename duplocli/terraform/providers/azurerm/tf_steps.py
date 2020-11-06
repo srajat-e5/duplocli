@@ -179,6 +179,11 @@ class AzurermTfSteps:
             copy_files.append(self.file_utils.tf_resources_file())
             copy_files.append(self.file_utils.tf_state_file())
             copy_files.append(self.file_utils.tf_main_file())
+            if not self.disable_step3:
+                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "variables.tf.json"))
+                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "terraform.tfvars.json"))
+                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
+
         copy_files.append(self.file_utils.keys_folder())
         self.file_utils.zip_final_folder(self.params.tenant_name,
                                          self.file_utils.final_folder(),

@@ -310,6 +310,7 @@ class AzurermResources:
         except Exception as e:
             print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
 
+
     def _load_env(self):
         json_path = "/shell/.duplo_env.json"
         if not os.path.exists(json_path):
