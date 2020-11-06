@@ -147,6 +147,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         try:
             if tf_resource_type in ["azurerm_mysql_server","azurerm_postgresql_server"] :
                 self._del_key(resource_obj, "storage_profile")
+                self._del_key(resource_obj, "ssl_enforcement")
             if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj:
                 self._del_key(resource_obj, "subnets")
             if tf_resource_type in ['azurerm_monitor_metric_alert'] and (
