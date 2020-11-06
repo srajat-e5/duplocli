@@ -133,6 +133,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         pass
                     elif attribute is not None and attribute != "":  # attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
                         resource_obj[attribute_name] = attribute
+                    if attribute_name == "administrator_login":
+                        resource_obj["administrator_login_password"] = "Y8y2Nyu=WRcuQ?uw"
                 else:
                     pass
             except Exception as e:

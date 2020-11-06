@@ -189,13 +189,28 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                 resource["resource_group_name"] = "${" + resource_group_vars["interpolation_res_grp_id"] + "}"
                 if "location" in resource:
                     resource["location"] = "${" + resource_group_vars["interpolation_res_grp_loc"] + "}"
-        if resource_type in ["azurerm_storage_account", "azurerm_app_service",  "azurerm_app_service_plan"]:
+        if resource_type in ["azurerm_storage_account", "azurerm_app_service",  "azurerm_app_service_plan",
+                             'azurerm_mysql_server', 'azurerm_postgresql_server']:
              if "name" in resource:
                  name = resource["name"]
                  self.index = self.index + 1
                  var_name = "{0}_{1}_name".format(resource_type, self.index)
                  resource["name"] = "${var."+var_name+"}"
                  self.variable_list_dict[var_name] = name
+        if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
+            if "administrator_login" in resource:
+                name = resource["administrator_login"]
+                self.index = self.index + 1
+                var_name = "{0}_{1}_administrator_login".format(resource_type, self.index)
+                resource["administrator_login"] = "${var." + var_name + "}"
+                self.variable_list_dict[var_name] = name
+            if "administrator_login_password" in resource:
+                name = resource["administrator_login_password"]
+                self.index = self.index + 1
+                var_name = "{0}_{1}_administrator_login_password".format(resource_type, self.index)
+                resource["administrator_login_password"] = "${var." + var_name + "}"
+                self.variable_list_dict[var_name] = name
+
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 

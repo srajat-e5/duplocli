@@ -31,14 +31,16 @@ class AzureTfStepResource:
         self.provider =  ""
         if len(arr_id) > 6:
             self.provider = arr_id[6]
-        # print(self.provider)
+
         self.type_name = "azurerm_{0}".format(snakecase(type_camel))
         self.type_name_orig = self.type_name
+        print(self.provider, self.type_name)
 
-        if self.provider == "Microsoft.DBForMySQL":
-            self.type_name = "azurerm_mysql_server"
-        if self.provider == "Microsoft.DBForPostgreSQL":
-            self.type_name = "azurerm_postgresql_server"
+        if "azurerm_servers" == self.type_name:
+            if self.provider == "Microsoft.DBForMySQL":
+                self.type_name = "azurerm_mysql_server"
+            if self.provider == "Microsoft.DBForPostgreSQL":
+                self.type_name = "azurerm_postgresql_server"
 
         #azurerm_mysql_server
         if self.type_name == "azurerm_public_i_p_addresses":
