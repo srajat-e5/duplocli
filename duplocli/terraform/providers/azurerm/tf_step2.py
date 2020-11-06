@@ -160,6 +160,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     for network_rule in network_rules:
                         if "bypass" not in network_rule:
                             network_rule["bypass"]= ["AzureServices"]
+                        elif len(network_rule["bypass"])==0:
+                            network_rule["bypass"] = ["AzureServices"]
 
             if tf_resource_type in ['azurerm_container_group']:
                 if not "ip_address_type" in resource_obj or resource_obj["ip_address_type"] is None:
