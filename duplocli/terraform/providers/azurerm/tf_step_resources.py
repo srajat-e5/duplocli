@@ -38,7 +38,7 @@ class AzureTfStepResource:
         if self.provider == "Microsoft.DBForMySQL":
             self.type_name = "azurerm_mysql_server"
         if self.provider == "Microsoft.DBForPostgreSQL":
-            self.type_name = "azurerm_mysql_server"
+            self.type_name = "azurerm_postgresql_server"
 
         #azurerm_mysql_server
         if self.type_name == "azurerm_public_i_p_addresses":
