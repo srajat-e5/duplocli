@@ -126,7 +126,10 @@ pip install -r requirements.txt
        }
   ```
  
-    
+ 
+ 
+ 
+
 ###  Creating new tenant ?
     * please add manually the key_pair for new tenant. (as shown above )
     * remove ipaddresses from 'main.tf.json'
@@ -169,8 +172,7 @@ python python tf_import.py \
 
 
 
-
-## parameterization
+## azure terraform export:  parameterization
 ### usage : export terraform from azure
 ``` 
 # myoutputfoldername = tenant1
@@ -224,4 +226,62 @@ terrform apply -var-file=terraform.tfvars.json
 
 ```
 
+
+
+## azure terraform export:  run locally
+
+
+``` 
+
+###### sh file to run azure terraform import from command prompt ######
+
+### azure env setup ####
+
+envPath=/SOME_PATH_FOR_SHELL_ENV/.duplo_env.sh
+echo "export ARM_SUBSCRIPTION_ID='${AZURE_SUBSCRIPTION_ID}'"  > $envPath
+echo "export ARM_CLIENT_ID='${AZURE_CLIENT_ID}'"  >> $envPath
+echo "export ARM_CLIENT_SECRET='${AZURE_CLIENT_SECRET}'"  >> $envPath
+echo "export ARM_TENANT_ID='${AZURE_TENANT_ID}'"  >> $envPath
+
+#todo use these names in env
+echo "export AZURE_SUBSCRIPTION_ID='${AZURE_SUBSCRIPTION_ID}'"  >> $envPath
+echo "export AZURE_CLIENT_ID='${AZURE_CLIENT_ID}'"  >> $envPath
+echo "export AZURE_CLIENT_SECRET='${AZURE_CLIENT_SECRET}'"  >> $envPath
+echo "export AZURE_TENANT_ID='${AZURE_TENANT_ID}'"  >> $envPath
+
+### run 
+source /SOME_PATH_FOR_SHELL_ENV/.duplo_env.sh
+###############
+
+
+
+
+### path and PYTHONPATH
+path_to_git=/Users/brighu/_duplo_code/branch/duplocli
+export PYTHONPATH=$PYTHONPATH:$path_to_git
+cd $path_to_git/duplocli/terraform
+
+ 
+###
+export tenant_name=azdemo1
+
+
+###
+### export file name and zip folder
+mkdir -p ./zip
+cd /Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform
+export import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
+export zip_file_path="./zip/$import_name"
+
+
+### terraform export 
+python3 tf_import_azure.py --import_module tenant --tenant_name $tenant_name   --zip_file_path=$zip_file_path
+
+
+
+
+
+ 
+
+```
  
