@@ -268,8 +268,7 @@ export tenant_name=azdemo1
 
 ###
 ### export file name and zip folder
-mkdir -p ./zip
-cd /Users/brighu/_duplo_code/branch/duplocli/duplocli/terraform
+mkdir -p ./zip 
 export import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
 export zip_file_path="./zip/$import_name"
 
