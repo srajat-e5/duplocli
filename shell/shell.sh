@@ -74,12 +74,19 @@ azure_import_tf() {
     sh /shell/shell_env_create.sh
     . /shell/.duplo_env.sh
 
+    export aws_region="dummy"
+
     cd /duplocli/duplocli/terraform/
     import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
     zip_file_path="/zip/$import_name"
     mkdir -p /zip
-    python3 tf_import_azure.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
-     --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
+    #todo: add support for
+    #--import_name temp_all --import_module tenant --tenant_name azdemo1
+#    python3 tf_import_azure.py --import_module tenant --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
+#     --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
+
+    python3 tf_import_azure.py --import_module tenant --tenant_name $tenant_name --aws_region $aws_region  --zip_file_path=$zip_file_path
+
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
 
 

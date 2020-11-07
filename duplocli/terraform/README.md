@@ -168,6 +168,8 @@ python python tf_import.py \
 
 
 
+
+
 ## parameterization
 ### usage : export terraform from azure
 ``` 
@@ -177,12 +179,12 @@ duplocli/duplocli/terraform/tf_import_azure.py  --import_name tenant1  --import_
 ```
 
 ### files in final output folder 
-    * variables.tf.json = variable defination
+    * variables.tf.json = variable definition
     * terraform.tfvars.json = default values for variables
     * main.tf.json = tf main file     
-    * replace.py   = utility to rename parameter names. Only used in new stack.        
-    * terraform.tfstate = tf state. only used for existing stack
-    
+    * terraform.tfstate = tf state. only required for existing stack
+    * replace.py   = utility to rename parameter/ variable names. Only required for new stack.            
+    * parameterization.md - short readme (this file)
 ### existing stack 
 ``` 
 # source "/shell/.duplo_env.sh" ##for docker
