@@ -30,7 +30,7 @@ def isBlank (stringVal):
 
 def read_file(filename):
     with open (filename, "r") as myfile:
-        data = myfile.readlines()
+        data = myfile.read()
     return data
 
 def save_file(filename, data):
