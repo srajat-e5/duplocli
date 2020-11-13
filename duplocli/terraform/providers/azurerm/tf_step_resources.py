@@ -218,6 +218,48 @@ class AzurermResources:
         except Exception as e:
             print("ERROR:AzurermResources:", "__init__", e)
 
+    ###### azure client ######
+
+    def _init_azure_client(self):
+        try:
+            if os.environ['AZURE_CLIENT_ID'] is None:
+                json_env = self._load_env()
+                subscription_id = json_env['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
+                credentials = ServicePrincipalCredentials(
+                    client_id=json_env['AZURE_CLIENT_ID'],
+                    secret=json_env['AZURE_CLIENT_SECRET'],
+                    tenant=json_env['AZURE_TENANT_ID']
+                )
+            else:
+                subscription_id = os.environ.get(
+                    'AZURE_SUBSCRIPTION_ID',
+                    '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
+                credentials = ServicePrincipalCredentials(
+                    client_id=os.environ['AZURE_CLIENT_ID'],
+                    secret=os.environ['AZURE_CLIENT_SECRET'],
+                    tenant=os.environ['AZURE_TENANT_ID']
+                )
+
+            self.az_resource_client = ResourceManagementClient(credentials, subscription_id)
+            self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
+            self.az_storage_client = StorageManagementClient(credentials, subscription_id)
+            self.az_network_client = NetworkManagementClient(credentials, subscription_id)
+        except Exception as e:
+            print("ERROR:AzurermResources:", "_init_azure_client", e)
+
+    def _create_env_sh(self):
+        # Issues  with env variables in imprt script and python on shell docker. need a clean and final method
+        self.env_list = []
+        self.env_list.append("export ARM_SUBSCRIPTION_ID=\"{0}\"".format(os.environ.get('AZURE_SUBSCRIPTION_ID')))
+        self.env_list.append("export ARM_CLIENT_ID=\"{0}\"".format(os.environ.get('AZURE_CLIENT_ID')))
+        self.env_list.append("export ARM_CLIENT_SECRET=\"{0}\"".format(os.environ.get('AZURE_CLIENT_SECRET')))
+        self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format(os.environ.get('AZURE_TENANT_ID')))
+        self.file_utils.create_azure_env_sh(self.env_list)
+    def _get_resources_root(self):
+        instance_root=[];
+        for instance in self.az_resource_client.resources.list():
+            instance_root.append(instance)
+        return instance_root
     #### public methods #######
 
     def get_tenant_resources(self):
@@ -272,33 +314,6 @@ class AzurermResources:
         self.resources_unique_ids.append(tf_id)
         return tf_resource
 
-    def _init_azure_client(self):
-        try:
-            if os.environ['AZURE_CLIENT_ID'] is None:
-                json_env = self._load_env()
-                subscription_id = json_env['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
-                credentials = ServicePrincipalCredentials(
-                    client_id=json_env['AZURE_CLIENT_ID'],
-                    secret=json_env['AZURE_CLIENT_SECRET'],
-                    tenant=json_env['AZURE_TENANT_ID']
-                )
-            else:
-                subscription_id = os.environ.get(
-                    'AZURE_SUBSCRIPTION_ID',
-                    '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
-                credentials = ServicePrincipalCredentials(
-                    client_id=os.environ['AZURE_CLIENT_ID'],
-                    secret=os.environ['AZURE_CLIENT_SECRET'],
-                    tenant=os.environ['AZURE_TENANT_ID']
-                )
-
-            self.az_resource_client = ResourceManagementClient(credentials, subscription_id)
-            self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
-            self.az_storage_client = StorageManagementClient(credentials, subscription_id)
-            self.az_network_client = NetworkManagementClient(credentials, subscription_id)
-        except Exception as e:
-            print("ERROR:AzurermResources:", "_init_azure_client", e)
-
     def _load_azurerm_resources_json(self):
         json_file = "azurerm_resources.json"  # "{0}__resources.json".format(self.params.provider)
         json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
@@ -318,14 +333,6 @@ class AzurermResources:
         with open(json_path) as f:
             return json.load(f)
 
-    def _create_env_sh(self):
-        # Issues  with env variables in imprt script and python on shell docker. need a clean and final method
-        self.env_list = []
-        self.env_list.append("export ARM_SUBSCRIPTION_ID=\"{0}\"".format(os.environ.get('AZURE_SUBSCRIPTION_ID')))
-        self.env_list.append("export ARM_CLIENT_ID=\"{0}\"".format(os.environ.get('AZURE_CLIENT_ID')))
-        self.env_list.append("export ARM_CLIENT_SECRET=\"{0}\"".format(os.environ.get('AZURE_CLIENT_SECRET')))
-        self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format(os.environ.get('AZURE_TENANT_ID')))
-        self.file_utils.create_azure_env_sh(self.env_list)
 
     def tenant_resource_debug(self):
         for instance in self.az_resource_client.resources.list():
@@ -423,7 +430,8 @@ class AzurermResources:
         # results
         arrAzureResources = []
         # loop all azure resources
-        for instance in self.az_resource_client.resources.list():
+        instances = self._get_resources_root()
+        for instance in instances:
             # small hack to filter tenant_name
             res = AzureTfStepResource(instance)
             if self.filter_resource(instance.id):
