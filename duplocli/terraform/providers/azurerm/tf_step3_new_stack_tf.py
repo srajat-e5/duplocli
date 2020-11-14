@@ -170,7 +170,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     if "resource_group_name" in resource and "location" in resource:
                         location = resource["location"]
                         resource_group_name = resource["resource_group_name"]
-                        if resource_group_name not in self.res_groups:
+                        if resource_group_name not in self.res_groups or resource_group_name.lower() not in self.res_groups:
                             self.index = self.index + 1
                             resource_group_vars = self._interplation_for_res_grp(self.index, resource_group_name,
                                                                                  location, False)
@@ -186,7 +186,10 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         else:
             if "resource_group_name" in resource:
                 resource_group_name = resource["resource_group_name"]
-                resource_group_vars = self.res_groups[resource_group_name]
+                if resource_group_name.lower() in self.res_groups:
+                    resource_group_vars = self.res_groups[resource_group_name.lower()]
+                else:
+                    resource_group_vars = self.res_groups[resource_group_name]
                 resource["resource_group_name"] = "${" + resource_group_vars["interpolation_res_grp_id"] + "}"
                 if "location" in resource:
                     resource["location"] = "${" + resource_group_vars["interpolation_res_grp_loc"] + "}"

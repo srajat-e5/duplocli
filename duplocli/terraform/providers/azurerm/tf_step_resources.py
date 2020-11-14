@@ -477,8 +477,9 @@ class AzurermResources:
     def _tf_cloud_resource_group(self, tf_import_id, type_name, tf_cloud_obj):
         tf_import_id_arr = tf_import_id.split("/")
         new_id_arr = tf_import_id_arr[1:5]
-        res_name = tf_import_id_arr[4]
+        res_name = tf_import_id_arr[4].lower().strip()
+        tf_import_id_arr[4] = res_name
         new_id_temp = "/".join(new_id_arr)
-        tf_import_id_new = "/{0}".format(new_id_temp).lower().strip()
+        tf_import_id_new = "/{0}".format(new_id_temp)
         self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
                                tf_import_id=tf_import_id_new, skip_if_exists=True)

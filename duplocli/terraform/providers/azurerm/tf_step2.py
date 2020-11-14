@@ -272,8 +272,11 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                    resource_obj[attribute_name] = attribute
                             except Exception as e:
                                 print("ERROR:Step2:", nested_atr_name, e)
-                resource_obj_parent[nested_atr_name] = resource_obj_arr
-                return
+                    if resource_obj_arr is not None:
+                        resource_obj_parent[nested_atr_name] = resource_obj_arr
+                    else:
+                        print("WARN:Step2:VALUE empty", nested_atr_name  )
+                    return
 
             nested_count = nested_count_parent + 1
             schema = schema_nested.nested_block[nested_atr_name]
