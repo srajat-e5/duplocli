@@ -11,7 +11,7 @@ class AzureBaseTfImportStep:
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
-
+    password_const = "Y8y2Nyu=WRcuQ?uw"
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)

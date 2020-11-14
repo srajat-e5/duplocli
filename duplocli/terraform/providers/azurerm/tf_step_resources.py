@@ -108,7 +108,7 @@ class AzurermResources:
                       "azurerm_snapshot",
                       "azurerm_private_dns_zone_virtual_network_link",
                       "azurerm_app_service_certificate",
-                      "azurerm_managed_disk",
+                      #"azurerm_managed_disk",
                       #"azurerm_virtual_machine",
                       #"azurerm_virtual_machine_extension",
                       "azurerm_public_ip",
@@ -479,6 +479,6 @@ class AzurermResources:
         new_id_arr = tf_import_id_arr[1:5]
         res_name = tf_import_id_arr[4]
         new_id_temp = "/".join(new_id_arr)
-        tf_import_id_new = "/{0}".format(new_id_temp)
+        tf_import_id_new = "/{0}".format(new_id_temp).lower().strip()
         self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
                                tf_import_id=tf_import_id_new, skip_if_exists=True)

@@ -134,7 +134,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     elif attribute is not None and attribute != "":  # attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
                         resource_obj[attribute_name] = attribute
                     if attribute_name == "administrator_login":
-                        resource_obj["administrator_login_password"] = "Y8y2Nyu=WRcuQ?uw"
+                        resource_obj["administrator_login_password"] = self.password_const
+                    if attribute_name == "administrator_login":
+                        resource_obj["administrator_login_password"] = self.password_const
                 else:
                     pass
             except Exception as e:
@@ -255,6 +257,23 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     resource_obj_parent[nested_atr_name] = resource_obj_arr
                     return
 
+            if tf_resource_type == "azurerm_virtual_machine":
+                if nested_atr_name  in ['storage_image_reference', "os_profile", "storage_os_disk"]:
+                    resource_obj_arr =[]
+                    for attribute_item in nested_atr:
+                        resource_obj = {}
+                        resource_obj_arr.append(resource_obj)
+                        for attribute_name, attribute in attribute_item.items():
+                            try:
+                               if isinstance(attribute, str) :
+                                   if (attribute != "" and attribute is not None):
+                                       resource_obj[attribute_name] = attribute
+                               else:
+                                   resource_obj[attribute_name] = attribute
+                            except Exception as e:
+                                print("ERROR:Step2:", nested_atr_name, e)
+                resource_obj_parent[nested_atr_name] = resource_obj_arr
+                return
 
             nested_count = nested_count_parent + 1
             schema = schema_nested.nested_block[nested_atr_name]
