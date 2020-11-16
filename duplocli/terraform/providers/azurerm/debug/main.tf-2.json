@@ -1,0 +1,643 @@
+{
+  "resource": {
+    "azurerm_app_service": {
+      "dockerduplo": {
+        "app_service_plan_id": "${azurerm_app_service_plan.checkfileshare.id}",
+        "app_settings": {},
+        "auth_settings": [
+          {
+            "additional_login_params": {},
+            "enabled": false,
+            "token_store_enabled": false,
+            "token_refresh_extension_hours": 0
+          }
+        ],
+        "client_affinity_enabled": true,
+        "client_cert_enabled": false,
+        "enabled": true,
+        "https_only": false,
+        "identity": [
+          {
+            "identity_ids": [
+              "${azurerm_user_assigned_identity.duploservices-azdemo1.id}"
+            ],
+            "type": "UserAssigned"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "logs": [
+          {
+            "application_logs": [
+              {
+                "file_system_level": "Off"
+              }
+            ]
+          }
+        ],
+        "name": "${var.azurerm_app_service_3_name}",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "site_config": [
+          {
+            "always_on": true,
+            "app_command_line": "",
+            "auto_swap_slot_name": "",
+            "default_documents": [
+              "Default.htm",
+              "Default.html",
+              "Default.asp",
+              "index.htm",
+              "index.html",
+              "iisstart.htm",
+              "default.aspx",
+              "index.php",
+              "hostingstart.html"
+            ],
+            "dotnet_framework_version": "v4.0",
+            "ftps_state": "AllAllowed",
+            "health_check_path": "",
+            "http2_enabled": false,
+            "linux_fx_version": "DOCKER|nginx:latest",
+            "local_mysql_enabled": false,
+            "managed_pipeline_mode": "Integrated",
+            "min_tls_version": "1.2",
+            "remote_debugging_enabled": false,
+            "scm_type": "None",
+            "scm_use_main_ip_restriction": false,
+            "use_32_bit_worker_process": true,
+            "websockets_enabled": false,
+            "windows_fx_version": ""
+          }
+        ],
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "duplotestfileshare": {
+        "app_service_plan_id": "${azurerm_app_service_plan.checkfileshare.id}",
+        "app_settings": {},
+        "auth_settings": [
+          {
+            "additional_login_params": {},
+            "enabled": false,
+            "token_store_enabled": false,
+            "token_refresh_extension_hours": 0
+          }
+        ],
+        "client_affinity_enabled": true,
+        "client_cert_enabled": false,
+        "enabled": true,
+        "https_only": false,
+        "identity": [
+          {
+            "identity_ids": [
+              "${azurerm_user_assigned_identity.duploservices-azdemo1.id}"
+            ],
+            "type": "UserAssigned"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "logs": [
+          {
+            "application_logs": [
+              {
+                "file_system_level": "Off"
+              }
+            ]
+          }
+        ],
+        "name": "${var.azurerm_app_service_4_name}",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "site_config": [
+          {
+            "always_on": true,
+            "app_command_line": "",
+            "auto_swap_slot_name": "",
+            "default_documents": [
+              "Default.htm",
+              "Default.html",
+              "Default.asp",
+              "index.htm",
+              "index.html",
+              "iisstart.htm",
+              "default.aspx",
+              "index.php",
+              "hostingstart.html"
+            ],
+            "dotnet_framework_version": "v4.0",
+            "ftps_state": "AllAllowed",
+            "health_check_path": "",
+            "http2_enabled": false,
+            "linux_fx_version": "PHP|7.4",
+            "local_mysql_enabled": false,
+            "managed_pipeline_mode": "Integrated",
+            "min_tls_version": "1.2",
+            "remote_debugging_enabled": false,
+            "scm_type": "None",
+            "scm_use_main_ip_restriction": false,
+            "use_32_bit_worker_process": true,
+            "websockets_enabled": false,
+            "windows_fx_version": ""
+          }
+        ],
+        "storage_account": [
+          {
+            "access_key": "ETmH6YWOhevEimLmdHBfAElIulzIwdZVZry4/rrloanhnhcVHQ050zHyf7vKYz07F155cY9DuNs053ge99v/ww==",
+            "account_name": "duploazdemoacc1",
+            "mount_path": "/duplofileshare",
+            "name": "sampleshare",
+            "share_name": "sampleshare",
+            "type": "AzureFiles"
+          }
+        ],
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_app_service_plan": {
+      "checkfileshare": {
+        "is_xenon": false,
+        "kind": "linux",
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "maximum_elastic_worker_count": 1,
+        "name": "${var.azurerm_app_service_plan_5_name}",
+        "per_site_scaling": false,
+        "reserved": true,
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "sku": [
+          {
+            "size": "S1",
+            "tier": "Standard"
+          }
+        ],
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_application_security_group": {
+      "duploservices-azdemo1-asg": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-asg",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "duploservices-azdemo1-checkingrpc-asg": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-checkingrpc-asg",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_availability_set": {
+      "duploservices-azdemo1-as": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "managed": true,
+        "name": "duploservices-azdemo1-as",
+        "platform_fault_domain_count": 2,
+        "platform_update_domain_count": 5,
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_managed_disk": {
+      "duploservices-azdemo1-host1-dohpx": {
+        "create_option": "FromImage",
+        "disk_iops_read_write": 500,
+        "disk_mbps_read_write": 100,
+        "disk_size_gb": 127,
+        "image_reference_id": "/Subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/Providers/Microsoft.Compute/Locations/westus2/Publishers/Canonical/ArtifactTypes/VMImage/Offers/UbuntuServer/Skus/16.04-LTS/Versions/16.04.202010140",
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-host1-dohpx",
+        "os_type": "Linux",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "storage_account_type": "Premium_LRS",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "duploservices-azdemo1-log-aqlg5r": {
+        "create_option": "FromImage",
+        "disk_iops_read_write": 240,
+        "disk_mbps_read_write": 50,
+        "disk_size_gb": 50,
+        "image_reference_id": "/Subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/Providers/Microsoft.Compute/Locations/westus2/Publishers/Canonical/ArtifactTypes/VMImage/Offers/UbuntuServer/Skus/16.04-LTS/Versions/16.04.202010140",
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-log-aqlg5r",
+        "os_type": "Linux",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "storage_account_type": "Premium_LRS",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_mysql_server": {
+      "duplomysqlterra": {
+        "administrator_login": "${var.azurerm_mysql_server_7_administrator_login}",
+        "administrator_login_password": "Y8y2Nyu=WRcuQ?uw",
+        "auto_grow_enabled": false,
+        "backup_retention_days": 7,
+        "create_mode": "Default",
+        "geo_redundant_backup_enabled": false,
+        "infrastructure_encryption_enabled": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "${var.azurerm_mysql_server_6_name}",
+        "public_network_access_enabled": true,
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "sku_name": "B_Gen5_2",
+        "ssl_enforcement_enabled": true,
+        "ssl_minimal_tls_version_enforced": "TLSEnforcementDisabled",
+        "storage_mb": 35840,
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "version": "5.7"
+      }
+    },
+    "azurerm_network_interface": {
+      "duploservices-azdemo1-host1-dohpx": {
+        "enable_accelerated_networking": false,
+        "enable_ip_forwarding": false,
+        "ip_configuration": [
+          {
+            "name": "duploservices-azdemo1-host1-dohpx",
+            "private_ip_address_allocation": "Dynamic",
+            "private_ip_address_version": "IPv4",
+            "subnet_id": "${var.variable_8_virtualNetworks_subnets}"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-host1-dohpx",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "duploservices-azdemo1-log-aqlg5r": {
+        "enable_accelerated_networking": false,
+        "enable_ip_forwarding": false,
+        "ip_configuration": [
+          {
+            "name": "duploservices-azdemo1-log-aqlg5r",
+            "private_ip_address_allocation": "Dynamic",
+            "private_ip_address_version": "IPv4",
+            "subnet_id": "${var.variable_9_virtualNetworks_subnets}"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-log-aqlg5r",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_network_security_group": {
+      "checkase-nsg": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "checkase-NSG",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "internalase-nsg": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "internalase-NSG",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_postgresql_server": {
+      "duplopgadmin": {
+        "administrator_login": "${var.azurerm_postgresql_server_11_administrator_login}",
+        "administrator_login_password": "Y8y2Nyu=WRcuQ?uw",
+        "auto_grow_enabled": false,
+        "backup_retention_days": 7,
+        "create_mode": "Default",
+        "geo_redundant_backup_enabled": false,
+        "infrastructure_encryption_enabled": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "${var.azurerm_postgresql_server_10_name}",
+        "public_network_access_enabled": true,
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "sku_name": "B_Gen5_2",
+        "ssl_enforcement_enabled": true,
+        "ssl_minimal_tls_version_enforced": "TLSEnforcementDisabled",
+        "storage_mb": 20480,
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "version": "11"
+      }
+    },
+    "azurerm_private_dns_zone": {
+      "internalase-appserviceenvironment-net": {
+        "name": "internalase.appserviceenvironment.net",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_resource_group": {
+      "duplomgapp-mgr-azdemo1": {
+        "location": "${var.resource_group_1_location}",
+        "name": "${var.resource_group_1_name}",
+        "tags": {},
+        "timeouts": {}
+      },
+      "duploservices-azdemo1": {
+        "location": "${var.resource_group_2_location}",
+        "name": "${var.resource_group_2_name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_route_table": {
+      "checkase-route-table": {
+        "disable_bgp_route_propagation": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "checkase-Route-Table",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "internalase-route-table": {
+        "disable_bgp_route_propagation": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "internalase-Route-Table",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      },
+      "rt-azure-managed": {
+        "disable_bgp_route_propagation": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "rt-azure-managed",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_storage_account": {
+      "duploazdemoacc1": {
+        "account_kind": "Storage",
+        "account_replication_type": "LRS",
+        "account_tier": "Standard",
+        "allow_blob_public_access": false,
+        "enable_https_traffic_only": false,
+        "is_hns_enabled": false,
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "min_tls_version": "TLS1_0",
+        "name": "${var.azurerm_storage_account_12_name}",
+        "network_rules": [
+          {
+            "bypass": [
+              "AzureServices"
+            ],
+            "default_action": "Allow"
+          }
+        ],
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_user_assigned_identity": {
+      "duploservices-azdemo1": {
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1",
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {}
+      }
+    },
+    "azurerm_virtual_machine": {
+      "duploservices-azdemo1-host1-dohpx": {
+        "identity": [
+          {
+            "identity_ids": [
+              "${azurerm_user_assigned_identity.duploservices-azdemo1.id}"
+            ],
+            "type": "UserAssigned"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-host1-dohpx",
+        "network_interface_ids": [
+          "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkInterfaces/duploservices-azdemo1-host1-dohpx"
+        ],
+        "os_profile": [
+          {
+            "admin_username": "${var.azurerm_virtual_machine_13_admin_username}",
+            "computer_name": "host1-dohpx"
+          }
+        ],
+        "os_profile_linux_config": [
+          {
+            "disable_password_authentication": false
+          }
+        ],
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "storage_image_reference": [
+          {
+            "offer": "UbuntuServer",
+            "publisher": "Canonical",
+            "sku": "16.04-LTS",
+            "version": "latest"
+          }
+        ],
+        "storage_os_disk": [
+          {
+            "caching": "None",
+            "create_option": "FromImage",
+            "disk_size_gb": 127,
+            "managed_disk_id": "${azurerm_managed_disk.duploservices-azdemo1-host1-dohpx.id}",
+            "managed_disk_type": "Premium_LRS",
+            "name": "duploservices-azdemo1-host1-dohpx",
+            "os_type": "Linux",
+            "write_accelerator_enabled": false
+          }
+        ],
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "vm_size": "Standard_D2s_v3"
+      },
+      "duploservices-azdemo1-log-aqlg5r": {
+        "identity": [
+          {
+            "identity_ids": [
+              "${azurerm_user_assigned_identity.duploservices-azdemo1.id}"
+            ],
+            "type": "UserAssigned"
+          }
+        ],
+        "location": "${azurerm_resource_group.duploservices-azdemo1.location}",
+        "name": "duploservices-azdemo1-log-aqlg5r",
+        "network_interface_ids": [
+          "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkInterfaces/duploservices-azdemo1-log-aqlg5r"
+        ],
+        "os_profile": [
+          {
+            "admin_username": "${var.azurerm_virtual_machine_14_admin_username}",
+            "computer_name": "log-aqlg5r"
+          }
+        ],
+        "os_profile_linux_config": [
+          {
+            "disable_password_authentication": false
+          }
+        ],
+        "resource_group_name": "${azurerm_resource_group.duploservices-azdemo1.name}",
+        "storage_image_reference": [
+          {
+            "offer": "UbuntuServer",
+            "publisher": "Canonical",
+            "sku": "16.04-LTS",
+            "version": "latest"
+          }
+        ],
+        "storage_os_disk": [
+          {
+            "caching": "None",
+            "create_option": "FromImage",
+            "disk_size_gb": 50,
+            "managed_disk_id": "${azurerm_managed_disk.duploservices-azdemo1-log-aqlg5r.id}",
+            "managed_disk_type": "Premium_LRS",
+            "name": "duploservices-azdemo1-log-aqlg5r",
+            "os_type": "Linux",
+            "write_accelerator_enabled": false
+          }
+        ],
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "vm_size": "Standard_D2s_v3"
+      }
+    },
+    "azurerm_virtual_machine_extension": {
+      "duploservices-azdemo1-host1-dohpx-omsagentforlinux": {
+        "auto_upgrade_minor_version": true,
+        "name": "OmsAgentForLinux",
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "settings": "{\"workspaceId\":\"e8666863-e97c-48a9-b9cc-cd4774549fe9\"}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "type": "OmsAgentForLinux",
+        "type_handler_version": "1.0",
+        "virtual_machine_id": "${azurerm_virtual_machine.duploservices-azdemo1-host1-dohpx.id}"
+      },
+      "duploservices-azdemo1-log-aqlg5r-omsagentforlinux": {
+        "auto_upgrade_minor_version": true,
+        "name": "OmsAgentForLinux",
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "settings": "{\"workspaceId\":\"e8666863-e97c-48a9-b9cc-cd4774549fe9\"}",
+        "tags": {
+          "duplo-project": "azdemo1",
+          "finalcheck": "val1",
+          "vm-spl-tag2": "tenant-val"
+        },
+        "timeouts": {},
+        "type": "OmsAgentForLinux",
+        "type_handler_version": "1.0",
+        "virtual_machine_id": "${azurerm_virtual_machine.duploservices-azdemo1-log-aqlg5r.id}"
+      }
+    }
+  },
+  "provider": {
+    "azurerm": {
+      "version": ">= 2.15.0",
+      "features": {}
+    }
+  }
+}

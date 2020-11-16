@@ -3,12 +3,12 @@ import random
 from datetime import datetime
 
 
-class AzurermTfImportStep2(AzureBaseTfImportStep):
+class AzurermTfImportStep2O(AzureBaseTfImportStep):
     is_allow_none = True
     state_dict = {}
 
     def __init__(self, params):
-        super(AzurermTfImportStep2, self).__init__(params)
+        super(AzurermTfImportStep2O, self).__init__(params)
         random.seed(datetime.now())
 
     def execute(self):
@@ -126,7 +126,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                 nested_atr_name, nested_atr, schema)
 
     def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
-        if tf_resource_type  in ['Aazurerm_virtual_machine',  'azurerm_monitor_metric_alert']:
+        if tf_resource_type not in ['Aazurerm_virtual_machine',  'azurerm_monitor_metric_alert']:
             return json_dict
         final_dict = {}
         for attrName, attrValue in json_dict.items():

@@ -3,7 +3,8 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 from duplocli.terraform.providers.azurerm.tf_step_resources import AzurermResources
 from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
-from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
+# from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
+from duplocli.terraform.providers.azurerm.tf_step2_original import AzurermTfImportStep2
 from duplocli.terraform.providers.azurerm.tf_step3_param_stack_tf import AzurermTfStep3ParamStack
 from duplocli.terraform.providers.azurerm.tf_step4_new_stack_tf import AzurermTfStep4NewStack
 
@@ -13,7 +14,7 @@ import os
 
 
 class AzurermTfSteps:
-    disable_step1 = True
+    disable_step1 = False
     disable_step2 = False  # True False
     disable_step3 = False
     disable_step4 = True
