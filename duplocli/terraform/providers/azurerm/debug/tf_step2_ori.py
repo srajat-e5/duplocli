@@ -76,7 +76,7 @@ class AzurermTfImportStep2O(AzureBaseTfImportStep):
                         if len(resource_obj_dict) > 0:
                             resource_obj[attribute_name] = resource_obj_dict
                 elif is_optional or not is_computed:
-                    #TO_FIX_BUGS: skip based on object type
+                    # TO_FIX_BUGS: skip based on object type
                     if self._skip_root_attr_optional(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
                         pass
                     elif isinstance(attribute, bool):
@@ -90,11 +90,11 @@ class AzurermTfImportStep2O(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resource", e)
 
-        #TO_FIX_BUGS: remove empoty array,strings
-        resource_obj2 = resource_obj #original vals
+        # TO_FIX_BUGS: remove empoty array,strings
+        resource_obj2 = resource_obj  # original vals
         resource_obj = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
 
-        #TO_FIX_BUGS: update root elements
+        # TO_FIX_BUGS: update root elements
         self._skip_root_update_attrs_resource(tf_resource_type, resource_obj, resource_obj2)
         tf_resource_type_root[tf_resource_var_name] = resource_obj
 
@@ -126,7 +126,7 @@ class AzurermTfImportStep2O(AzureBaseTfImportStep):
                                 nested_atr_name, nested_atr, schema)
 
     def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
-        if tf_resource_type not in ['Aazurerm_virtual_machine',  'azurerm_monitor_metric_alert']:
+        if tf_resource_type not in ['Aazurerm_virtual_machine', 'azurerm_monitor_metric_alert']:
             return json_dict
         final_dict = {}
         for attrName, attrValue in json_dict.items():
@@ -381,6 +381,3 @@ class AzurermTfImportStep2O(AzureBaseTfImportStep):
                                      resource_obj, schema)
                 return True
         return False
-
-
-

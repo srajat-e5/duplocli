@@ -4,7 +4,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_resources import AzurermResources
 from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
 from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
-#from duplocli.terraform.providers.azurerm.tf_step2_original import AzurermTfImportStep2
+# from duplocli.terraform.providers.azurerm.tf_step2_original import AzurermTfImportStep2
 from duplocli.terraform.providers.azurerm.tf_step3_param_stack_tf import AzurermTfStep3ParamStack
 from duplocli.terraform.providers.azurerm.tf_step4_new_stack_tf import AzurermTfStep4NewStack
 
@@ -205,7 +205,6 @@ class AzurermTfSteps:
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "terraform.tfvars.json"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
-
 
         copy_files.append(self.file_utils.keys_folder())
         self.file_utils.zip_final_folder(self.params.tenant_name,

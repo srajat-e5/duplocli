@@ -27,8 +27,8 @@ class AzureTfStepResource:
             type_camel = arr[-1]
         else:
             type_camel = res.type
-        arr_id =  res.id.split("/")
-        self.provider =  ""
+        arr_id = res.id.split("/")
+        self.provider = ""
         if len(arr_id) > 6:
             self.provider = arr_id[6]
 
@@ -42,7 +42,7 @@ class AzureTfStepResource:
             if self.provider == "Microsoft.DBForPostgreSQL":
                 self.type_name = "azurerm_postgresql_server"
 
-        #azurerm_mysql_server
+        # azurerm_mysql_server
         if self.type_name == "azurerm_public_i_p_addresses":
             self.type_name = "azurerm_public_ip"
 
@@ -64,7 +64,7 @@ class AzurermResources:
 
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
-        "azurerm_servers":"azurerm_sql_server",
+        "azurerm_servers": "azurerm_sql_server",
         "azurerm_resource_providers": "azurerm_custom_provider",
         "azurerm_deployment_scripts": "azurerm_template_deployment",
         "azurerm_extensions": "azurerm_virtual_machine_extension",
@@ -104,16 +104,16 @@ class AzurermResources:
 
     }
     resources_skip = [
-                      "azurerm_monitor_metric_alert",
-                      "azurerm_snapshot",
-                      "azurerm_private_dns_zone_virtual_network_link",
-                      "azurerm_app_service_certificate",
-                      #"azurerm_managed_disk",
-                      #"azurerm_virtual_machine",
-                      #"azurerm_virtual_machine_extension",
-                      "azurerm_public_ip",
-                      "azurerm_container_group"
-                      ]
+        "azurerm_monitor_metric_alert",
+        "azurerm_snapshot",
+        "azurerm_private_dns_zone_virtual_network_link",
+        "azurerm_app_service_certificate",
+        # "azurerm_managed_disk",
+        # "azurerm_virtual_machine",
+        # "azurerm_virtual_machine_extension",
+        "azurerm_public_ip",
+        "azurerm_container_group"
+    ]
     resources_skip111 = [
 
         'azurerm_automation_account',
@@ -255,11 +255,13 @@ class AzurermResources:
         self.env_list.append("export ARM_CLIENT_SECRET=\"{0}\"".format(os.environ.get('AZURE_CLIENT_SECRET')))
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format(os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
+
     def _get_resources_root(self):
-        instance_root=[];
+        instance_root = [];
         for instance in self.az_resource_client.resources.list():
             instance_root.append(instance)
         return instance_root
+
     #### public methods #######
 
     def get_tenant_resources(self):
@@ -325,14 +327,12 @@ class AzurermResources:
         except Exception as e:
             print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
 
-
     def _load_env(self):
         json_path = "/shell/.duplo_env.json"
         if not os.path.exists(json_path):
             return {}
         with open(json_path) as f:
             return json.load(f)
-
 
     def tenant_resource_debug(self):
         for instance in self.az_resource_client.resources.list():

@@ -153,10 +153,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 if "auth_settings" in resource_obj:
                     auth_settings = resource_obj["auth_settings"]
                     for auth_setting in auth_settings:
-                        if "token_refresh_extension_hours" not in auth_setting: #and auth_settings["token_refresh_extension_hours"] ==0:
+                        if "token_refresh_extension_hours" not in auth_setting:  # and auth_settings["token_refresh_extension_hours"] ==0:
                             auth_setting["token_refresh_extension_hours"] = 0
 
-            if tf_resource_type in ["azurerm_mysql_server","azurerm_postgresql_server"] :
+            if tf_resource_type in ["azurerm_mysql_server", "azurerm_postgresql_server"]:
                 self._del_key(resource_obj, "storage_profile")
                 self._del_key(resource_obj, "ssl_enforcement")
             if tf_resource_type in ['azurerm_route_table'] and "subnets" in resource_obj:
@@ -167,11 +167,11 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             if tf_resource_type in ['azurerm_storage_account']:
                 self._del_key(resource_obj, "queue_properties")
                 if "network_rules" in resource_obj:
-                    network_rules= resource_obj["network_rules"]
+                    network_rules = resource_obj["network_rules"]
                     for network_rule in network_rules:
                         if "bypass" not in network_rule:
-                            network_rule["bypass"]= ["AzureServices"]
-                        elif len(network_rule["bypass"])==0:
+                            network_rule["bypass"] = ["AzureServices"]
+                        elif len(network_rule["bypass"]) == 0:
                             network_rule["bypass"] = ["AzureServices"]
 
             if tf_resource_type in ['azurerm_container_group']:
@@ -237,45 +237,46 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         try:
 
             if tf_resource_type == "azurerm_app_service":
-                #need values non empty as thery are optional + computed?
-                if nested_atr_name  == 'site_config':
-                    resource_obj_arr =[]
+                # need values non empty as thery are optional + computed?
+                if nested_atr_name == 'site_config':
+                    resource_obj_arr = []
                     for attribute_item in nested_atr:
                         resource_obj = {}
                         resource_obj_arr.append(resource_obj)
                         for attribute_name, attribute in attribute_item.items():
                             try:
-                               if attribute_name in ["app_command_line" , "default_documents", "auto_swap_slot_name" , "health_check_path" , "windows_fx_version" ]:
-                                   resource_obj[attribute_name] = attribute
-                               elif isinstance(attribute, str) :
-                                   if (attribute != "" and attribute is not None):
-                                       resource_obj[attribute_name] = attribute
-                               else:
-                                   resource_obj[attribute_name] = attribute
+                                if attribute_name in ["app_command_line", "default_documents", "auto_swap_slot_name",
+                                                      "health_check_path", "windows_fx_version"]:
+                                    resource_obj[attribute_name] = attribute
+                                elif isinstance(attribute, str):
+                                    if (attribute != "" and attribute is not None):
+                                        resource_obj[attribute_name] = attribute
+                                else:
+                                    resource_obj[attribute_name] = attribute
                             except Exception as e:
                                 print("ERROR:Step2:", "site_config", e)
                     resource_obj_parent[nested_atr_name] = resource_obj_arr
                     return
 
             if tf_resource_type == "azurerm_virtual_machine":
-                if nested_atr_name  in ['storage_image_reference', "os_profile", "storage_os_disk"]:
-                    resource_obj_arr =[]
+                if nested_atr_name in ['storage_image_reference', "os_profile", "storage_os_disk"]:
+                    resource_obj_arr = []
                     for attribute_item in nested_atr:
                         resource_obj = {}
                         resource_obj_arr.append(resource_obj)
                         for attribute_name, attribute in attribute_item.items():
                             try:
-                               if isinstance(attribute, str) :
-                                   if (attribute != "" and attribute is not None):
-                                       resource_obj[attribute_name] = attribute
-                               else:
-                                   resource_obj[attribute_name] = attribute
+                                if isinstance(attribute, str):
+                                    if (attribute != "" and attribute is not None):
+                                        resource_obj[attribute_name] = attribute
+                                else:
+                                    resource_obj[attribute_name] = attribute
                             except Exception as e:
                                 print("ERROR:Step2:", nested_atr_name, e)
                     if resource_obj_arr is not None:
                         resource_obj_parent[nested_atr_name] = resource_obj_arr
                     else:
-                        print("WARN:Step2:VALUE empty", nested_atr_name  )
+                        print("WARN:Step2:VALUE empty", nested_atr_name)
                     return
 
             nested_count = nested_count_parent + 1

@@ -30,12 +30,12 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     unique_resource_groups_dict = {}
     unique_dep_ids_dict = {}
 
-    #tenant_names
-    tenant_names_dict={}
-    #duploservices-azdemo1
-
+    # tenant_names
+    tenant_names_dict = {}
+    # duploservices-azdemo1
 
     tf_import_sh_list = []
+
     def __init__(self, params):
         super(AzurermTfStep4NewStack, self).__init__(params)
         random.seed(datetime.now())
@@ -49,7 +49,6 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         self._tf_resources()
         self._create_tf_state()
         return self.file_utils.tf_main_file()
-
 
     def _create_tf_state(self):
         self._plan()
@@ -93,9 +92,9 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                     print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
 
     ###### resource_groups name and location parameterization #############
-    def _encode_tenant(self, resource_group_name ):
+    def _encode_tenant(self, resource_group_name):
         if self.DUPLO_PREFIX in resource_group_name:
-            tenant_name = resource_group_name.replace( self.DUPLO_PREFIX, "")
+            tenant_name = resource_group_name.replace(self.DUPLO_PREFIX, "")
             self.tenant_names_dict[tenant_name] = tenant_name
             # "duploservices-azdemo1"
 
@@ -169,14 +168,14 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 resource["resource_group_name"] = "${" + resource_group_vars["interpolation_res_grp_id"] + "}"
                 if "location" in resource:
                     resource["location"] = "${" + resource_group_vars["interpolation_res_grp_loc"] + "}"
-        if resource_type in ["azurerm_storage_account", "azurerm_app_service",  "azurerm_app_service_plan",
+        if resource_type in ["azurerm_storage_account", "azurerm_app_service", "azurerm_app_service_plan",
                              'azurerm_mysql_server', 'azurerm_postgresql_server']:
-             if "name" in resource:
-                 name = resource["name"]
-                 self.index = self.index + 1
-                 var_name = "{0}_{1}_name".format(resource_type, self.index)
-                 resource["name"] = "${var."+var_name+"}"
-                 self.variable_list_dict[var_name] = name
+            if "name" in resource:
+                name = resource["name"]
+                self.index = self.index + 1
+                var_name = "{0}_{1}_name".format(resource_type, self.index)
+                resource["name"] = "${var." + var_name + "}"
+                self.variable_list_dict[var_name] = name
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             if "administrator_login" in resource:
                 name = resource["administrator_login"]
@@ -189,11 +188,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 # if attribute_name == "administrator_login":
                 #     resource_obj["administrator_login_password"] = self.password_const
                 #
-        if resource_type  in ["azurerm_virtual_machine"]:
+        if resource_type in ["azurerm_virtual_machine"]:
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
                 for resource in resource_profiles:
-                    #password
+                    # password
                     self.index = self.index + 1
                     var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
                     resource["admin_password"] = "${var." + var_name + "}"
@@ -211,6 +210,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             pass
+
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
@@ -268,13 +268,13 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             return value
 
         if isinstance(value, list):
-            found=False
+            found = False
             values = []  # array of ids?
             for value_item in value:
                 if value_item is not None and "{0}".format(value_item).startswith("/subscriptions/"):
                     variable_id = self._get_variable_id_for_dep_id(value_item)
                     values.append(variable_id)
-                    found=True
+                    found = True
             if found:
                 attribute[nested_atr_name] = values
                 return values
@@ -290,10 +290,9 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 # print( nested_atr_name, value)
         return value
 
-
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _get_variable_id_for_dep_id(self, id):
-        if "azurerm_user_assigned_identity" in id :
+        if "azurerm_user_assigned_identity" in id:
             pass
         if self._get_states_tf_var_by_id_dict(id) is not None:
             var_name_repl = "${" + self._get_states_tf_var_by_id_dict(id) + ".id}"
@@ -306,10 +305,10 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             self.index = self.index + 1
             counter = 5
             var_prefix_name = ""
-            while(True):
+            while (True):
                 counter = counter + 2
                 if counter < len_arr:
-                    var_prefix_name = var_prefix_name +"_"+ id_arr[counter]
+                    var_prefix_name = var_prefix_name + "_" + id_arr[counter]
                 else:
                     break
             var_name = "variable_{0}{1}".format(self.index, var_prefix_name)
@@ -320,19 +319,22 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     ############
     ##
-    def _set_states_by_id_dict(self,id, attributes):
+    def _set_states_by_id_dict(self, id, attributes):
         self.states_by_id_dict[id] = attributes
         self.states_by_id_dict[id.strip().lower()] = attributes
-    def _get_states_by_id_dict(self,id):
+
+    def _get_states_by_id_dict(self, id):
         if id in self.states_by_id_dict:
             return self.states_by_id_dict[id]
         elif id.strip().lower() in self.states_by_id_dict:
             return self.states_by_id_dict[id.strip().lower()]
         return None
+
     ##
     def _set_states_tf_var_by_id_dict(self, id, attributes):
         self.states_tf_var_by_id_dict[id] = attributes
         self.states_tf_var_by_id_dict[id.strip().lower()] = attributes
+
     def _get_states_tf_var_by_id_dict(self, id):
         if id in self.states_tf_var_by_id_dict:
             return self.states_tf_var_by_id_dict[id]
@@ -352,7 +354,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 id = id.strip().lower()
                 attributes["tf_resource_type"] = resource["type"]
                 attributes["tf_resource_var_name"] = resource["name"]
-                self._set_states_by_id_dict( id,  attributes)
+                self._set_states_by_id_dict(id, attributes)
                 var_tf = "{0}.{1}".format(attributes["tf_resource_type"], attributes["tf_resource_var_name"])
                 self._set_states_tf_var_by_id_dict(id, var_tf)
                 # print("=====**** ",  resource["type"], var_tf, self.states_tf_var_by_id_dict[id], id)
@@ -361,7 +363,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 #     print("=====****=======", resource["type"], var_tf, self.states_tf_var_by_id_dict[id], id)
                 #     #pass
             except Exception as e:
-                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict",id, e)
+                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", id, e)
         return self.states_by_id_dict
 
     def _gen_interpolation_ids_for_res(self):
@@ -410,7 +412,6 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 "description": "value e.g." + self.variable_list_dict[variable_name]
             }
         self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
-
 
     def _copy_text_file(self, filename):
         try:
