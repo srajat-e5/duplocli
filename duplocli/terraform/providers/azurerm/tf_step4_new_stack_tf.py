@@ -5,31 +5,7 @@ import json
 from datetime import datetime
 
 
-# simple json manipulation to extract variables and dependency id replacement
-# create unique names for storage
-# create dependency heirarchy -- a simple cheat to trraform framework by replacing actual id with referenced/dependent's id
-# ie. simple json interpolation  referenced-id replacement in main tf
-# also create resource, and simple json interpolation location and resource-id replacement in main tf
-# {
-#     "tf_resource_type": "azurerm_app_service",
-#     "tf_variable_id": "duplotestfileshare",
-#     "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Web/sites/duplotestfileshare",
-#     "module": "azdemo1",
-#     "tf_variable_id_new": "duplotestfileshare",
-#     "interpolation_id": "${azurerm_app_service.duplotestfileshare.id}"
-# },
-# assign variable for resource_group_name, location, add to variables dict if does not exits already
-# Find recurively all values with string /subscriptions/ extract them to variables as they are missing in import dependency list
-# interpolation_id= "${azurerm_resource_group.tfduplosvs-aztf7.name}"
-# TODO:  if id contains '$' or '}' ?
-# if resource group use var
-# else use resource group dep id
-# first list all currently being imported resource_groups by {name:locartion}
-# save resources and tf
-# todo: different folders for exisitng ,new non-duplo, new duplo tenant/infra
-# self._save_files()
-
-class AzurermTfStep3NewStack(AzureBaseTfImportStep):
+class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     # dict
     states_dict = {}
     resources_dict = {}

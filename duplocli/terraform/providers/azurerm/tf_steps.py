@@ -4,7 +4,8 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_resources import AzurermResources
 from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
 from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
-from duplocli.terraform.providers.azurerm.tf_step3_new_stack_tf import AzurermTfStep3NewStack
+from duplocli.terraform.providers.azurerm.tf_step3_param_stack_tf import AzurermTfStep3ParamStack
+from duplocli.terraform.providers.azurerm.tf_step4_new_stack_tf import AzurermTfStep4NewStack
 
 from duplocli.terraform.tfbackup.backup_import_folders import BackupImportFolders
 
@@ -15,6 +16,7 @@ class AzurermTfSteps:
     disable_step1 = False
     disable_step2 = False  # True False
     disable_step3 = False
+    disable_step4 = True
 
     #
     # disable_step1 = True
@@ -104,6 +106,19 @@ class AzurermTfSteps:
         print(" ====== execute_step3 ====== DONE\n")
         # AzurermTfVarsExtract
 
+    def _step4_tf_vars_extract(self):
+        if self.disable_step4:
+            return
+        self.params.set_step("step4")
+        print("\n====== execute_step4 ====== START")
+        self.step4 = self._init_step4()
+        self.step4.execute()
+        print("temp_folder  ***** ", self.params.temp_folder)
+        print("import_name  ***** ", self.params.import_name)
+        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
+        print(" ====== execute_step4 ====== DONE\n")
+        # AzurermTfVarsExtract
+
     ############# ######
 
     ############# ######
@@ -143,7 +158,11 @@ class AzurermTfSteps:
         return self.step2
 
     def _init_step3(self):
-        self.step3 = AzurermTfStep3NewStack(self.params)
+        self.step3 = AzurermTfStep3ParamStack(self.params)
+        return self.step3
+
+    def _init_step4(self):
+        self.step3 = AzurermTfStep4NewStack(self.params)
         return self.step3
 
     ######################
