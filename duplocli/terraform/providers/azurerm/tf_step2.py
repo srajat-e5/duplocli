@@ -45,7 +45,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         attributes = resource['instances'][0]['attributes']
         tf_resource_type_root = self._get_or_create_tf_resource_type_root(tf_resource_type)
         resource_obj = {}
-        # tf_resource_type_root[tf_resource_var_name] = resource_obj
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
         for attribute_name, attribute in attributes.items():
             try:
@@ -61,7 +60,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj_dict,
                                        attribute_name, attribute, None)
                 elif isinstance(attribute, list):
-                    if self._skip_attr_list_root(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+                    # TO_FIX_BUGS: skip list based on object  type
+                    if self._skip_root_attr_list(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
                         pass
                     else:
                         resource_obj_dict = []
@@ -76,7 +76,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         if len(resource_obj_dict) > 0:
                             resource_obj[attribute_name] = resource_obj_dict
                 elif is_optional or not is_computed:
-                    if self._skip_attr_optional_root(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+                    #TO_FIX_BUGS: skip based on object type
+                    if self._skip_root_attr_optional(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
                         pass
                     elif isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
@@ -89,119 +90,124 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resource", e)
 
-        resource_obj2 = resource_obj  # original
-        if tf_resource_type not in ['Aazurerm_virtual_machine',
-                                    'azurerm_monitor_metric_alert']:  # no need to remove empty
-            resource_obj = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
+        #TO_FIX_BUGS: remove empoty array,strings
+        resource_obj2 = resource_obj #original vals
+        resource_obj = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
 
-        self._skip_or_add_or_del_attr_resource(tf_resource_type, resource_obj, resource_obj2)
+        #TO_FIX_BUGS: update root elements
+        self._skip_root_update_attrs_resource(tf_resource_type, resource_obj, resource_obj2)
         tf_resource_type_root[tf_resource_var_name] = resource_obj
 
-        #############
-        def _process_dict(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
-                          nested_atr_name, nested_atr, schema):
-            nested_count = nested_count_parent + 1
-            for attribute_name, attribute in nested_atr.items():
-                try:
-                    if self._processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name,
-                                             attribute, resource_obj, schema):
-                        return
-                    if schema is None or not attribute_name in schema.computed:
-                        if isinstance(attribute, bool):
-                            resource_obj[attribute_name] = attribute
-                        elif tf_resource_type == "azurerm_container_group" and nested_atr_name == 'container' \
-                                and attribute_name in ["volume"]:
-                            pass  # skip
-                        elif attribute == 0:
-                            pass
-                        elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
-                            resource_obj[attribute_name] = attribute
-                        else:
-                            pass
-                except Exception as e:
-                    print("ERROR:Step2:", "_process_dict", e)
-            self._skip_process_dict(nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
-                                    nested_atr_name, nested_atr, schema)
-
-        def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
-            final_dict = {}
-            for attrName, attrValue in json_dict.items():
-                try:
-                    if isinstance(attrValue, bool):
-                        final_dict[attrName] = attrValue
-                    else:
-                        if self._skip_attr_remove_empty(tf_resource_type, tf_resource_var_name, json_dict, final_dict,
-                                                        attrName, attrValue):
-                            pass
-                        elif isinstance(attrValue, dict):
-                            final_dict[attrName] = self.remove_empty(tf_resource_type, tf_resource_var_name, attrValue)
-                        elif isinstance(attrValue, list):
-                            if len(attrValue) > 0:
-                                resource_obj = []
-                                for nested_item in attrValue:
-                                    if isinstance(nested_item, dict):
-                                        nested_item_value = self.remove_empty(tf_resource_type, tf_resource_var_name,
-                                                                              nested_item)
-                                        if nested_item_value and len(nested_item_value) > 0:
-                                            resource_obj.append(nested_item_value)
-                                    else:
-                                        if tf_resource_type == 'azurerm_route_table' and attrName == 'route':
-                                            pass
-                                        else:
-                                            resource_obj.append(nested_item)
-                                if len(resource_obj) > 0:
-                                    final_dict[attrName] = resource_obj
-                        else:
-                            final_dict[attrName] = attrValue
-                        # print("empty??",  attrName, attrValue )
-                except Exception as e:
-                    print("ERROR:Step2:", "remove_empty", e)
-            return final_dict
-
-        def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name,
-                            nested_atr, resource_obj_parent, schema_nested):
+    #############
+    def _process_dict(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
+                      nested_atr_name, nested_atr, schema):
+        nested_count = nested_count_parent + 1
+        for attribute_name, attribute in nested_atr.items():
             try:
-
-                if self._skip_process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name,
-                                             nested_atr_name,
-                                             nested_atr, resource_obj_parent, schema_nested):
+                if self._processIfNested(nested_count, tf_resource_type, tf_resource_var_name, attribute_name,
+                                         attribute, resource_obj, schema):
                     return
-
-                nested_count = nested_count_parent + 1
-                schema = schema_nested.nested_block[nested_atr_name]
-                if isinstance(nested_atr, dict):
-                    if nested_atr_name in schema.computed:
+                if schema is None or not attribute_name in schema.computed:
+                    if isinstance(attribute, bool):
+                        resource_obj[attribute_name] = attribute
+                    elif tf_resource_type == "azurerm_container_group" and nested_atr_name == 'container' \
+                            and attribute_name in ["volume"]:
+                        pass  # skip
+                    elif attribute == 0:
                         pass
+                    elif attribute is not None and attribute != "":  # attribute is not None or self.is_allow_none:
+                        resource_obj[attribute_name] = attribute
                     else:
-                        resource_obj = {}
-                        resource_obj_parent[nested_atr_name] = resource_obj
-                        self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj,
-                                           nested_atr_name, nested_atr, schema)
-                elif isinstance(nested_atr, list):  # aa
-                    if nested_atr_name in schema.computed:
                         pass
-                    else:
-                        resource_obj = []
-                        # resource_obj_parent[nested_atr_name] = resource_obj
-                        for nested_item in nested_atr:
-                            if isinstance(nested_item, dict):
-                                resource_obj_list = {}
-                                self._process_dict(nested_count, tf_resource_type, tf_resource_var_name,
-                                                   resource_obj_list,
-                                                   nested_atr_name, nested_item, schema)
-                                resource_obj.append(resource_obj_list)
-                            else:
-                                resource_obj.append(nested_item)
-                        if len(resource_obj) > 0:
-                            resource_obj_parent[nested_atr_name] = resource_obj
-                else:
-                    pass
             except Exception as e:
-                print("ERROR:Step2:", "_process_nested", e)
+                print("ERROR:Step2:", "_process_dict", e)
+        # TO_FIX_BUGS: skip based on object type
+        self._skip_process_dict(nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
+                                nested_atr_name, nested_atr, schema)
+
+    def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
+        if tf_resource_type not in ['Aazurerm_virtual_machine',  'azurerm_monitor_metric_alert']:
+            return json_dict
+        final_dict = {}
+        for attrName, attrValue in json_dict.items():
+            try:
+                if isinstance(attrValue, bool):
+                    final_dict[attrName] = attrValue
+                else:
+                    # TO_FIX_BUGS: skip based on object type
+                    if self._skip_attr_remove_empty(tf_resource_type, tf_resource_var_name, json_dict, final_dict,
+                                                    attrName, attrValue):
+                        pass
+                    elif isinstance(attrValue, dict):
+                        final_dict[attrName] = self.remove_empty(tf_resource_type, tf_resource_var_name, attrValue)
+                    elif isinstance(attrValue, list):
+                        if len(attrValue) > 0:
+                            resource_obj = []
+                            for nested_item in attrValue:
+                                if isinstance(nested_item, dict):
+                                    nested_item_value = self.remove_empty(tf_resource_type, tf_resource_var_name,
+                                                                          nested_item)
+                                    if nested_item_value and len(nested_item_value) > 0:
+                                        resource_obj.append(nested_item_value)
+                                else:
+                                    if tf_resource_type == 'azurerm_route_table' and attrName == 'route':
+                                        pass
+                                    else:
+                                        resource_obj.append(nested_item)
+                            if len(resource_obj) > 0:
+                                final_dict[attrName] = resource_obj
+                    else:
+                        final_dict[attrName] = attrValue
+                    # print("empty??",  attrName, attrValue )
+            except Exception as e:
+                print("ERROR:Step2:", "remove_empty", e)
+        return final_dict
+
+    def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name,
+                        nested_atr, resource_obj_parent, schema_nested):
+        try:
+
+            # TO_FIX_BUGS: skip based on object type
+            if self._skip_process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name,
+                                         nested_atr_name,
+                                         nested_atr, resource_obj_parent, schema_nested):
+                return
+
+            nested_count = nested_count_parent + 1
+            schema = schema_nested.nested_block[nested_atr_name]
+            if isinstance(nested_atr, dict):
+                if nested_atr_name in schema.computed:
+                    pass
+                else:
+                    resource_obj = {}
+                    resource_obj_parent[nested_atr_name] = resource_obj
+                    self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj,
+                                       nested_atr_name, nested_atr, schema)
+            elif isinstance(nested_atr, list):  # aa
+                if nested_atr_name in schema.computed:
+                    pass
+                else:
+                    resource_obj = []
+                    # resource_obj_parent[nested_atr_name] = resource_obj
+                    for nested_item in nested_atr:
+                        if isinstance(nested_item, dict):
+                            resource_obj_list = {}
+                            self._process_dict(nested_count, tf_resource_type, tf_resource_var_name,
+                                               resource_obj_list,
+                                               nested_atr_name, nested_item, schema)
+                            resource_obj.append(resource_obj_list)
+                        else:
+                            resource_obj.append(nested_item)
+                    if len(resource_obj) > 0:
+                        resource_obj_parent[nested_atr_name] = resource_obj
+            else:
+                pass
+        except Exception as e:
+            print("ERROR:Step2:", "_process_nested", e)
 
     #############
 
-    def _skip_attr_list_root(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+    def _skip_root_attr_list(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
         if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
             return True
         elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
@@ -209,7 +215,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             return True
         return False
 
-    def _skip_attr_optional_root(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+    def _skip_root_attr_optional(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
         if attribute_name == "id":
             return True
         elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
@@ -217,7 +223,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             return True
         return False
 
-    def _skip_or_add_or_del_attr_resource(self, tf_resource_type, resource_obj, resource_obj2):
+    def _skip_root_update_attrs_resource(self, tf_resource_type, resource_obj, resource_obj2):
         try:
             if tf_resource_type == 'azurerm_app_service':
                 if "auth_settings" in resource_obj:
