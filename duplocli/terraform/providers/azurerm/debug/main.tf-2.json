@@ -265,7 +265,6 @@
     "azurerm_mysql_server": {
       "duplomysqlterra": {
         "administrator_login": "${var.azurerm_mysql_server_7_administrator_login}",
-        "administrator_login_password": "Y8y2Nyu=WRcuQ?uw",
         "auto_grow_enabled": false,
         "backup_retention_days": 7,
         "create_mode": "Default",
@@ -359,7 +358,6 @@
     "azurerm_postgresql_server": {
       "duplopgadmin": {
         "administrator_login": "${var.azurerm_postgresql_server_11_administrator_login}",
-        "administrator_login_password": "Y8y2Nyu=WRcuQ?uw",
         "auto_grow_enabled": false,
         "backup_retention_days": 7,
         "create_mode": "Default",
