@@ -61,7 +61,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     tf_import_sh_list = []
     def __init__(self, params):
-        super(AzurermTfStep3NewStack, self).__init__(params)
+        super(AzurermTfStep3ParamStack, self).__init__(params)
         random.seed(datetime.now())
         self.tf_import_sh_list = []
         self.tf_import_sh_list.append("")
@@ -118,8 +118,8 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     ###### resource_groups name and location parameterization #############
     def _encode_tenant(self, resource_group_name ):
-        if "duploservices-" in resource_group_name:
-            tenant_name = resource_group_name.replace( "duploservices-", "")
+        if self.DUPLO_PREFIX in resource_group_name:
+            tenant_name = resource_group_name.replace(self.DUPLO_PREFIX, "")
             self.tenant_names_dict[tenant_name] = tenant_name
             # "duploservices-azdemo1"
 
@@ -155,7 +155,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 resource = resources[resource_key]
                 if resource_type == "azurerm_resource_group":
                     location = resource["location"]
-                    resource_group_name = resource["name"]
+                    resource_group_name = resource["name"].lower()
                     if resource_group_name not in self.res_groups:
                         self.index = self.index + 1
                         resource_group_vars = self._interplation_for_res_grp(self.index, resource_group_name, location,
@@ -169,7 +169,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 if resource_type != "azurerm_resource_group":
                     if "resource_group_name" in resource and "location" in resource:
                         location = resource["location"]
-                        resource_group_name = resource["resource_group_name"]
+                        resource_group_name = resource["resource_group_name"].lower()
                         if resource_group_name not in self.res_groups or resource_group_name.lower() not in self.res_groups:
                             self.index = self.index + 1
                             resource_group_vars = self._interplation_for_res_grp(self.index, resource_group_name,
@@ -179,13 +179,13 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
     def _parameterize_for_res_grp(self, resource_type, resource):
         if resource_type == "azurerm_resource_group":
-            resource_group_name = resource["name"]
+            resource_group_name = resource["name"].lower()
             resource_group_vars = self.res_groups[resource_group_name]
             resource["name"] = "${var." + resource_group_vars["var_res_grp_name"] + "}"
             resource["location"] = "${var." + resource_group_vars["var_res_grp_loc"] + "}"
         else:
             if "resource_group_name" in resource:
-                resource_group_name = resource["resource_group_name"]
+                resource_group_name = resource["resource_group_name"].lower()
                 if resource_group_name.lower() in self.res_groups:
                     resource_group_vars = self.res_groups[resource_group_name.lower()]
                 else:
@@ -213,11 +213,11 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
                 for resource in resource_profiles:
-                    #password
-                    self.index = self.index + 1
-                    var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
-                    resource["admin_password"] = "${var." + var_name + "}"
-                    self.variable_list_dict[var_name] = self.password_const
+                    # #password
+                    # self.index = self.index + 1
+                    # var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
+                    # resource["admin_password"] = "${var." + var_name + "}"
+                    # self.variable_list_dict[var_name] = self.password_const
 
                     #user_name
                     if "admin_username" in resource:

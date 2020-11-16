@@ -26,50 +26,29 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         if not self.file_utils.file_exists(self.state_read_from_file):
             raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
-
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-        if "resources" in self.state_dict:
-            resources = self.state_dict['resources']
-        else:
-            resources = self.state_dict['resource']
+        resources = self.state_dict['resources']
         for resource in resources:
             try:
                 self._tf_resource(resource)
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resources", e, resource)
-
         return self.main_tf_json_dict
 
-    ############
-
-    def _set_val(self, resource_obj, attribute_name, attribute):
-        if attribute_name not in resource_obj.keys():
-            resource_obj[attribute_name] = attribute
-
-    def _set_val_array(self, resource_obj, attribute_name, attribute):
-        if attribute_name not in resource_obj.keys():
-            if resource_obj[attribute_name] in None:
-                resource_obj[attribute_name] = []
-            if isinstance(attribute_name, list):
-                pass
-
-    def _del_key(self, final_dict, attrName):
-        try:
-            del final_dict[attrName]
-        except KeyError as ex:
-            pass  # print("No such key: '%s'" % ex.message)
-
-    def _processIfNested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
-                         attribute_name, attribute, schema):
-        if schema is not None:
-            is_nested = attribute_name in schema.nested
-            if is_nested:
-                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name,
-                                     attribute,
-                                     resource_obj, schema)
-                return True
+    def _skip_attr_list_root(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+        if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
+            return True
+        elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
+                                                                                    'private_ip_addresses']:
+            return True
         return False
-
+    def _skip_attr_optional_root(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+        if attribute_name == "id":
+            return True
+        elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
+                                                                                    'private_ip_addresses']:
+            return True
+        return False
     #############
     def _tf_resource(self, resource):
         nested_count = 1
@@ -82,10 +61,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         resource_obj = {}
         # tf_resource_type_root[tf_resource_var_name] = resource_obj
         schema = self.aws_tf_schema.get_tf_resource(tf_resource_type)
-        if tf_resource_type == "azurerm_container_group":
-            pass
-        if tf_resource_type == "azurerm_app_service":
-            pass
         for attribute_name, attribute in attributes.items():
             try:
                 is_nested = attribute_name in schema.nested
@@ -100,10 +75,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj_dict,
                                        attribute_name, attribute, None)
                 elif isinstance(attribute, list):
-                    if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
-                        pass
-                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
-                                                                                                'private_ip_addresses']:
+                    if self._skip_attr_list_root(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
                         pass
                     else:
                         resource_obj_dict = []
@@ -113,40 +85,27 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                 resource_obj_dict.append(resource_obj_list)
                                 self._process_dict(nested_count, tf_resource_type, tf_resource_var_name,
                                                    resource_obj_list, attribute_name, nested_item, None)
-                            elif isinstance(nested_item, list):
-                                print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ",
-                                      nested_count, tf_resource_type, tf_resource_var_name, attribute_name)
-                                # pass
                             else:
                                 resource_obj_dict.append(nested_item)
-                    if len(resource_obj_dict) > 0:
-                        resource_obj[attribute_name] = resource_obj_dict
+                        if len(resource_obj_dict) > 0:
+                            resource_obj[attribute_name] = resource_obj_dict
                 elif is_optional or not is_computed:
-                    if attribute_name == "id":
-                        pass
-                    elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
-                                                                                                'private_ip_addresses']:
+                    if self._skip_attr_optional_root(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
                         pass
                     elif isinstance(attribute, bool):
                         resource_obj[attribute_name] = attribute
                     elif attribute == 0:
                         pass
-                    elif attribute is not None and attribute != "":  # attribute is not None  or self.is_allow_none : #or  (isinstance(object, list) and len(list) > 0)
+                    elif attribute is not None and attribute != "":
                         resource_obj[attribute_name] = attribute
-                    if attribute_name == "administrator_login":
-                        resource_obj["administrator_login_password"] = self.password_const
-                    if attribute_name == "administrator_login":
-                        resource_obj["administrator_login_password"] = self.password_const
                 else:
                     pass
             except Exception as e:
                 print("ERROR:Step2:", "_tf_resource", e)
 
-        resource_obj2 = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
-        if tf_resource_type in ['Aazurerm_virtual_machine', 'azurerm_monitor_metric_alert']:
-            pass  # resource_obj = resource_obj  # resource_obj2
-        else:
-            resource_obj = resource_obj2
+        resource_obj2 = resource_obj #original
+        if tf_resource_type not in ['Aazurerm_virtual_machine', 'azurerm_monitor_metric_alert']:
+            resource_obj = self.remove_empty(tf_resource_type, tf_resource_var_name, resource_obj)
 
         try:
             if tf_resource_type == 'azurerm_app_service':
@@ -315,6 +274,27 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         except Exception as e:
             print("ERROR:Step2:", "_process_nested", e)
 
+    ############
+    def _set_val(self, resource_obj, attribute_name, attribute):
+        if attribute_name not in resource_obj.keys():
+            resource_obj[attribute_name] = attribute
+    def _del_key(self, final_dict, attrName):
+        try:
+            del final_dict[attrName]
+        except KeyError as ex:
+            pass
+
+    #############
+    def _processIfNested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
+                         attribute_name, attribute, schema):
+        if schema is not None:
+            is_nested = attribute_name in schema.nested
+            if is_nested:
+                self._process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name, attribute_name,
+                                     attribute,
+                                     resource_obj, schema)
+                return True
+        return False
     def remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict):
         final_dict = {}
         for attrName, attrValue in json_dict.items():

@@ -5,13 +5,19 @@ import requests
 import os
 import psutil
 
+from os.path import expanduser
+home = expanduser("~")
+
 
 class AzureBaseTfImportStep:
+    home = expanduser("~")
     aws_tf_schema = {}
     main_tf_json_dict = {"resource": {}}
     resources_dict = main_tf_json_dict["resource"]
     tf_import_sh_list = []
     password_const = "Y8y2Nyu=WRcuQ?uw"
+    DUPLO_PREFIX = "duploservices-"
+
     def __init__(self, params):
         self.params = params
         self.utils = TfUtils(params)

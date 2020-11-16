@@ -37,7 +37,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     tf_import_sh_list = []
     def __init__(self, params):
-        super(AzurermTfStep3NewStack, self).__init__(params)
+        super(AzurermTfStep4NewStack, self).__init__(params)
         random.seed(datetime.now())
         self.tf_import_sh_list = []
         self.tf_import_sh_list.append("")
@@ -94,8 +94,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     ###### resource_groups name and location parameterization #############
     def _encode_tenant(self, resource_group_name ):
-        if "duploservices-" in resource_group_name:
-            tenant_name = resource_group_name.replace( "duploservices-", "")
+        if self.DUPLO_PREFIX in resource_group_name:
+            tenant_name = resource_group_name.replace( self.DUPLO_PREFIX, "")
             self.tenant_names_dict[tenant_name] = tenant_name
             # "duploservices-azdemo1"
 
@@ -184,7 +184,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 var_name = "{0}_{1}_administrator_login".format(resource_type, self.index)
                 resource["administrator_login"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = name
-
+                # if attribute_name == "administrator_login":
+                #     resource_obj["administrator_login_password"] = self.password_const
+                # if attribute_name == "administrator_login":
+                #     resource_obj["administrator_login_password"] = self.password_const
+                #
         if resource_type  in ["azurerm_virtual_machine"]:
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
@@ -195,15 +199,15 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                     resource["admin_password"] = "${var." + var_name + "}"
                     self.variable_list_dict[var_name] = self.password_const
 
-                    #user_name
-                    if "admin_username" in resource:
-                        name = resource["admin_username"]
-                    else:
-                        name = "admin_username"
-                    self.index = self.index + 1
-                    var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
-                    resource["admin_username"] = "${var." + var_name + "}"
-                    self.variable_list_dict[var_name] = name
+                    # #user_name
+                    # if "admin_username" in resource:
+                    #     name = resource["admin_username"]
+                    # else:
+                    #     name = "admin_username"
+                    # self.index = self.index + 1
+                    # var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
+                    # resource["admin_username"] = "${var." + var_name + "}"
+                    # self.variable_list_dict[var_name] = name
 
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             pass

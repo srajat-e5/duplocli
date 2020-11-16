@@ -26,10 +26,7 @@ class AzurermTfVarsExtract(AzureBaseTfImportStep):
         ## state
         self.state_read_from_file = self.file_utils.tf_state_file_srep2()
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-        if "resources" in self.state_dict:
-            resources = self.state_dict['resources']
-        else:
-            resources = self.state_dict['resource']
+        resources = self.state_dict['resources']
         return resources
 
     def _load_main_json(self):

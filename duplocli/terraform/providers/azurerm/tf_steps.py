@@ -13,8 +13,8 @@ import os
 
 
 class AzurermTfSteps:
-    disable_step1 = False
-    disable_step2 = False  # True False
+    disable_step1 = True
+    disable_step2 = True  # True False
     disable_step3 = False
     disable_step4 = True
 
@@ -46,6 +46,7 @@ class AzurermTfSteps:
         self._step1_tf_state()
         self._step2_tf_main()
         self._step3_tf_vars_extract()
+        self._step4_tf_vars_new_stack()
 
     ######### steps ######
 
@@ -106,7 +107,7 @@ class AzurermTfSteps:
         print(" ====== execute_step3 ====== DONE\n")
         # AzurermTfVarsExtract
 
-    def _step4_tf_vars_extract(self):
+    def _step4_tf_vars_new_stack(self):
         if self.disable_step4:
             return
         self.params.set_step("step4")

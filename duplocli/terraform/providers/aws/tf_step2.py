@@ -22,12 +22,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
     def _tf_resources(self):
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-        # self.file_utils.print_json(self.state_dict)
-        if "resources" in self.state_dict:
-            resources = self.state_dict['resources']
-        else:
-            resources = self.state_dict['resource']
-        # self.file_utils.print_json(resources)
+        resources = self.state_dict['resources']
         for resource in resources:
             self._tf_resource(resource)
         return self.main_tf_json_dict
@@ -36,8 +31,6 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
     def _tf_resource(self, resource):
         nested_count = 1
         tf_resource_type = resource["type"]
-        # if tf_resource_type =="aws_default_route_table":
-        #     print(tf_resource_type)
         tf_resource_var_name = resource["name"]
         print(self.file_utils.stage_prefix(), nested_count, tf_resource_type, "=", tf_resource_var_name)
         attributes = resource['instances'][0]['attributes']
@@ -66,18 +59,10 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                         resource_obj_dict.append(resource_obj_list)
                         self._process_dict(nested_count, tf_resource_type, tf_resource_var_name, resource_obj_list,
                                            attribute_name, nested_item, None)
-                    elif isinstance(nested_item, list):
-                        print(self.file_utils.stage_prefix(), "_process_nested  is list list nested list ???? ",
-                              nested_count, tf_resource_type, tf_resource_var_name, attribute_name)
-                        pass
                     else:
                         resource_obj_dict.append(nested_item)
             elif is_optional or not is_computed:
-                # https://github.com/hashicorp/terraform/issues/18321
-                # https://github.com/terraform-providers/terraform-provider-aws/issues/4954
-                # todo: forcing aws_instance recreation?: should we move to configuration data/mapping_aws_keys_to_tf_keys.json
                 if attribute_name in ["user_data", "replicas", "availability_zone_id", "arn"]:
-                    # pass; #resource_obj[attribute_name] = attribute
                     resource_obj["lifecycle"] = {"ignore_changes": [attribute_name]}
                 elif tf_resource_type == "aws_elasticache_cluster" and attribute_name in ["replication_group_id",
                                                                                           "cache_nodes"]:
@@ -89,7 +74,7 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                     resource_obj["lifecycle"] = {"ignore_changes": ["roles"]}
                 elif tf_resource_type == "aws_instance" and attribute_name in ["cpu_core_count",
                                                                                "cpu_threads_per_core"]:
-                    pass  # resource_obj["lifecycle"] = {"cpu_core_count": "cpu_threads_per_core"}
+                    pass
                 elif attribute_name == "id":
                     pass
                 elif attribute is not None or self.is_allow_none:  # or  (isinstance(object, list) and len(list) > 0)
@@ -117,24 +102,6 @@ class AwsTfImportStep2(AwsBaseTfImportStep):
                     resource_obj[attribute_name] = attribute
                 else:
                     pass
-
-    # def _process_dict_no_schema(self, nested_count, tf_resource_type,  tf_resource_var_name, resource_obj, nested_atr_name, nested_atr, schema):
-    #     # schema = schema_nested.nested_block[nested_atr_name]
-    #     # if 'launch-wizard-1' == tf_resource_var_name:
-    #     #     print(tf_resource_var_name)
-    #     for attribute_name, attribute in nested_atr.items():
-    #         if nested_atr_name in ["ingress", "egress"] and attribute_name == "description":
-    #             resource_obj[attribute_name] = attribute or ""
-    #         elif attribute_name in ["arn"]:
-    #             pass  # skip
-    #         elif attribute_name == "ipv6_cidr_block":
-    #             resource_obj[attribute_name] = None
-    #         elif attribute_name == "user_data":
-    #             resource_obj[attribute_name] = attribute
-    #         elif attribute is not None or self.is_allow_none:
-    #             resource_obj[attribute_name] = attribute
-    #         else:
-    #             pass
 
     def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name, nested_atr,
                         resource_obj_parent, schema_nested):
