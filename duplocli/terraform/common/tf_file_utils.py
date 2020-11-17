@@ -257,7 +257,7 @@ class TfFileUtils:
 
     ##########
 
-    def copy_to_final_folder(self, final_folder, copy_files, copy_new_stack_files):
+    def copy_to_final_folder(self, final_folder, copy_files):
         self._ensure_folder(self.final_folder())
         self._ensure_folder(self.final_new_stack_folder())
         for copy_file in copy_files:
@@ -273,8 +273,9 @@ class TfFileUtils:
                 dest_path = os.path.join(final_sub_folder, src_name)
                 shutil.copy(copy_file, dest_path)
 
-    def zip_final_folder(self, tenant, final_folder, zip_folder, copy_files):
+    def zip_final_folder(self, tenant, final_folder, zip_folder, copy_files, copy_new_stack_files):
         self.copy_to_final_folder(final_folder, copy_files)
+        self.copy_to_final_folder(final_folder, copy_new_stack_files)
         now = datetime.datetime.now()
         now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
         zipfile_name = "import-{0}-{1}".format(tenant, now_str)
