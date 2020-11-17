@@ -266,6 +266,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             "port": 80,  # 443
                             "protocol": "TCP"
                         }
+
+            if tf_resource_type in ['azurerm_virtual_machine']:
+                if "storage_os_disk" in resource_obj:
+                    storage_os_disks = resource_obj["storage_os_disk"]
+                    for storage_os_disk in storage_os_disks:
+                        if "managed_disk_id"  in storage_os_disk:
+                            self._del_key(storage_os_disk, "managed_disk_id")
+
         except Exception as e:
             print("ERROR:Step2:", "_tf_resource", e)
         return resource_obj
