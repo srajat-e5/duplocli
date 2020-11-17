@@ -72,8 +72,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         resource_types = self.main_tf_dict["resource"]
         if "azurerm_managed_disk" in resource_types:
             self._del_key(resource_types , "azurerm_managed_disk")
-        for resource_type in resource_types:
 
+        for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
                 try:
@@ -98,8 +98,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             if "administrator_login_password" not in resource:
                 # administrator_login_password = resource["administrator_login"]
-                self.index = self.index + 1
-                var_name = "{0}_{1}_administrator_login_password".format(resource_type, self.index)
+                if "administrator_login" in self.variable_list_dict:
+                    var_name = self.variable_list_dict["administrator_login"].replace("administrator_login", "administrator_login_password")
+                else:
+                    self.index = self.index + 1
+                    var_name = "{0}_{1}_administrator_login_password".format(resource_type, self.index)
                 resource["administrator_login_password"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = self.password_const
 
@@ -107,15 +110,14 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
                 for resource in resource_profiles:
-                    # admin_password
-                    if "admin_password" in resource:
-                        name = resource["admin_password"]
+                    if "admin_password" in self.variable_list_dict:
+                        var_name = self.variable_list_dict["admin_password"].replace("admin_password",
+                                                                                          "admin_password")
                     else:
-                        name = "admin_password"
-                    self.index = self.index + 1
-                    var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
+                        self.index = self.index + 1
+                        var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
                     resource["admin_password"] = "${var." + var_name + "}"
-                    self.variable_list_dict[var_name] = name
+                    self.variable_list_dict[var_name]  = self.password_const
     ##### helper load and save files ##############
 
     def _load_files(self):
