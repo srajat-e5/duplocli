@@ -197,9 +197,11 @@ class TfFileUtils:
         self._ensure_folder(self.work_folder_for_step("step1"))
         self._ensure_folder(self.work_folder_for_step("step2"))
         self._ensure_folder(self.work_folder_for_step("step3"))
+        self._ensure_folder(self.work_folder_for_step("new_stack"))
         self._ensure_folder(self.keys_folder())
         self._ensure_folder(self.zip_folder())
         self._ensure_folder(self.final_folder())
+        self._ensure_folder(self.final_new_stack_folder())
         self._ensure_folder(self.log_folder())
 
     #######
@@ -366,6 +368,12 @@ class TfFileUtils:
 
     def final_folder(self):
         return self._temp_child_folder("final")
+
+    def final_new_stack_folder(self):
+        return  self.final_sub_folder("new_stack")
+
+    def final_sub_folder(self, sub_folder):
+        return  os.path.join(self.final_folder(), sub_folder)
 
     def log_folder(self):
         return self._temp_child_folder("log")

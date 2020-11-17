@@ -43,11 +43,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         self.tf_import_sh_list.append("")
 
     def execute(self):
-        self._load_files()
-        self._gen_interpolation_ids_for_res()
-        self._states_by_id_dict()
-        self._tf_resources()
-        self._create_tf_state()
+        # self._load_files()
+        # self._gen_interpolation_ids_for_res()
+        # self._states_by_id_dict()
+        # self._tf_resources()
+        # self._create_tf_state()
         return self.file_utils.tf_main_file()
 
     def _create_tf_state(self):

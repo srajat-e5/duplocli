@@ -14,15 +14,11 @@ import os
 
 
 class AzurermTfSteps:
-    disable_step1 = True
+    disable_step1 = False
     disable_step2 = False  # True False
     disable_step3 = False
-    disable_step4 = True
+    disable_step4 = False
 
-    #
-    # disable_step1 = True
-    # disable_step2 = True #True
-    # disable_step3 = False
     def __init__(self, params):
         self.utils = TfUtils(params)
         self.file_utils = TfFileUtils(params)
@@ -64,19 +60,10 @@ class AzurermTfSteps:
         else:
             cloud_resources = api.get_tenant_resources()
         # step2
-        # print(cloud_resources)
         self.step1 = self._init_step1()
         self.step1.execute(cloud_resources)
-        # # download_aws_keys
-        # if self.params.module == 'infra':
-        #     pass
-        # else:
-        #     if self.params.download_aws_keys == 'yes':
-        #         print(" ====== execute_infra_step1 download_key ====== \n")
-        #         tenant_key_pairs = api.get_tenant_key_pair_list()
-        #         self.step1.download_key(tenant_key_pairs)
 
-        # validate import succeded
+        # validate import succeeded
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         if not self.file_utils.file_exists(self.state_read_from_file):
             raise Exception("Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
@@ -90,9 +77,6 @@ class AzurermTfSteps:
         print("\n====== execute_step2 ====== START")
         self.step2 = self._init_step2()
         self.step2.execute()
-        print("temp_folder  ***** ", self.params.temp_folder)
-        print("import_name  ***** ", self.params.import_name)
-        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
         print(" ====== execute_step2 ====== DONE\n")
 
     def _step3_tf_vars_extract(self):
@@ -102,23 +86,19 @@ class AzurermTfSteps:
         print("\n====== execute_step3 ====== START")
         self.step3 = self._init_step3()
         self.step3.execute()
-        print("temp_folder  ***** ", self.params.temp_folder)
-        print("import_name  ***** ", self.params.import_name)
-        print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
         print(" ====== execute_step3 ====== DONE\n")
-        # AzurermTfVarsExtract
 
     def _step4_tf_vars_new_stack(self):
         if self.disable_step4:
             return
         self.params.set_step("step4")
-        print("\n====== execute_step4 ====== START")
+        print("\n====== execute_step4 new_stack ====== START")
         self.step4 = self._init_step4()
         self.step4.execute()
         print("temp_folder  ***** ", self.params.temp_folder)
         print("import_name  ***** ", self.params.import_name)
         print("zip_file_path  ***** ", os.path.abspath(self.params.zip_file_path + ".zip"))
-        print(" ====== execute_step4 ====== DONE\n")
+        print(" ====== execute_step4 new_stack====== DONE\n")
         # AzurermTfVarsExtract
 
     ############# ######
@@ -205,8 +185,11 @@ class AzurermTfSteps:
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "terraform.tfvars.json"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
+            if not self.disable_step4:
+                copy_files.append(self.file_utils.final_new_stack_folder())
 
         copy_files.append(self.file_utils.keys_folder())
+
         self.file_utils.zip_final_folder(self.params.tenant_name,
                                          self.file_utils.final_folder(),
                                          self.file_utils.zip_folder(),
