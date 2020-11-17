@@ -70,7 +70,10 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     def _parameterize(self):
         resource_types = self.main_tf_dict["resource"]
+        if "azurerm_managed_disk" in resource_types:
+            self._del_key(resource_types , "azurerm_managed_disk")
         for resource_type in resource_types:
+
             resources = resource_types[resource_type]
             for resource_key in resources:
                 try:
@@ -100,19 +103,19 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 resource["administrator_login_password"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = self.password_const
 
-        # if resource_type in ["azurerm_virtual_machine"]:
-        #     if "os_profile" in resource:
-        #         resource_profiles = resource["os_profile"]
-        #         for resource in resource_profiles:
-        #             # user_name
-        #             if "admin_username" in resource:
-        #                 name = resource["admin_username"]
-        #             else:
-        #                 name = "admin_username"
-        #             self.index = self.index + 1
-        #             var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
-        #             resource["admin_username"] = "${var." + var_name + "}"
-        #             self.variable_list_dict[var_name] = name
+        if resource_type in ["azurerm_virtual_machine"]:
+            if "os_profile" in resource:
+                resource_profiles = resource["os_profile"]
+                for resource in resource_profiles:
+                    # admin_password
+                    if "admin_password" in resource:
+                        name = resource["admin_password"]
+                    else:
+                        name = "admin_password"
+                    self.index = self.index + 1
+                    var_name = "{0}_{1}_admin_password".format(resource_type, self.index)
+                    resource["admin_password"] = "${var." + var_name + "}"
+                    self.variable_list_dict[var_name] = name
     ##### helper load and save files ##############
 
     def _load_files(self):
