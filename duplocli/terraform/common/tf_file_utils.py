@@ -56,6 +56,9 @@ class TfFileUtils:
         return os.path.join(self.work_folder_for_step(step), self._tf_state_file_name)
 
     #######
+    def file_in_step(self, step, file_name):
+        return os.path.join(self.work_folder_for_step(step), file_name)
+
     def file_in_work_folder_for_step(self, step, file_name):
         return os.path.join(self.work_folder_for_step(step), file_name)
 

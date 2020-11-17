@@ -80,7 +80,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 try:
                     resource = resources[resource_key]
                     try:
-                        self._parameterize_for_res_grp(resource_type, resource)
+                        self._parameterize_for_res(resource_type, resource)
                     except Exception as e:
                         print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
 
@@ -89,7 +89,29 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                     print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
 
     ##### helper load and save files ##############
+    def _parameterize_for_res(self, resource_type, resource):
 
+        if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
+            if "administrator_login" in resource:
+                name = resource["administrator_login"]
+                self.index = self.index + 1
+                var_name = "{0}_{1}_administrator_login".format(resource_type, self.index)
+                resource["administrator_login"] = "${var." + var_name + "}"
+                self.variable_list_dict[var_name] = name
+
+        if resource_type in ["azurerm_virtual_machine"]:
+            if "os_profile" in resource:
+                resource_profiles = resource["os_profile"]
+                for resource in resource_profiles:
+                    # user_name
+                    if "admin_username" in resource:
+                        name = resource["admin_username"]
+                    else:
+                        name = "admin_username"
+                    self.index = self.index + 1
+                    var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
+                    resource["admin_username"] = "${var." + var_name + "}"
+                    self.variable_list_dict[var_name] = name
     ##### helper load and save files ##############
 
     def _load_files(self):
@@ -101,6 +123,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         # paths
         self.main_tf_read_from_file = self.file_utils.tf_main_file_for_step("step3")
         self.resources_read_from_file = self.file_utils.tf_resources_file_for_step("step3")
+        self.terraform_tfvars_json_file = self.file_utils.file_in_step("step3", "terraform.tfvars.json")
+        self.variables_tf_json_file = self.file_utils.file_in_step("step3", "variables.tf.json")
 
         # load
         self.states_dict = self.file_utils.load_json_file(self.state_read_from_file)
@@ -108,6 +132,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         #
         self.resources_dict = self.file_utils.load_json_file(self.resources_read_from_file)
         self.main_tf_dict = self.file_utils.load_json_file(self.main_tf_read_from_file)
+        #
+        self.variable_list_dict =  self.file_utils.load_json_file(self.terraform_tfvars_json_file)
+        self.variables_tf_dict  =  self.file_utils.load_json_file(self.variables_tf_json_file)
+        self.index = len(self.variable_list_dict.keys())
+
 
     def _save_files(self, folder):
         self.file_utils.save_to_json(self.file_utils.tf_resources_file(), self.resources_dict)
