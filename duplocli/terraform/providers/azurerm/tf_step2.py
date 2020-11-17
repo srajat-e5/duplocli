@@ -311,15 +311,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                 identity_ids_new.append(identity_id_new)
                             identity["identity_ids"] = identity_ids_new
 
-        # ~ identity
-        # {
-        #     ~ identity_ids = [
-        #     - "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourcegroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1",
-        #     + "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1",
-        # ]
-        # type = "UserAssigned"
-        # }
-
         except Exception as e:
             print("ERROR:Step2:", "_tf_resource", e)
         return resource_obj
