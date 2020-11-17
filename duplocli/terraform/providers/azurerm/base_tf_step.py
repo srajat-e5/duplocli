@@ -44,7 +44,12 @@ class AzureBaseTfImportStep:
         if tf_resource_type not in self.resources_dict:
             self.resources_dict[tf_resource_type] = {}
         return self.resources_dict[tf_resource_type]
-
+    ########
+    def _del_key(self, final_dict, attrName):
+        try:
+            del final_dict[attrName]
+        except KeyError as ex:
+            pass
     #####################################################
     def _create_tf_state(self):
         self._plan()

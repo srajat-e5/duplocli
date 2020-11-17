@@ -426,12 +426,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         if attribute_name not in resource_obj.keys():
             resource_obj[attribute_name] = attribute
 
-    def _del_key(self, final_dict, attrName):
-        try:
-            del final_dict[attrName]
-        except KeyError as ex:
-            pass
-
     #############
     def _processIfNested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
                          attribute_name, attribute, schema):

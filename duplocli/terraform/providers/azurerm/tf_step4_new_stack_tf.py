@@ -23,9 +23,6 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     variable_list_dict = {}
     # variable index
     index = 0
-    # existing res_groups
-    res_groups = {}
-
     # to avoid duplicates
     unique_resource_groups_dict = {}
     unique_dep_ids_dict = {}
@@ -46,7 +43,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         self._load_files()
         # self._gen_interpolation_ids_for_res()
         # self._states_by_id_dict()
-        # self._tf_resources()
+        self._tf_resources()
         self._create_tf_state()
         return self.file_utils.tf_main_file()
 
@@ -72,7 +69,6 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
 
     def _parameterize(self):
-        self._res_group_vars()
         resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
             resources = resource_types[resource_type]
@@ -80,8 +76,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 try:
                     resource = resources[resource_key]
                     try:
-                        pass
-                       # self._parameterize_for_res(resource_type, resource)
+                       self._parameterize_for_res(resource_type, resource)
                     except Exception as e:
                         print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
 
@@ -91,28 +86,33 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     ##### helper load and save files ##############
     def _parameterize_for_res(self, resource_type, resource):
-
+        # azurerm_managed_disk disk_iops_read_write and disk_mbps_read_write
+        #.azurerm_managed_disk disk_iops_read_write
+        if resource_type in ['azurerm_managed_disk' ]:
+            self._del_key(resource, "disk_iops_read_write")
+            self._del_key(resource, "disk_mbps_read_write")
+        print(resource_type)
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
-            if "administrator_login" in resource:
-                name = resource["administrator_login"]
+            if "administrator_login_password" not in resource:
+                # administrator_login_password = resource["administrator_login"]
                 self.index = self.index + 1
-                var_name = "{0}_{1}_administrator_login".format(resource_type, self.index)
-                resource["administrator_login"] = "${var." + var_name + "}"
-                self.variable_list_dict[var_name] = name
+                var_name = "{0}_{1}_administrator_login_password".format(resource_type, self.index)
+                resource["administrator_login_password"] = "${var." + var_name + "}"
+                self.variable_list_dict[var_name] = self.password_const
 
-        if resource_type in ["azurerm_virtual_machine"]:
-            if "os_profile" in resource:
-                resource_profiles = resource["os_profile"]
-                for resource in resource_profiles:
-                    # user_name
-                    if "admin_username" in resource:
-                        name = resource["admin_username"]
-                    else:
-                        name = "admin_username"
-                    self.index = self.index + 1
-                    var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
-                    resource["admin_username"] = "${var." + var_name + "}"
-                    self.variable_list_dict[var_name] = name
+        # if resource_type in ["azurerm_virtual_machine"]:
+        #     if "os_profile" in resource:
+        #         resource_profiles = resource["os_profile"]
+        #         for resource in resource_profiles:
+        #             # user_name
+        #             if "admin_username" in resource:
+        #                 name = resource["admin_username"]
+        #             else:
+        #                 name = "admin_username"
+        #             self.index = self.index + 1
+        #             var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
+        #             resource["admin_username"] = "${var." + var_name + "}"
+        #             self.variable_list_dict[var_name] = name
     ##### helper load and save files ##############
 
     def _load_files(self):
@@ -141,7 +141,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     def _save_files(self, folder):
         self.file_utils.save_to_json(self.file_utils.tf_resources_file(), self.resources_dict)
-        self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
+        #self.file_utils.save_to_json(self.file_utils.tf_state_file(), self.states_dict)
         self.file_utils.save_to_json(self.file_utils.tf_main_file(), self.main_tf_dict)
 
         self._copy_text_file("replace.py")

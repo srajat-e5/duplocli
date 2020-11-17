@@ -14,9 +14,9 @@ import os
 
 
 class AzurermTfSteps:
-    disable_step1 = False
-    disable_step2 = False  # True False
-    disable_step3 = False
+    disable_step1 = True
+    disable_step2 = True  # True False
+    disable_step3 = True
     disable_step4 = False
 
     def __init__(self, params):
@@ -114,7 +114,7 @@ class AzurermTfSteps:
             self.file_utils._ensure_folders()
 
     def post_execute(self):
-        if self.disable_step1 or self.disable_step2 or self.disable_step3:
+        if self.disable_step1 or self.disable_step2 or self.disable_step3 or self.disable_step4:
             return
         self._zip()
         self._backup()
