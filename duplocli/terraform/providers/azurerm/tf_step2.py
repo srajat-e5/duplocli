@@ -228,12 +228,25 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_root_update_attrs_resource(self, tf_resource_type, resource_obj, resource_obj2):
         try:
+
             if tf_resource_type == 'azurerm_app_service':
                 if "auth_settings" in resource_obj:
                     auth_settings = resource_obj["auth_settings"]
                     for auth_setting in auth_settings:
                         if "token_refresh_extension_hours" not in auth_setting:
                             auth_setting["token_refresh_extension_hours"] = 0
+
+                if "identity" in resource_obj:
+                    identity_list = resource_obj["identity"]
+                    for  identity in identity_list:
+                        if "identity_ids" in identity:
+                            identity_ids_new = []
+                            for identity_id in identity["identity_ids"]:
+                                identity_id_new = identity_id
+                                # identity_id_new = identity_id.replace("resourcegroups", "resourceGroups")
+                                identity_id_new = identity_id.replace("resourceGroups", "resourcegroups")
+                                identity_ids_new.append(identity_id_new)
+                            identity["identity_ids"] = identity_ids_new
 
             if tf_resource_type in ["azurerm_mysql_server", "azurerm_postgresql_server"]:
                 self._del_key(resource_obj, "storage_profile")
@@ -268,11 +281,44 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         }
 
             if tf_resource_type in ['azurerm_virtual_machine']:
+                if "delete_data_disks_on_termination" not in resource_obj:
+                    resource_obj["delete_data_disks_on_termination"] = False
+                if "delete_os_disk_on_termination" not in resource_obj:
+                    resource_obj["delete_os_disk_on_termination"] = False
                 if "storage_os_disk" in resource_obj:
                     storage_os_disks = resource_obj["storage_os_disk"]
                     for storage_os_disk in storage_os_disks:
                         if "managed_disk_id"  in storage_os_disk:
                             self._del_key(storage_os_disk, "managed_disk_id")
+                if "network_interface_ids" in resource_obj:
+                    network_interface_ids = resource_obj["network_interface_ids"]
+                    network_interface_ids_new = []
+                    for network_interface_id in network_interface_ids:
+                        network_interface_id_new = network_interface_id
+                        network_interface_id_new = network_interface_id.replace("resourcegroups", "resourceGroups")
+                        # network_interface_id_new = network_interface_id.replace("resourceGroups", "resourcegroups")
+                        network_interface_ids_new.append(network_interface_id_new)
+                    resource_obj["network_interface_ids"] = network_interface_id_new
+                if "identity" in resource_obj:
+                    identity_list = resource_obj["identity"]
+                    for  identity in identity_list:
+                        if "identity_ids" in identity:
+                            identity_ids_new = []
+                            for identity_id in identity["identity_ids"]:
+                                identity_id_new = identity_id
+                                identity_id_new = identity_id.replace("resourcegroups", "resourceGroups")
+                                # identity_id_new = identity_id.replace("resourceGroups", "resourcegroups")
+                                identity_ids_new.append(identity_id_new)
+                            identity["identity_ids"] = identity_ids_new
+
+        # ~ identity
+        # {
+        #     ~ identity_ids = [
+        #     - "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourcegroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1",
+        #     + "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1",
+        # ]
+        # type = "UserAssigned"
+        # }
 
         except Exception as e:
             print("ERROR:Step2:", "_tf_resource", e)
