@@ -275,7 +275,7 @@ class TfFileUtils:
 
     def zip_final_folder(self, tenant, final_folder, zip_folder, copy_files, copy_new_stack_files):
         self.copy_to_final_folder(final_folder, copy_files)
-        self.copy_to_final_folder(final_folder, copy_new_stack_files)
+        self.copy_to_final_folder(self.final_new_stack_folder(), copy_new_stack_files)
         now = datetime.datetime.now()
         now_str = now.strftime("%m-%d-%Y--%H-%M-%S")
         zipfile_name = "import-{0}-{1}".format(tenant, now_str)
