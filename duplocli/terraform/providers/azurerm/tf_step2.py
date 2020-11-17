@@ -298,7 +298,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         network_interface_id_new = network_interface_id.replace("resourcegroups", "resourceGroups")
                         # network_interface_id_new = network_interface_id.replace("resourceGroups", "resourcegroups")
                         network_interface_ids_new.append(network_interface_id_new)
-                    resource_obj["network_interface_ids"] = network_interface_id_new
+                    resource_obj["network_interface_ids"] = network_interface_ids_new
                 if "identity" in resource_obj:
                     identity_list = resource_obj["identity"]
                     for  identity in identity_list:

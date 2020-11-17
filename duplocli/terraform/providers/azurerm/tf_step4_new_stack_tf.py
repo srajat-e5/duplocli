@@ -80,7 +80,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 try:
                     resource = resources[resource_key]
                     try:
-                        self._parameterize_for_res(resource_type, resource)
+                        pass
+                       # self._parameterize_for_res(resource_type, resource)
                     except Exception as e:
                         print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
 
