@@ -164,6 +164,7 @@ class AwsTfSteps:
 
     def _zip(self):
         copy_files = []
+        copy_new_stack_files= []
         for module in self.params.modules():
             self.params.set_step_type(module)
             self.params.set_step("step2")
@@ -174,7 +175,7 @@ class AwsTfSteps:
         self.file_utils.zip_final_folder(self.params.tenant_name,
                                          self.file_utils.final_folder(),
                                          self.file_utils.zip_folder(),
-                                         copy_files)
+                                         copy_files, copy_new_stack_files)
 
     ############
 

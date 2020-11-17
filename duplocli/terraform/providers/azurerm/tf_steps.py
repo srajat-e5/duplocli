@@ -171,6 +171,7 @@ class AzurermTfSteps:
 
     def _zip(self):
         copy_files = []
+        copy_new_stack_files = []
         step_name = "step3"
         if self.disable_step3:
             step_name = "step2"
@@ -186,14 +187,18 @@ class AzurermTfSteps:
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
             if not self.disable_step4:
-                copy_files.append(self.file_utils.final_new_stack_folder())
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "main.tf.json"))
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "variables.tf.json"))
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "terraform.tfvars.json"))
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace.py"))
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "parameterization.md"))
 
         copy_files.append(self.file_utils.keys_folder())
 
         self.file_utils.zip_final_folder(self.params.tenant_name,
                                          self.file_utils.final_folder(),
                                          self.file_utils.zip_folder(),
-                                         copy_files)
+                                         copy_files, copy_new_stack_files)
 
     ############
 

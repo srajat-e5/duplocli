@@ -197,7 +197,7 @@ class TfFileUtils:
         self._ensure_folder(self.work_folder_for_step("step1"))
         self._ensure_folder(self.work_folder_for_step("step2"))
         self._ensure_folder(self.work_folder_for_step("step3"))
-        self._ensure_folder(self.work_folder_for_step("new_stack"))
+        self._ensure_folder(self.work_folder_for_step("step4"))
         self._ensure_folder(self.keys_folder())
         self._ensure_folder(self.zip_folder())
         self._ensure_folder(self.final_folder())
@@ -257,8 +257,9 @@ class TfFileUtils:
 
     ##########
 
-    def copy_to_final_folder(self, final_folder, copy_files):
+    def copy_to_final_folder(self, final_folder, copy_files, copy_new_stack_files):
         self._ensure_folder(self.final_folder())
+        self._ensure_folder(self.final_new_stack_folder())
         for copy_file in copy_files:
             src_name = os.path.basename(copy_file)
             if os.path.isdir(copy_file):
