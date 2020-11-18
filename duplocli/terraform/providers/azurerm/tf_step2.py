@@ -105,7 +105,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     def _process_nested(self, nested_count_parent, tf_resource_type, tf_resource_var_name, nested_atr_name,
                         nested_atr, resource_obj_parent, schema_nested):
         try:
-
             # TO_FIX_BUGS: skip based on object type
             if self._skip_process_nested(nested_count_parent, tf_resource_type, tf_resource_var_name,
                                          nested_atr_name,
