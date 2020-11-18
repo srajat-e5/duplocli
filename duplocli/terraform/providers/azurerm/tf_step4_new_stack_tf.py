@@ -3,7 +3,7 @@ import random
 import os
 import json
 from datetime import datetime
-
+import psutil
 
 class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     # dict
@@ -36,7 +36,6 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     def __init__(self, params):
         super(AzurermTfStep4NewStack, self).__init__(params)
         random.seed(datetime.now())
-        self.tf_import_sh_list = []
         self.tf_import_sh_list.append("")
 
     def execute(self):
@@ -68,11 +67,18 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         except Exception as e:
             print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
 
-    def _parameterize(self):
-        resource_types = self.main_tf_dict["resource"]
+    def _skip_remove_resources(self, resource_types):
         if "azurerm_managed_disk" in resource_types:
             self._del_key(resource_types , "azurerm_managed_disk")
+        if "azurerm_virtual_machine_extension" in resource_types:
+            self._del_key(resource_types , "azurerm_virtual_machine_extension")
 
+    def _parameterize(self):
+        #
+        resource_types = self.main_tf_dict["resource"]
+        # azure auto creates them?
+        self._skip_remove_resources(resource_types)
+        #
         for resource_type in resource_types:
             resources = resource_types[resource_type]
             for resource_key in resources:
@@ -151,6 +157,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
         self._copy_text_file("replace.py")
         self._copy_text_file("parameterization.md")
+        self._copy_text_file("replace_azdemo1.sh")
+
         self.file_utils.save_json_to_work_folder("terraform.tfvars.json", self.variable_list_dict)
 
         ## save variables.tf.json

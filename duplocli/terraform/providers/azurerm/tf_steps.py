@@ -187,6 +187,7 @@ class AzurermTfSteps:
                # copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
                 copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
             if not self.disable_step4:
+                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace_azdemo1.sh"))
                 copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "main.tf.json"))
                 copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "variables.tf.json"))
                 copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "terraform.tfvars.json"))

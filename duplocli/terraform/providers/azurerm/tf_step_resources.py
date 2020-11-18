@@ -141,7 +141,7 @@ class AzurermResources:
         ""
         # some bug in azurerm ---  test016122019 not accepting required === "hyper_v_generation": "V1" or "V2" or ""
     ]
-
+    #connectionSecurity
     # resources_skip = [
     #
     #     'azurerm_automation_account',
@@ -456,7 +456,13 @@ class AzurermResources:
                         if self.should_import_resource_type(res):
                             self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                    tf_import_id=res.id, skip_if_exists=True)
+                            #additionaly always include respource group
                             self._tf_cloud_resource_group(res.id, "azurerm_resource_group", instance)
+                            #
+                            # #additionaly for sql add firewall -- we need list of firewalls
+                            # if res.type_name  in ["azurerm_mysql_server","azurerm_postgresql_server"]:
+                            #     self.tf_cloud_resource("azurerm_mysql_firewall_rule", instance, tf_variable_id=res.name+ "_connectionSecurity",
+                            #                        tf_import_id=res.id+"/firewallRules/connectionSecurity", skip_if_exists=True)
                         else:
                             print("========ABORT 1 SKIPPED", res.type_name, "===", res.id)
                     else:
