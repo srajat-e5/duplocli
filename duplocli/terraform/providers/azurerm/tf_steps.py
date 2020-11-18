@@ -4,7 +4,6 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_resources import AzurermResources
 from duplocli.terraform.providers.azurerm.tf_step1 import AzurermTfImportStep1
 from duplocli.terraform.providers.azurerm.tf_step2 import AzurermTfImportStep2
-# from duplocli.terraform.providers.azurerm.tf_step2_original import AzurermTfImportStep2
 from duplocli.terraform.providers.azurerm.tf_step3_param_stack_tf import AzurermTfStep3ParamStack
 from duplocli.terraform.providers.azurerm.tf_step4_new_stack_tf import AzurermTfStep4NewStack
 
@@ -170,36 +169,36 @@ class AzurermTfSteps:
         return json_path
 
     def _zip(self):
-        copy_files = []
-        copy_new_stack_files = []
+        copy_to_final_files = []
+        copy_to_new_stack_files = []
         step_name = "step3"
         if self.disable_step3:
             step_name = "step2"
         for module in self.params.modules():
             self.params.set_step_type(module)
             self.params.set_step(step_name)
-            copy_files.append(self.file_utils.tf_resources_file())
-            copy_files.append(self.file_utils.tf_state_file())
-            copy_files.append(self.file_utils.tf_main_file())
+            copy_to_final_files.append(self.file_utils.tf_resources_file())
+            copy_to_final_files.append(self.file_utils.tf_state_file())
+            copy_to_final_files.append(self.file_utils.tf_main_file())
             if not self.disable_step3:
-                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "variables.tf.json"))
-                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "terraform.tfvars.json"))
+                copy_to_final_files.append(self.file_utils.file_in_work_folder_for_step("step3", "variables.tf.json"))
+                copy_to_final_files.append(self.file_utils.file_in_work_folder_for_step("step3", "terraform.tfvars.json"))
                # copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "replace.py"))
-                copy_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
+                copy_to_final_files.append(self.file_utils.file_in_work_folder_for_step("step3", "parameterization.md"))
             if not self.disable_step4:
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace_azdemo1.sh"))
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "main.tf.json"))
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "variables.tf.json"))
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "terraform.tfvars.json"))
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace.py"))
-                copy_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "parameterization.md"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace_azdemo1.sh"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "main.tf.json"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "variables.tf.json"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "terraform.tfvars.json"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "replace.py"))
+                copy_to_new_stack_files.append(self.file_utils.file_in_work_folder_for_step("step4", "parameterization.md"))
 
-        copy_files.append(self.file_utils.keys_folder())
+        copy_to_final_files.append(self.file_utils.keys_folder())
 
         self.file_utils.zip_final_folder(self.params.tenant_name,
                                          self.file_utils.final_folder(),
                                          self.file_utils.zip_folder(),
-                                         copy_files, copy_new_stack_files)
+                                         copy_to_final_files, copy_to_new_stack_files)
 
     ############
 

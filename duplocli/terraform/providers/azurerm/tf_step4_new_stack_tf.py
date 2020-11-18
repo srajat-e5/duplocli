@@ -63,7 +63,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
     def _tf_resources(self):
         try:
             self._parameterize()
-            print("DONE")
+            print("DONE new stack")
         except Exception as e:
             print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
 
@@ -100,7 +100,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         if resource_type in ['azurerm_managed_disk' ]:
             self._del_key(resource, "disk_iops_read_write")
             self._del_key(resource, "disk_mbps_read_write")
-        print(resource_type)
+        # print(resource_type)
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             if "administrator_login_password" not in resource:
                 # administrator_login_password = resource["administrator_login"]
