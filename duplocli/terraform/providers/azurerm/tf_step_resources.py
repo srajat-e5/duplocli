@@ -263,18 +263,23 @@ class AzurermResources:
         return instance_root
 
     #### public methods #######
+    def get_all_resources(self):
+        ##no change for now
+        self._all_resources()
+        return self.tf_cloud_obj_list
 
     def get_tenant_resources(self):
-        ##
-        self.get_all_resources()
+        ##no change for now
+        self._all_resources()
         return self.tf_cloud_obj_list
 
     def get_infra_resources(self):
-        ##
-        self.get_all_resources()
+        ##no change for now
+        self._all_resources()
         return self.tf_cloud_obj_list
 
     def get_tenant_key_pair_list(self):
+        ##no impl for now
         return None
 
     ########### helpers ###########
@@ -414,7 +419,7 @@ class AzurermResources:
         print("OK:", res.type_name, "===", res.id)
         return True
 
-    def get_all_resources(self):
+    def _all_resources(self):
         print("\n\n\n======================================================")
         self.DEBUG_EXPORT_ALL = False  # False True
         if self.DEBUG_EXPORT_ALL:
