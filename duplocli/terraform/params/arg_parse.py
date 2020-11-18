@@ -31,18 +31,18 @@ class ArgParse:
                                 '--' + attr_name, action='store', dest=attr_name)
         return parser
 
-    def infer_import_module(self, default_import_module="all"):
-        self.import_module = None  # for now neglect and derive
-        if self.import_module is None:
-            if self.tenant_name is None:
-                self.import_module = default_import_module
-            else:
-                if self.tenant_name in ["all", "infra"]:
-                    self.import_module = self.tenant_name
-                elif "," in self.tenant_name:
-                    self.import_module = "tenantlist"
-                else:
-                    self.import_module = default_import_module
+    # def infer_import_module(self, default_import_module="all"):
+    #     self.import_module = None  # for now neglect and derive
+    #     if self.import_module is None:
+    #         if self.tenant_name is None:
+    #             self.import_module = default_import_module
+    #         else:
+    #             if self.tenant_name in ["all", "infra"]:
+    #                 self.import_module = self.tenant_name
+    #             elif "," in self.tenant_name:
+    #                 self.import_module = "tenantlist"
+    #             else:
+    #                 self.import_module = default_import_module
 
     def parsed_args(self, parsed_args):
         self.parsed_args_params = parsed_args
@@ -83,7 +83,58 @@ class ArgParse:
         return params
 
     def getTfModules(self, params):
-        params = self._set_defaults(params)
+        tf_modules = {}
+        if self.provider == "aws":
+            tf_modules =  self.getTfModulesAws(params)
+        if self.provider == "azurerm":
+            tf_modules = self.getTfModulesAzurerm(params)
+        return tf_modules
+
+    ############ Azurerm ########################
+
+    def getTfModulesAzurerm(self, params):
+        self._set_defaults_azurerm(params)
+        tf_modules = {}
+        tf_module = TfModule(True, False, "duplo_terraform", None, None)
+        tf_modules["duplo_terraform"] = tf_module
+        return tf_modules
+
+    def  _set_defaults_azurerm(self, params):
+        tenant_name = params['tenant_name']
+        infra_name = params['infra_name']
+        is_tenant = True
+        is_infra = True
+        if tenant_name is None or tenant_name.strip() == "":
+            is_tenant = False
+        else:
+            params['tenant_name'] = params['tenant_name'].strip()
+        if infra_name is None or infra_name.strip() == "":
+            is_infra = False
+        else:
+            params['infra_name'] = params['infra_name'].strip()
+
+        if is_tenant and is_infra:
+            prefix = "{0}_{1}".format(tenant_name, tenant_name)
+        elif is_tenant:
+            prefix = tenant_name
+        elif is_infra:
+            prefix =infra_name
+        else:
+            self._raise_error(params,
+                              "Exception: tenant_name or infra_name or both must be proveded.")
+
+        params['folder_prefix'] = prefix
+        params['is_tenant'] = is_tenant
+        params['is_infra'] = is_infra
+        return params
+
+
+
+    ############ aws ########################
+
+    def getTfModulesAws(self, params):
+        tf_modules = {}
+        params = self._set_defaults_aws(params)
         tenants = []
         tenant_ids = []
 
@@ -117,7 +168,6 @@ class ArgParse:
                     self._raise_error(self.parsed_args_params,
                                       "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
-        tf_modules = {}
         for index in range(len(tenants)):
             tenant_name = tenants[index]
             tenant_id = ""
@@ -130,30 +180,7 @@ class ArgParse:
             tf_modules[tenant_name] = tf_module
         return tf_modules
 
-    ############ helpers ########################
-    def _raise_error(self, params, message):
-        print("============== ERROR ============== ")
-        print(message)
-        print("============== USAGE ============== ")
-        print(get_help(params, self.provider))
-        print("============== Exception ============== ")
-        raise Exception(message)
-
-    def _check_required_fields(self, required_fields):
-        parameters = vars(self.parsed_args_params, )
-        self.validate_required_fields(parameters, required_fields)
-
-    def validate_required_fields(self, parameters, required_fields):
-        # parameters = vars(self.parsed_args_params,)
-        for required_field in required_fields:
-            if required_field not in parameters or parameters[required_field] is None or parameters[
-                required_field] == "":
-                fields = ",".join(required_fields)
-                print("Missing required_fields = " + " ".join(parameters))
-                self._raise_error(parameters, "Exception: Missing required_fields = " + fields)
-
-    def _set_defaults(self, params):
-
+    def _set_defaults_aws(self, params):
         if params['import_module'] in ["tenant", None, ""]:
             params['import_module'] = "tenant"
 
@@ -184,4 +211,28 @@ class ArgParse:
                 self._raise_error(self.parsed_args_params,
                                   "Exception: import_module=tenant_list/infra_list - count not matching for tenant_names and tenant_ids, should be equal.")
 
+        params['folder_prefix'] = params['tenant_name']
         return params
+
+    ############ helpers ########################
+    def _raise_error(self, params, message):
+        print("============== ERROR ============== ")
+        print(message)
+        print("============== USAGE ============== ")
+        print(get_help(params, self.provider))
+        print("============== Exception ============== ")
+        raise Exception(message)
+
+    def _check_required_fields(self, required_fields):
+        parameters = vars(self.parsed_args_params, )
+        self.validate_required_fields(parameters, required_fields)
+
+    def validate_required_fields(self, parameters, required_fields):
+        # parameters = vars(self.parsed_args_params,)
+        for required_field in required_fields:
+            if required_field not in parameters or parameters[required_field] is None or parameters[
+                required_field] == "":
+                fields = ",".join(required_fields)
+                print("Missing required_fields = " + " ".join(parameters))
+                self._raise_error(parameters, "Exception: Missing required_fields = " + fields)
+

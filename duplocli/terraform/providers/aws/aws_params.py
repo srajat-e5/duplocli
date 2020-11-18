@@ -22,6 +22,11 @@ class AwsParams(ParamBase):
         "state_file": None,
         "zip_file_path": None,
 
+        "is_infra": False,
+        "is_tenant": False,
+
+        "folder_prefix":"duplo_tf",
+
         "tenant_name": "infra",
         "import_module": None,
         "default_import_module": "infra",

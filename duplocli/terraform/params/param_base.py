@@ -22,6 +22,7 @@ class ParamBase:
 
     def set_step_type(self, step_type):
         self.step_type = step_type
+        #not used except for aws keys
         self.module = step_type
         if step_type in self.modules():
             self.tf_module = self.get_tf_module(step_type)
@@ -51,6 +52,7 @@ class ParamBase:
         self._set_attributes(parameters)
         self.tf_modules = self.paramHelper.getTfModules(parameters)
 
+        self.parameters = parameters
         ### create_work_file_paths
         self._create_work_file_paths()
 
@@ -74,6 +76,21 @@ class ParamBase:
             return parameters[key]
         return None
 
+    def get_tenant_prefix(self):
+        if self.provider == 'aws':
+            return self.tenant_name
+        else: #if self.provider == 'azurerm':
+            prefix=""
+            self.is_tenant = self.parameters["is_tenant"]
+            self.is_infra = self.parameters["is_infra"]
+            if self.is_tenant and self.is_infra:
+                prefix = "{0}_{1}".format(self.tenant_name , self.tenant_name )
+            elif self.is_tenant:
+                prefix = self.tenant_name
+            elif self.is_infra:
+                prefix = self.infra_name
+            return prefix
+
     def _create_work_file_paths(self):
         params = self
         self.file_utils = TfFileUtils(self)
@@ -83,12 +100,13 @@ class ParamBase:
             self.import_name = "{0}-{1}".format(self.provider, now_str)
         self.parameters_default = self.default_params  # self.file_utils.load_json_file(self.default_params_path)
         if self.parameters_default["temp_folder"] == self.temp_folder:
-            self.temp_folder = os.path.join(self.temp_folder, self.tenant_name, self.import_name)
+            self.temp_folder = os.path.join(self.temp_folder, self.get_tenant_prefix(), self.import_name)
             self.zip_folder = os.path.join(self.temp_folder, "zip")
         if self.zip_file_path is None:
             self.zip_file_path = os.path.join(self.zip_folder, self.import_name)
         self.temp_folder_path = self.temp_folder
         self.zip_folder_path = self.zip_folder
+
 
     def _check_required_fields(self, required_fields):
         parameters = vars(self)
@@ -114,9 +132,10 @@ class ParamBase:
         parsed_args.import_module = import_module
 
     def infer_import_module_azurerm(self, parsed_args):
-        if parsed_args.import_module in ["infra"]:
-            parsed_args.tenant_name = parsed_args.infra_name
+        pass
+        # if parsed_args.import_module in ["infra"]:
+        #     parsed_args.tenant_name = parsed_args.infra_name
 
-        if parsed_args.import_module is None:
-            parsed_args.import_module = "all"
-            parsed_args.tenant_name = "all"
+        # if parsed_args.import_module is None:
+        #     parsed_args.import_module = "all"
+        #     parsed_args.tenant_name = "all"

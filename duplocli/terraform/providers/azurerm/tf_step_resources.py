@@ -337,7 +337,8 @@ class AzurermResources:
     def tenant_resource_debug(self):
         for instance in self.az_resource_client.resources.list():
             id = instance.id
-            if self.params.import_module == "tenant":
+            if self.params.is_tenant:
+            #if self.params.import_module == "tenant":
                 filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
                 if filter_tenant_str in id.lower():
                     print("*****##tenant##*****  resourcegroups match? filter_resource ",
@@ -347,38 +348,40 @@ class AzurermResources:
                           id)
                 else:
                     pass  # print("*****##tenant##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
-            elif self.params.import_module == "infra":
-                filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.tenant_name.lower())
+            if self.params.is_infra:
+            #if self.params.import_module == "infra":
+                filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
                 if filter_tenant_str in id.lower():
-                    print("*****##infra##*****  complete match? filter_resource ", self.params.tenant_name.lower(), id)
+                    print("*****##infra##*****  complete match? filter_resource ", self.params.infra_name.lower(), id)
+                elif self.params.infra_name.lower() in id.lower():
+                    print("*****##infra##*****  only infra-name found? filter_resource ", self.params.infra_name.lower(),
+                          id)
                 else:
-                    pass  # print("*****##infra##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
+                    pass  # print("*****##infra##*****  not found? filter_resource ", self.params.infra_name.lower(), id)
 
         return True
 
     # duplocloud/shell:terraform_kubectl_azure_test_v26
     def filter_resource(self, id):
         #############
-        if self.params.import_module == "all" or self.DEBUG_EXPORT_ALL:
+        if  self.DEBUG_EXPORT_ALL:
             return True
-        elif self.params.import_module == "tenant":
+        if self.params.is_tenant: #if self.params.import_module == "tenant":
             filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
             if filter_tenant_str in id.lower():
                 return True
             elif self.params.tenant_name.lower() in id.lower():
                 return True
-            else:
-                return False
-        elif self.params.import_module == "infra":
-            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.tenant_name.lower())
+        if self.params.is_infra: #elif self.params.import_module == "infra":
+            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
             if filter_tenant_str in id.lower():
                 return True
-            else:
-                return False
-        return True
+            elif self.params.infra_name in id.lower():
+                print("*****##infra##*****  only infra-name found? filter_resource ", self.params.infra_name.lower(),
+                      id)
+        return False
 
     def should_import_resource_type(self, res):
-
         if res.type_name not in self.azurerm_resources:
             if res.type_name not in self.unique_unsupported_resouces:
                 self.unique_unsupported_resouces.append(res.type_name)
