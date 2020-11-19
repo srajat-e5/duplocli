@@ -242,6 +242,22 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 #azurerm_subnet address_prefixes
                 if "address_prefixes" in resource_obj and  "address_prefix" in resource_obj:
                     self._del_key(resource_obj, "address_prefix")
+            if tf_resource_type == "azurerm_dns_zone":
+                #azurerm_subnet address_prefixes
+                if "name_servers" in resource_obj :
+                    self._del_key(resource_obj, "name_servers")
+            if tf_resource_type == "azurerm_key_vault":
+            #access_policy application_id storage_permissions
+                if "access_policy" in resource_obj :
+                    access_policies = resource_obj["access_policy"]
+                    for access_policy in access_policies:
+                        if "application_id" not in access_policy:
+                            access_policy["application_id"] = ""
+                        if "storage_permissions" not in access_policy:
+                            access_policy["storage_permissions"] = []
+            #"certificate_permissions" and "key_permissions"
+
+
             if tf_resource_type == 'azurerm_app_service':
                 if "auth_settings" in resource_obj:
                     auth_settings = resource_obj["auth_settings"]
