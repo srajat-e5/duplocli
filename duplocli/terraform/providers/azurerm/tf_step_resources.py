@@ -15,6 +15,8 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 
 
 class AzureTfStepResource:
+    subnet_dict = {}
+    res_groups_subnet_unique_dict = []
     def __init__(self, res):
         self.id = res.id
         self.name_origin = res.name
@@ -270,6 +272,7 @@ class AzurermResources:
 
     def get_tenant_resources(self):
         ##no change for now
+
         self._all_resources()
         return self.tf_cloud_obj_list
 
@@ -283,7 +286,30 @@ class AzurermResources:
         return None
 
     ########### helpers ###########
+    def _get_subnets(self, res_group_name):
+        try:
+            if res_group_name in self.res_groups_subnet_unique_dict:
+                return False
+            self.res_groups_subnet_unique_dict.append(res_group_name)
 
+            virtual_networks = self.az_network_client.virtual_networks.list(res_group_name)
+            for virtual_network in virtual_networks:
+                virtual_network_name = virtual_network.name
+                print("==========subnet===================")
+                # print(virtual_network_name,  virtual_network)
+                try:
+                    subnets =   self.az_network_client.subnets.list(res_group_name, virtual_network_name)
+                    for subnet in subnets:
+                        self.subnet_dict[subnet.id] = subnet
+                        # subnet_name = subnet.name
+                        # print(subnet_name, subnet)
+                    print(subnets)
+                except Exception as e:
+                    print("ERROR:AzurermResources:1", "_get_subnets", e)
+            print("============subnet=================")
+        except Exception as e:
+            print("ERROR:AzurermResources:2", "_get_subnets", e)
+        return True
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
                           skip_if_exists=False):
 
@@ -465,7 +491,9 @@ class AzurermResources:
                             self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                    tf_import_id=res.id, skip_if_exists=True)
                             #additionaly always include respource group
-                            self._tf_cloud_resource_group(res.id, "azurerm_resource_group", instance)
+                            id_metadata = self._parse_id_metadata(res.id)
+                            self._tf_cloud_resource_group(id_metadata, res.id, "azurerm_resource_group", instance)
+                            self._tf_cloud_resource_vn_subnets(id_metadata,res.id,res.type_name, instance)
                             #
                             # #additionaly for sql add firewall -- we need list of firewalls
                             # if res.type_name  in ["azurerm_mysql_server","azurerm_postgresql_server"]:
@@ -488,12 +516,49 @@ class AzurermResources:
         print("======================================================\n\n\n")
         return arrAzureResources
 
-    def _tf_cloud_resource_group(self, tf_import_id, type_name, tf_cloud_obj):
-        tf_import_id_arr = tf_import_id.split("/")
-        new_id_arr = tf_import_id_arr[1:5]
-        res_name = tf_import_id_arr[4].lower().strip()
-        tf_import_id_arr[4] = res_name
-        new_id_temp = "/".join(new_id_arr)
-        tf_import_id_new = "/{0}".format(new_id_temp)
+
+    def _parse_id_metadata(self, tf_import_id):
+        res_metadata={}
+        try:
+            tf_import_id_arr = tf_import_id.split("/")
+
+            for i in range(1,len(tf_import_id_arr),2):
+                key = tf_import_id_arr[i]
+                val = tf_import_id_arr[i+1]
+                res_metadata[key] = val
+                if i > 5:
+                    res_metadata["provder_key_{0}".format(i)] = key
+                    res_metadata["provder_val_{0}".format(i)] = val
+
+            new_id_arr = tf_import_id_arr[1:5]
+            new_id_temp = "/".join(new_id_arr)
+            tf_import_id_new = "/{0}".format(new_id_temp)
+
+            res_name = tf_import_id_arr[4].lower().strip()
+            res_metadata["resource_group_name"] = res_name
+            res_metadata["resource_group_id"] = tf_import_id_new
+        except Exception as e:
+            print("ERROR:AzurermResources:", "get_all_resources", e)
+        print(res_metadata)
+        return res_metadata
+
+    def _tf_cloud_resource_group(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
+        # tf_import_id_arr = tf_import_id.split("/")
+        # new_id_arr = tf_import_id_arr[1:5]
+        # res_name = tf_import_id_arr[4].lower().strip()
+        # tf_import_id_arr[4] = res_name
+        # new_id_temp = "/".join(new_id_arr)
+        # tf_import_id_new = "/{0}".format(new_id_temp)
+        res_name = id_metadata["resource_group_name"]
+        tf_import_id_new = id_metadata["resource_group_id"]
         self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
                                tf_import_id=tf_import_id_new, skip_if_exists=True)
+
+    def _tf_cloud_resource_vn_subnets(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
+        if type_name == "azurerm_resource_group": #"azurerm_network_interface":
+            process = self._get_subnets(type_name)
+            if process:
+               for id in self.subnet_dict:
+                   subnet = self.subnet_dict[id]
+                   print(subnet, id_metadata)
+
