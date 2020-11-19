@@ -247,7 +247,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 if "frontend_ip_configuration" in resource_obj :
                     child_obj_list = resource_obj["frontend_ip_configuration"]
                     for child_obj in child_obj_list:
-                        if "outbound_rules" not in child_obj:
+                        if "outbound_rules"  in child_obj:
                           self._del_key(child_obj, "outbound_rules")
 
             if tf_resource_type == "azurerm_subnet":
