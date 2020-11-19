@@ -34,7 +34,6 @@ class AzureTfStepResource:
 
         self.type_name = "azurerm_{0}".format(snakecase(type_camel))
         self.type_name_orig = self.type_name
-        print(self.provider, self.type_name)
 
         if "azurerm_servers" == self.type_name:
             if self.provider == "Microsoft.DBForMySQL":
@@ -219,6 +218,7 @@ class AzurermResources:
             self._init_azure_client()
             self._create_env_sh()
         except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources: __init__ {0}".format(e))
             print("ERROR:AzurermResources:", "__init__", e)
 
     ###### azure client ######
@@ -248,6 +248,7 @@ class AzurermResources:
             self.az_storage_client = StorageManagementClient(credentials, subscription_id)
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
         except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources: _init_azure_client {0}".format(e))
             print("ERROR:AzurermResources:", "_init_azure_client", e)
 
     def _create_env_sh(self):
@@ -296,20 +297,16 @@ class AzurermResources:
             virtual_networks = self.az_network_client.virtual_networks.list(res_group_name)
             for virtual_network in virtual_networks:
                 virtual_network_name = virtual_network.name
-                # print("==========subnet===================")
-                # print(virtual_network_name,  virtual_network)
                 try:
                     subnets =   self.az_network_client.subnets.list(res_group_name, virtual_network_name)
                     for subnet in subnets:
                         self.subnet_dict[subnet.id] = subnet
                         found_new = True
-                        # subnet_name = subnet.name
-                        # print(subnet_name, subnet)
-                    # print(subnets)
                 except Exception as e:
+                    self.file_utils._save_errors("ERROR:step0:resources: _get_subnets {0}".format(e))
                     print("ERROR:AzurermResources:1", "_get_subnets", e)
-            # print("============subnet=================")
         except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources:2 _get_subnets {0}".format(e))
             print("ERROR:AzurermResources:2", "_get_subnets", e)
         return found_new
 
@@ -323,7 +320,6 @@ class AzurermResources:
                   tf_resource_var_name, tf_import_id)
             raise Exception("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided")
 
-        # self.file_utils.print_json(tf_cloud_obj)
         tf_resource_type = tf_resource_type.strip()
         tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
         tf_resource_var_name = tf_resource_var_name.lower().strip()
@@ -359,6 +355,7 @@ class AzurermResources:
             with open(json_path) as f:
                 self.azurerm_resources = json.load(f)
         except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources: _load_azurerm_resources_json {0}".format(e))
             print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
 
     def _load_env(self):
@@ -375,8 +372,7 @@ class AzurermResources:
             #if self.params.import_module == "tenant":
                 filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
                 if filter_tenant_str in id.lower():
-                    print("*****##tenant##*****  resourcegroups match? filter_resource ",
-                          self.params.tenant_name.lower(), id)
+                    print("*****##tenant##*****  resourcegroups match? filter_resource ",  self.params.tenant_name.lower(), id)
                 elif self.params.tenant_name.lower() in id.lower():
                     print("*****##tenant##*****  only tenant found? filter_resource ", self.params.tenant_name.lower(),
                           id)
@@ -411,8 +407,7 @@ class AzurermResources:
             if filter_tenant_str in id.lower():
                 return True
             elif self.params.infra_name in id.lower():
-                print("*****##infra##*****  only infra-name found? filter_resource ", self.params.infra_name.lower(),
-                      id)
+                return True
         return False
 
     def should_import_resource_type(self, res):
@@ -445,17 +440,17 @@ class AzurermResources:
             return False
         if res.type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(res.type_name)
-        print("OK:", res.type_name, "===", res.id)
+        # print("OK:", res.type_name, "===", res.id)
         return True
 
     def _all_resources(self):
-        print("\n\n\n======================================================")
+        print("\n\n\n===============DEBUG=======================================")
         self.DEBUG_EXPORT_ALL = False  # False True
         if self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:
             self.tenant_resource_debug()
-        print("======================================================\n\n\n")
+        print("======================DEBUG================================\n\n\n")
         self.resources_only_debug = False  # True  #False
         # trac info
         self.unique_processed_resouces = []
@@ -508,15 +503,15 @@ class AzurermResources:
                         print("======== ABORT 2 NOT_FOUND: not supported by azurerm terraform?", res.type_name, "===",
                               res.id)
                 except Exception as e:
+                    self.file_utils._save_errors("ERROR:step0:resources: get_all_resources {0}".format(e))
                     print("ERROR:AzurermResources:", "get_all_resources", e)
                     print("========ABORT 3 ERROR", res.type_name, "===", res.id)
 
-        print("===============len(arrAzureResources)=============", len(arrAzureResources),
-              "==========================")
+        print("AzurermResource s===============len(arrAzureResources)=============", len(arrAzureResources))
         print("unique_processed_resouces", len(self.unique_processed_resouces), self.unique_processed_resouces)
         print("unique_skip_resouces", len(self.unique_skip_resouces), self.unique_skip_resouces)
         print("unique_unsupported_resouces", len(self.unique_unsupported_resouces), self.unique_unsupported_resouces)
-        print("======================================================\n\n\n")
+        print("AzurermResources ======================================================\n\n\n")
         return arrAzureResources
 
 
@@ -541,8 +536,8 @@ class AzurermResources:
 
 
         except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources: _parse_id_metadata {0}".format(e))
             print("ERROR:AzurermResources:", "get_all_resources", e)
-        #print(res_metadata)
         return res_metadata
 
     def _tf_cloud_resource_group(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
@@ -559,7 +554,6 @@ class AzurermResources:
         if process:
            for id in self.subnet_dict:
                subnet = self.subnet_dict[id]
-               print(subnet, id_metadata)
                self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
                                       tf_import_id=subnet.id, skip_if_exists=True)
 

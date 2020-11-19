@@ -32,6 +32,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             try:
                 self._tf_resource(resource)
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step2: _tf_resources {0}".format(e))
                 print("ERROR:Step2:", "_tf_resources", e, resource)
         return self.main_tf_json_dict
 
@@ -89,6 +90,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     else:
                         pass
                 except Exception as e:
+                    self.file_utils._save_errors("ERROR:Step2: _tf_resource {0}".format(e))
                     print("ERROR:Step2:1", "_tf_resource", e, resource_obj)
 
             #remove empty array,strings -- bug in azurerm
@@ -99,6 +101,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             self._skip_root_update_attrs_resource(tf_resource_type, resource_obj, resource_obj2)
             tf_resource_type_root[tf_resource_var_name] = resource_obj
         except Exception as e:
+            self.file_utils._save_errors("ERROR:Step2:2 _tf_resource {0}".format(e))
             print("ERROR:Step2:2", "_tf_resource", e, resource_obj, resource)
 
     #############
@@ -140,6 +143,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
             else:
                 pass
         except Exception as e:
+            self.file_utils._save_errors("ERROR:Step2: _process_nested {0}".format(e))
             print("ERROR:Step2:", "_process_nested", e)
     #############
     def _process_dict(self, nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
@@ -163,6 +167,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     else:
                         pass
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step2: _process_nested {0}".format(e))
                 print("ERROR:Step2:", "_process_dict", e)
         # TO_FIX_BUGS: skip based on object type
         self._skip_process_dict(nested_count_parent, tf_resource_type, tf_resource_var_name, resource_obj,
@@ -206,6 +211,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                     else:
                         final_dict[attrName] = attrValue
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step2: remove_empty {0}".format(e))
                 print("ERROR:Step2:", "remove_empty", e)
         return final_dict
 
@@ -315,7 +321,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             identity["identity_ids"] = identity_ids_new
 
         except Exception as e:
-            print("ERROR:Step2:", "_tf_resource", e)
+            self.file_utils._save_errors("ERROR:Step2: _skip_root_update_attrs_resource {0}".format(e))
+            print("ERROR:Step2:", "_skip_root_update_attrs_resource", e)
         return resource_obj
 
     ########
@@ -340,6 +347,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             else:
                                 resource_obj[attribute_name] = attribute
                         except Exception as e:
+                            self.file_utils._save_errors("ERROR:Step2: site_config {0}".format(e))
                             print("ERROR:Step2:", "site_config", e)
                 resource_obj_parent[nested_atr_name] = resource_obj_arr
                 return True
@@ -358,6 +366,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             else:
                                 resource_obj[attribute_name] = attribute
                         except Exception as e:
+                            self.file_utils._save_errors("ERROR:Step2: _skip_process_nested {0}".format(e))
                             print("ERROR:Step2:", nested_atr_name, e)
                 if resource_obj_arr is not None:
                     resource_obj_parent[nested_atr_name] = resource_obj_arr

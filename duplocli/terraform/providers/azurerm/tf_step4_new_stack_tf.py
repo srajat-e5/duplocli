@@ -65,7 +65,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             self._parameterize()
             print("DONE new stack")
         except Exception as e:
-            print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
+            self.file_utils._save_errors("ERROR:Step4: _tf_resources {0}".format(e))
+            print("ERROR:Step4:", "_tf_resources", e)
 
     def _skip_remove_resources(self, resource_types):
         if "azurerm_managed_disk" in resource_types:
@@ -87,11 +88,13 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                     try:
                        self._parameterize_for_res(resource_type, resource)
                     except Exception as e:
-                        print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
+                        self.file_utils._save_errors("ERROR:Step4: _parameterize {0}".format(e))
+                        print("ERROR:Step4:1", "_parameterize", e)
 
 
                 except Exception as e:
-                    print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
+                    self.file_utils._save_errors("ERROR:Step4: _parameterize {0}".format(e))
+                    print("ERROR:Step4:3", "_parameterize", e)
 
     ##### helper load and save files ##############
     def _parameterize_for_res(self, resource_type, resource):
@@ -178,4 +181,5 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             replace_py = self.file_utils.file_read_as_text(src_file)
             self.file_utils.file_save_as_text(dest_file, replace_py)
         except Exception as e:
-            print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
+            self.file_utils._save_errors("ERROR:Step4: _copy_text_file {0}".format(e))
+            print("ERROR:Step4:", "_states_by_id_dict", e)

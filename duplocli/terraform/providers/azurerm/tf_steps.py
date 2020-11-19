@@ -26,24 +26,32 @@ class AzurermTfSteps:
     ######## modules == tenant, infra or all customer objects ######
 
     def execute(self):
-        ### pre execute
-        self.pre_execute()
-        ### execute modules -- infra_list, tenant_list, infra, tenant, all
-        for module in self.params.modules():
-            self._module_execute(module)
-        ### post execute
-        self.post_execute()
-        return [self.params.temp_folder, self.params.import_name, self.params.zip_file_path + ".zip"]
+        try:
+            ### pre execute
+            self.pre_execute()
+            ### execute modules -- infra_list, tenant_list, infra, tenant, all
+            for module in self.params.modules():
+                self._module_execute(module)
+            ### post execute
+            self.post_execute()
+            return [self.params.temp_folder, self.params.import_name, self.params.zip_file_path + ".zip"]
+        except Exception as e:
+            print("ERROR:", e)
+            self.file_utils.print_errors()
+            raise e
 
     ######### _module_execute ######
 
     def _module_execute(self, module):
         self.params.set_step_type(module)
+        print(" ====== _step1_tf_state START====== \n")
         self._step1_tf_state()
+        print(" ====== _step2_tf_main START====== \n")
         self._step2_tf_main()
+        print(" ====== _step3_tf_vars_extract START====== \n")
         self._step3_tf_vars_extract()
+        print(" ====== _step4_tf_vars_new_stack START====== \n")
         self._step4_tf_vars_new_stack()
-
     ######### steps ######
 
     def _step1_tf_state(self):

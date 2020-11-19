@@ -64,6 +64,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             self._parameterize()
             print("step3 successful - DONE")
         except Exception as e:
+            self.file_utils._save_errors("ERROR:Step3: _tf_resources {0}".format(e))
             print("ERROR:AzurermTfStep3NewStack:", "_tf_resources", e)
 
     def _parameterize(self):
@@ -78,19 +79,23 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                     try:
                         self._parameterize_for_res_grp(resource_type, resource)
                     except Exception as e:
+                        self.file_utils._save_errors("ERROR:Step3:1: _parameterize {0}".format(e))
                         print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
 
                     try:
                         self._parameterize_for_res(resource_type, resource)
                     except Exception as e:
+                        self.file_utils._save_errors("ERROR:Step3:2: _parameterize {0}".format(e))
                         print("ERROR:AzurermTfStep3NewStack:2", "_parameterize_for_res", e)
 
                     try:
                         self._parameterize_res_for_dep_ids(resource_type, resource)
                     except Exception as e:
+                        self.file_utils._save_errors("ERROR:Step3:3: _parameterize {0}".format(e))
                         print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
 
                 except Exception as e:
+                    self.file_utils._save_errors("ERROR:Step3:4: _parameterize {0}".format(e))
                     print("ERROR:AzurermTfStep3NewStack:4", "_parameterize", e)
 
 
@@ -201,6 +206,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             }
             return resource_group_vars
         except Exception as e:
+            self.file_utils._save_errors("ERROR:Step3:2: _interplation_for_res_grp {0}".format(e))
             print("ERROR:AzurermTfStep3NewStack:1", "_interplation_for_res_grp", e)
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
@@ -228,6 +234,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                     self._get_unique_tf_variable(resource_obj_parent, attribute_name, attribute, False)
 
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step3:2: _create_var {0}".format(e))
                 print("ERROR:Step2:", "_create_var", e)
 
     def _parameterize_util_dict_for_dep_ids(self, resource_obj_parent, nested_atr_name, nested_atr):
@@ -247,6 +254,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 else:
                     self._get_unique_tf_variable(nested_atr, attribute_name, attribute, False)
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step3:2: _process_dict {0}".format(e))
                 print("ERROR:Step2:", "_process_dict", e)
 
     def _get_unique_tf_variable(self, attribute, nested_atr_name, value, is_list):
@@ -353,6 +361,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 #     print("=====****=======", resource["type"], var_tf, self.states_tf_var_by_id_dict[id], id)
                 #     #pass
             except Exception as e:
+                self.file_utils._save_errors("ERROR:Step3:2: _states_by_id_dict {0}".format(e))
                 print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", id, e)
         return self.states_by_id_dict
 
@@ -410,4 +419,5 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             replace_py = self.file_utils.file_read_as_text(src_file)
             self.file_utils.file_save_as_text(dest_file, replace_py)
         except Exception as e:
-            print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", e)
+            self.file_utils._save_errors("ERROR:Step3:2: _copy_text_file {0}".format(e))
+            print("ERROR:AzurermTfStep3NewStack:", "_copy_text_file", e)

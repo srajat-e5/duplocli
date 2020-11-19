@@ -15,6 +15,7 @@ class TfFileUtils:
     _tf_run_script_prefix = "run"  # .bat .sh
     root_folder = "duplocli/terraform/"
 
+
     def __init__(self, params, step="step1", step_type="infra"):
         self.params = params
         if psutil.WINDOWS:
@@ -433,3 +434,13 @@ class TfFileUtils:
         file_path = os.path.join(folder, file_name)
         # file_path = "{0}{1}{2}".format(folder, os.path.sep, file_name)
         return file_path
+    ##
+    errors = [];
+
+    def _save_errors(self, *msg):
+        message = " ".join(list(msg))
+        self.errors.append(message)
+        print("ERROR:", self.stage_prefix(), message)
+    def print_errors(self):
+        message = " ".join( self.errors)
+        print("ERROR:", self.stage_prefix(), message)
