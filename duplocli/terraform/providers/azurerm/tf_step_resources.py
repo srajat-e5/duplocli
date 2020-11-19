@@ -66,6 +66,8 @@ class AzurermResources:
     res_groups_subnet_unique_dict = []
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
+        "azurerm_managed_clusters":"azurerm_kubernetes_cluster",
+        "azurerm_load_balancers":"azurerm_lb",
         "azurerm_servers": "azurerm_sql_server",
         "azurerm_resource_providers": "azurerm_custom_provider",
         "azurerm_deployment_scripts": "azurerm_template_deployment",
@@ -234,14 +236,30 @@ class AzurermResources:
                     tenant=json_env['AZURE_TENANT_ID']
                 )
             else:
-                subscription_id = os.environ.get(
-                    'AZURE_SUBSCRIPTION_ID',
-                    '11111111-1111-1111-1111-111111111111')  # your Azure Subscription Id
+                PYTHONUNBUFFERED = 1
+
+                AZURE_SUBSCRIPTION_ID = None
+                AZURE_TENANT_ID = None
+                AZURE_CLIENT_ID = None
+                AZURE_CLIENT_SECRET = None
+
+                subscription_id = AZURE_SUBSCRIPTION_ID or os.environ['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
                 credentials = ServicePrincipalCredentials(
-                    client_id=os.environ['AZURE_CLIENT_ID'],
-                    secret=os.environ['AZURE_CLIENT_SECRET'],
-                    tenant=os.environ['AZURE_TENANT_ID']
+                    client_id= AZURE_CLIENT_ID or os.environ['AZURE_CLIENT_ID'],
+                    secret=AZURE_CLIENT_SECRET or os.environ['AZURE_CLIENT_SECRET'],
+                    tenant=AZURE_TENANT_ID or os.environ['AZURE_TENANT_ID']
                 )
+                # PYTHONUNBUFFERED = 1
+                # AZURE_SUBSCRIPTION_ID = "3a1286e1-be22-46c9-8e79-adcc388bf66f"
+                # AZURE_TENANT_ID = "da92057f-6d06-41f8-b86e-25b22e0b97a3"
+                # AZURE_CLIENT_ID = "3aed5274-4371-41dd-af84-7afc0626b0ba"
+                # AZURE_CLIENT_SECRET = "_rf~kudqfbm-q7szh-f4203-S93Htw8R~7"
+                # subscription_id = os.environ['AZURE_SUBSCRIPTION_ID'] # your Azure Subscription Id
+                # credentials = ServicePrincipalCredentials(
+                #     client_id=os.environ['AZURE_CLIENT_ID'],
+                #     secret=os.environ['AZURE_CLIENT_SECRET'],
+                #     tenant=os.environ['AZURE_TENANT_ID']
+                # )
 
             self.az_resource_client = ResourceManagementClient(credentials, subscription_id)
             self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
@@ -312,7 +330,8 @@ class AzurermResources:
 
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
                           skip_if_exists=False):
-
+        if tf_variable_id[0].isdigit():
+            tf_variable_id = "s-{0}".format(tf_variable_id)
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
@@ -445,7 +464,7 @@ class AzurermResources:
 
     def _all_resources(self):
         print("\n\n\n===============DEBUG=======================================")
-        self.DEBUG_EXPORT_ALL = False  # False True
+        self.DEBUG_EXPORT_ALL = True  # False True
         if self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:

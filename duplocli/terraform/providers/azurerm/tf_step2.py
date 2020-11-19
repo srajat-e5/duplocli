@@ -63,7 +63,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                                            attribute_name, attribute, None)
                     elif isinstance(attribute, list):
                         # TO_FIX_BUGS: skip list based on object  type
-                        if self._skip_root_attr_list(tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+                        if self._skip_root_attr_list(tf_resource_type, tf_resource_var_name, resource_obj, attribute_name, attribute):
                             pass
                         else:
                             resource_obj_dict = []
@@ -220,7 +220,11 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
     ############# skip based on object type ############# ############# #############
     ############# skip based on object type ############# ############# #############
 
-    def _skip_root_attr_list(self, tf_resource_type, tf_resource_var_name, attribute_name, attribute):
+    def _skip_root_attr_list(self, tf_resource_type, tf_resource_var_name, resource_obj, attribute_name, attribute):
+        if tf_resource_type == 'azurerm_key_vault' and attribute_name == 'access_policy':
+            resource_obj[attribute_name] = attribute
+            return True
+
         if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
             return True
         elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
@@ -419,6 +423,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_attr_remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict, final_dict, attrName,
                                 attrValue):
+        if tf_resource_type == 'azurerm_key_vault' and attrName == 'access_policy':
+            return True
         if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':
             return True
         elif tf_resource_type == 'azurerm_route_table' and attrName in ['route']:
