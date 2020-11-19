@@ -58,9 +58,9 @@ class ParamBase:
 
         print("########## final parameters ########## ")
         parameters_cur = vars(self)
-        for key in parameters_cur:
-            print("final parameters:", key, "=", getattr(self, key))
-        # print(parameters_cur)
+        # for key in parameters_cur:
+        #     print("final parameters:", key, "=", getattr(self, key))
+        print(parameters_cur)
         print("########## final parameters ########## ")
         return parameters
 
@@ -78,13 +78,18 @@ class ParamBase:
 
     def get_tenant_prefix(self):
         if self.provider == 'aws':
-            return self.tenant_name
+            if self.tenant_name :
+                return self.tenant_name
+            elif self.infra_name :
+                return self.infra_name
+            else:
+                return "all"
         else: #if self.provider == 'azurerm':
             prefix=""
             self.is_tenant = self.parameters["is_tenant"]
             self.is_infra = self.parameters["is_infra"]
             if self.is_tenant and self.is_infra:
-                prefix = "{0}_{1}".format(self.tenant_name , self.tenant_name )
+                prefix = "{0}_{1}".format(self.tenant_name , self.infra_name )
             elif self.is_tenant:
                 prefix = self.tenant_name
             elif self.is_infra:

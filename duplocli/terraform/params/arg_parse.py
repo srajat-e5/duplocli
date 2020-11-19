@@ -77,9 +77,9 @@ class ArgParse:
                 print(" override parameter by passed in arguments ", key, val)
                 params[key] = val
 
-        print("########## after merge all parameters ########## ")
-        for key in params:
-            print(" after merge all parameters ", key, params[key])
+        print("########## after merge all parameters ########## " , params)
+        # for key in params:
+        #     print(" after merge all parameters ", key, params[key])
         return params
 
     def getTfModules(self, params):

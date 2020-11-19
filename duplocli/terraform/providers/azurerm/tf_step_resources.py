@@ -250,17 +250,7 @@ class AzurermResources:
                     secret=AZURE_CLIENT_SECRET or os.environ['AZURE_CLIENT_SECRET'],
                     tenant=AZURE_TENANT_ID or os.environ['AZURE_TENANT_ID']
                 )
-                # PYTHONUNBUFFERED = 1
-                # AZURE_SUBSCRIPTION_ID = "3a1286e1-be22-46c9-8e79-adcc388bf66f"
-                # AZURE_TENANT_ID = "da92057f-6d06-41f8-b86e-25b22e0b97a3"
-                # AZURE_CLIENT_ID = "3aed5274-4371-41dd-af84-7afc0626b0ba"
-                # AZURE_CLIENT_SECRET = "_rf~kudqfbm-q7szh-f4203-S93Htw8R~7"
-                # subscription_id = os.environ['AZURE_SUBSCRIPTION_ID'] # your Azure Subscription Id
-                # credentials = ServicePrincipalCredentials(
-                #     client_id=os.environ['AZURE_CLIENT_ID'],
-                #     secret=os.environ['AZURE_CLIENT_SECRET'],
-                #     tenant=os.environ['AZURE_TENANT_ID']
-                # )
+
 
             self.az_resource_client = ResourceManagementClient(credentials, subscription_id)
             self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
@@ -349,9 +339,9 @@ class AzurermResources:
 
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
-                print(self.file_utils.stage_prefix(),
-                      "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(
-                          tf_resource_type, tf_resource_var_name, tf_id))
+                # print(self.file_utils.stage_prefix(),
+                #       "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(
+                #           tf_resource_type, tf_resource_var_name, tf_id))
                 return
             print(self.file_utils.stage_prefix(),
                   "Exception tf_resource_var_name should be unique : {0} {1} {2}".format(
@@ -465,7 +455,7 @@ class AzurermResources:
 
     def _all_resources(self):
         print("\n\n\n===============DEBUG=======================================")
-        self.DEBUG_EXPORT_ALL = True  # False True
+        self.DEBUG_EXPORT_ALL = False  # False True
         if self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:
