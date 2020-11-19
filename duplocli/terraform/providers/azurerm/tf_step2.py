@@ -242,6 +242,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_root_update_attrs_resource(self, tf_resource_type, resource_obj, resource_obj2):
         try:
+
+            if tf_resource_type == "azurerm_lb":
+                if "frontend_ip_configuration" in resource_obj :
+                    child_obj_list = resource_obj["frontend_ip_configuration"]
+                    for child_obj in child_obj_list:
+                        if "outbound_rules" not in child_obj:
+                          self._del_key(child_obj, "outbound_rules")
+
             if tf_resource_type == "azurerm_subnet":
                 #azurerm_subnet address_prefixes
                 if "address_prefixes" in resource_obj and  "address_prefix" in resource_obj:
@@ -363,7 +371,7 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         try:
                             if attribute_name in ["app_command_line", "default_documents",
                                                   "auto_swap_slot_name", "health_check_path",
-                                                  "windows_fx_version"]:
+                                                  "windows_fx_version", "cors"]:
                                 resource_obj[attribute_name] = attribute
                             elif isinstance(attribute, str):
                                 if (attribute != "" and attribute is not None):
@@ -423,6 +431,9 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_attr_remove_empty(self, tf_resource_type, tf_resource_var_name, json_dict, final_dict, attrName,
                                 attrValue):
+
+        if tf_resource_type == 'azurerm_app_service' and attrName in ['site_config','cors','allowed_origins']:
+            return True
         if tf_resource_type == 'azurerm_key_vault' and attrName == 'access_policy':
             return True
         if tf_resource_type == 'azurerm_network_security_group' and attrName == 'security_rule':

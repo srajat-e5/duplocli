@@ -243,6 +243,7 @@ class AzurermResources:
                 AZURE_CLIENT_ID = None
                 AZURE_CLIENT_SECRET = None
 
+
                 subscription_id = AZURE_SUBSCRIPTION_ID or os.environ['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
                 credentials = ServicePrincipalCredentials(
                     client_id= AZURE_CLIENT_ID or os.environ['AZURE_CLIENT_ID'],
