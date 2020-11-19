@@ -14,9 +14,9 @@ import os
 
 class AzurermTfSteps:
     disable_step1 = False
-    disable_step2 = True  # True False
-    disable_step3 = True
-    disable_step4 = True
+    disable_step2 = False  # True False
+    disable_step3 = False
+    disable_step4 = False
 
     def __init__(self, params):
         self.utils = TfUtils(params)
