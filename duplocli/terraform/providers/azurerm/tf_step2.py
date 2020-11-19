@@ -238,6 +238,10 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_root_update_attrs_resource(self, tf_resource_type, resource_obj, resource_obj2):
         try:
+            if tf_resource_type == "azurerm_subnet":
+                #azurerm_subnet address_prefixes
+                if "address_prefixes" in resource_obj and  "address_prefix" in resource_obj:
+                    self._del_key(resource_obj, "address_prefix")
             if tf_resource_type == 'azurerm_app_service':
                 if "auth_settings" in resource_obj:
                     auth_settings = resource_obj["auth_settings"]

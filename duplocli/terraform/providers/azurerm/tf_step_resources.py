@@ -554,7 +554,7 @@ class AzurermResources:
         if process:
            for id in self.subnet_dict:
                subnet = self.subnet_dict[id]
-               self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
+               self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id="s".format(subnet.name),
                                       tf_import_id=subnet.id, skip_if_exists=True)
 
 
