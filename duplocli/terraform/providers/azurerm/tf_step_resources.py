@@ -4,6 +4,7 @@ from collections import defaultdict
 import os
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.sql import SqlManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.compute import ComputeManagementClient
@@ -64,6 +65,7 @@ class AzurermResources:
     #
     subnet_dict = {}
     res_groups_subnet_unique_dict = []
+    res_groups_subnet_unique_dict2 = []
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
         "azurerm_managed_clusters":"azurerm_kubernetes_cluster",
@@ -256,6 +258,9 @@ class AzurermResources:
             self.az_compute_client = ComputeManagementClient(credentials, subscription_id)
             self.az_storage_client = StorageManagementClient(credentials, subscription_id)
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
+            self.az_sql_client = SqlManagementClient(credentials, subscription_id)
+
+
         except Exception as e:
             self.file_utils._save_errors("ERROR:step0:resources: _init_azure_client {0}".format(e))
             print("ERROR:AzurermResources:", "_init_azure_client", e)
@@ -296,6 +301,29 @@ class AzurermResources:
         return None
 
     ########### helpers ###########
+    def _get_backend_ports(self, res_group_name):
+        found_new = False
+        try:
+            if res_group_name in self.res_groups_subnet_unique_dict2:
+                return found_new
+            self.res_groups_subnet_unique_dict2.append(res_group_name)
+
+            load_balancers = self.az_network_client.load_balancers.list(res_group_name)
+            for load_balancer in load_balancers:
+                load_balancer_name = load_balancer.name
+                try:
+                    load_balancer_backend_address_pools = self.az_network_client.load_balancer_backend_address_pools.list(res_group_name, load_balancer_name)
+                    for load_balancer_backend_address in load_balancer_backend_address_pools:
+                        self.subnet_dict[load_balancer_backend_address.id] = load_balancer_backend_address
+                        found_new = True
+                except Exception as e:
+                    self.file_utils._save_errors("ERROR:step0:resources: _get_backend_ports {0}".format(e))
+                    print("ERROR:AzurermResources:1", "_get_backend_ports", e)
+        except Exception as e:
+            self.file_utils._save_errors("ERROR:step0:resources:2 _get_backend_ports {0}".format(e))
+            print("ERROR:AzurermResources:2", "_get_backend_ports", e)
+        return found_new
+
     def _get_subnets(self, res_group_name):
         found_new =False
         try:
@@ -502,6 +530,7 @@ class AzurermResources:
                             id_metadata = self._parse_id_metadata(res.id)
                             self._tf_cloud_resource_group(id_metadata, res.id, "azurerm_resource_group", instance)
                             self._tf_cloud_resource_vn_subnets(id_metadata,res.id,res.type_name, instance)
+                            self._tf_cloud_resource_lb_backend_ports(id_metadata,res.id,res.type_name, instance)
                             #
                             # #additionaly for sql add firewall -- we need list of firewalls
                             # if res.type_name  in ["azurerm_mysql_server","azurerm_postgresql_server"]:
@@ -555,6 +584,8 @@ class AzurermResources:
         tf_import_id_new = id_metadata["resource_group_id"]
         self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=res_name,
                                tf_import_id=tf_import_id_new, skip_if_exists=True)
+        if type_name not in self.unique_processed_resouces:
+            self.unique_processed_resouces.append(type_name)
 
     def _tf_cloud_resource_vn_subnets(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
         resource_group_name = id_metadata["resource_group_name"]
@@ -566,5 +597,19 @@ class AzurermResources:
                subnet = self.subnet_dict[id]
                self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
                                       tf_import_id=subnet.id, skip_if_exists=True)
+               if type_name not in self.unique_processed_resouces:
+                   self.unique_processed_resouces.append(type_name)
 
+    def _tf_cloud_resource_lb_backend_ports(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
+        resource_group_name = id_metadata["resource_group_name"]
+        # resource_group_id = id_metadata["resource_group_id"]
+        process = self._get_backend_ports(resource_group_name)
+        type_name="azurerm_subnet"
+        if process:
+           for id in self.subnet_dict:
+               subnet = self.subnet_dict[id]
+               self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
+                                      tf_import_id=subnet.id, skip_if_exists=True)
+               if type_name not in self.unique_processed_resouces:
+                   self.unique_processed_resouces.append(type_name)
 
