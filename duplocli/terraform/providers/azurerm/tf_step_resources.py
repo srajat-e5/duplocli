@@ -68,6 +68,9 @@ class AzurermResources:
     res_groups_subnet_unique_dict2 = []
     # azurerm_metricalerts
     azure_name_to_resoure_map = {
+        "azurerm_workflows":"azurerm_logic_app_workflow",
+        "azurerm_applications":"azurerm_managed_application",
+        "azurerm_application_definitions":"azurerm_managed_application_definition",
         "azurerm_managed_clusters":"azurerm_kubernetes_cluster",
         "azurerm_load_balancers":"azurerm_lb",
         "azurerm_servers": "azurerm_sql_server",
@@ -260,6 +263,7 @@ class AzurermResources:
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
             self.az_sql_client = SqlManagementClient(credentials, subscription_id)
 
+            # self.az_sql_client.firewall_rules.list_by_server(resource_group_name, server_name)
 
         except Exception as e:
             self.file_utils._save_errors("ERROR:step0:resources: _init_azure_client {0}".format(e))
@@ -481,9 +485,10 @@ class AzurermResources:
         # print("OK:", res.type_name, "===", res.id)
         return True
 
+
     def _all_resources(self):
         print("\n\n\n===============DEBUG=======================================")
-        self.DEBUG_EXPORT_ALL = False  # False True
+        self.DEBUG_EXPORT_ALL = True  # False True
         if self.DEBUG_EXPORT_ALL:
             self.resources_skip = []
         if True:
