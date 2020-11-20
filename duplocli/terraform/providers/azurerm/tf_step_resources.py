@@ -263,7 +263,6 @@ class AzurermResources:
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
             self.az_sql_client = SqlManagementClient(credentials, subscription_id)
 
-           # self.az_network_client.
 
             # self.az_sql_client.firewall_rules.list_by_server(resource_group_name, server_name)
 
@@ -619,4 +618,3 @@ class AzurermResources:
                                       tf_import_id=subnet.id, skip_if_exists=True)
                if type_name not in self.unique_processed_resouces:
                    self.unique_processed_resouces.append(type_name)
-

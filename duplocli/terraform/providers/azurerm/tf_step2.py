@@ -218,7 +218,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     ############# skip based on object type ############# ############# #############
     ############# skip based on object type ############# ############# #############
-    ############# skip based on object type ############# ############# #############
 
     def _skip_root_attr_list(self, tf_resource_type, tf_resource_var_name, resource_obj, attribute_name, attribute):
         if tf_resource_type == 'azurerm_key_vault' and attribute_name == 'access_policy':
