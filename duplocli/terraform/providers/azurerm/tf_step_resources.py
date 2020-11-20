@@ -263,6 +263,8 @@ class AzurermResources:
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
             self.az_sql_client = SqlManagementClient(credentials, subscription_id)
 
+           # self.az_network_client.
+
             # self.az_sql_client.firewall_rules.list_by_server(resource_group_name, server_name)
 
         except Exception as e:
@@ -316,7 +318,7 @@ class AzurermResources:
             for load_balancer in load_balancers:
                 load_balancer_name = load_balancer.name
                 try:
-                    load_balancer_backend_address_pools = self.az_network_client.load_balancer_backend_address_pools.list(res_group_name, load_balancer_name)
+                    load_balancer_backend_address_pools = self.az_network_client.backend_address_pools.list(res_group_name, load_balancer_name)
                     for load_balancer_backend_address in load_balancer_backend_address_pools:
                         self.subnet_dict[load_balancer_backend_address.id] = load_balancer_backend_address
                         found_new = True
