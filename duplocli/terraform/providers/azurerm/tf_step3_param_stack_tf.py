@@ -166,7 +166,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                     if resource_group_name not in self.res_groups:
                         self.index = self.index + 1
                         resource_group_vars = self.__interpolation_for_res_grp(self.index, resource_group_name,
-                                                                               location, True)
+                                                                               location, True, resource["name"])
                         self.res_groups[resource_group_name] = resource_group_vars
 
         for resource_type in resource_types:
@@ -184,12 +184,12 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                             self.res_groups[resource_group_name] = resource_group_vars
 
 
-    def __interpolation_for_res_grp(self, index, resource_group_name, location, exists_in_import):
+    def __interpolation_for_res_grp(self, index, resource_group_name, location, exists_in_import, resource_group_name_origin):
         try:
             var_res_grp_name = "resource_group_{0}_name".format(index)
             var_res_grp_loc = "resource_group_{0}_location".format(index)
             #
-            self.variable_list_dict[var_res_grp_name] = resource_group_name
+            self.variable_list_dict[var_res_grp_name] = resource_group_name_origin #resource_group_name
             self.variable_list_dict[var_res_grp_loc] = location
             #
             interpolation_res_grp_id = "azurerm_resource_group.{0}.name".format(resource_group_name)
