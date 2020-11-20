@@ -13,7 +13,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
     resources_by_id_dict = {}
     states_by_id_dict = {}
     states_tf_var_by_id_dict = {}
-    states_and_main_tf_var_by_id = {}
+    id_by_type_and_var_name_dict = {}
 
     # main
     main_tf_dict = {}
@@ -335,12 +335,9 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     ################# FIX   virtual network and subnet mess : assuming the subnet is added only one vnet########
 
-    def _set_states_by_id_dict(self, id, attributes, main_tf_res):
+    def _set_states_by_id_dict(self, id, attributes):
         self.states_by_id_dict[id] = attributes
         self.states_by_id_dict[id.strip().lower()] = attributes
-        #main
-        self.states_and_main_tf_var_by_id[id] = main_tf_res
-        self.states_and_main_tf_var_by_id[id.strip().lower()] = main_tf_res
 
     def _get_states_by_id_dict(self, id):
         if id in self.states_by_id_dict:
@@ -350,20 +347,39 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         return None
 
     ### main
-    def _get_main_by_id_dict(self, id):
-        if id in self.states_and_main_tf_var_by_id:
-            return self.states_and_main_tf_var_by_id[id]
-        elif id.strip().lower() in self.states_and_main_tf_var_by_id:
-            return self.states_and_main_tf_var_by_id[id.strip().lower()]
+    def _set_id_by_type_and_var_name_dict(self, id, attributes):
+        type_and_var_name = "{0}.{1}".format(attributes["type"].strip() , attributes["name"].strip()  )   #.lower().strip()  )
+        self.id_by_type_and_var_name_dict[type_and_var_name] = id
+        self.id_by_type_and_var_name_dict[type_and_var_name.lower().strip()] = id
+    def _get_id_by_type_and_var_name_dict(self, type_and_var_name):
+        if type_and_var_name in self.id_by_type_and_var_name_dict:
+            return  self.id_by_type_and_var_name_dict[type_and_var_name]
+        if type_and_var_name.lower().strip() in self.id_by_type_and_var_name_dict:
+            return  self.id_by_type_and_var_name_dict[type_and_var_name.lower().strip()]
+        print("ERROR:", "_get_id_by_type_and_var_name_dict: NOT FOUND", type_and_var_name)
         return None
-
+    #
+    def _get_main_by_id_dict(self, id):
+        resource = self._get_states_by_id_dict(id)
+        if resource:
+            tf_resource_type = resource["type"]
+            tf_resource_var_name = resource["name"]
+            return self._main_by_id_dict_by_type_and_var_name(tf_resource_type, tf_resource_var_name )
+        return None
     def _get_main_by_var_name_dict(self, var_str):
         if "${var"  in var_str:
             var_name = var_str.replace("${", "").replace("}", "").strip()
             id = self.variable_list_dict[var_name]
+            if id:
+                return self._get_main_by_id_dict(id)
+            print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
+            return None
+        var_name = var_str.replace("${", "").replace("}", "").strip().split(".").lower().strip()
+        if var_name in self.self.type_and_var_name_to_id_dict:
+            id = self.id_by_type_and_var_name_dict[var_name]
             return self._get_main_by_id_dict(id)
-        var_arr = var_str.replace("${", "").replace("}", "").strip().split(".")
-        return self._main_by_id_dict_by_type_and_var_name[var_arr[0],var_arr[1]]
+        print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
+        return None
 
     ##
     def _set_states_tf_var_by_id_dict(self, id, attributes):
@@ -389,8 +405,8 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 id = id.strip().lower()
                 attributes["tf_resource_type"] = resource["type"]
                 attributes["tf_resource_var_name"] = resource["name"]
-                main_tf_res = self._main_by_id_dict_by_type_and_var_name(resource["type"], resource["name"] )
                 self._set_states_by_id_dict(id, attributes)
+                self._set_id_by_type_and_var_name_dict(id, attributes)
                 var_tf = "{0}.{1}".format(attributes["tf_resource_type"], attributes["tf_resource_var_name"])
                 self._set_states_tf_var_by_id_dict(id, var_tf)
             except Exception as e:
