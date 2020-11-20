@@ -249,7 +249,6 @@ class AzurermResources:
                 AZURE_CLIENT_SECRET = None
 
 
-
                 subscription_id = AZURE_SUBSCRIPTION_ID or os.environ['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
                 credentials = ServicePrincipalCredentials(
                     client_id= AZURE_CLIENT_ID or os.environ['AZURE_CLIENT_ID'],
@@ -281,7 +280,7 @@ class AzurermResources:
         self.file_utils.create_azure_env_sh(self.env_list)
 
     def _get_resources_root(self):
-        instance_root = [];
+        instance_root = []
         for instance in self.az_resource_client.resources.list():
             instance_root.append(instance)
         return instance_root
