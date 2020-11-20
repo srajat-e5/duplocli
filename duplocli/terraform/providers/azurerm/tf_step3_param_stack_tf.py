@@ -13,6 +13,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
     resources_by_id_dict = {}
     states_by_id_dict = {}
     states_tf_var_by_id_dict = {}
+    states_tf_var_by_id_dict_with_main_res = {}
 
     # main
     main_tf_dict = {}
@@ -373,6 +374,49 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             self.resources_by_id_dict[resource["tf_import_id"]] = resource
 
     ############
+
+
+    ################# FIX  virtual network and subnet mess ########
+    def _main_by_id_dict_by_type(self, tf_resource_type):
+        resource_types = self.main_tf_dict["resource"]
+        if tf_resource_type in resource_types:
+            return resource_types[tf_resource_type]
+        return []
+
+    def _main_by_id_dict_by_type_and_var_name(self, tf_resource_type,  tf_resource_var_id):
+        resource_types = self.main_tf_dict["resource"]
+        if tf_resource_type in resource_types:
+            res_dict = resource_types[tf_resource_type]
+            if tf_resource_var_id in res_dict:
+                return res_dict[tf_resource_var_id]
+        return []
+
+    def _states_and_main_by_id_dict(self):
+        if "resources" in self.states_dict:
+            resources = self.states_dict['resources']
+        else:
+            resources = self.states_dict['resource']
+        for resource in resources:
+            try:
+                attributes = resource['instances'][0]['attributes']
+                id = attributes["id"]
+                id = id.strip().lower()
+                attributes["tf_resource_type"] = resource["type"]
+                attributes["tf_resource_var_name"] = resource["name"]
+                self._set_states_by_id_dict(id, attributes)
+                var_tf = "{0}.{1}".format(attributes["tf_resource_type"], attributes["tf_resource_var_name"])
+                self._set_states_tf_var_by_id_dict(id, var_tf)
+                # print("=====**** ",  resource["type"], var_tf, self.states_tf_var_by_id_dict[id], id)
+                # if "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1" == id:
+                # # if "azurerm_user_assigned_identity" == resource["type"]:
+                #     print("=====****=======", resource["type"], var_tf, self.states_tf_var_by_id_dict[id], id)
+                #     #pass
+            except Exception as e:
+                self.file_utils._save_errors("ERROR:Step3:2: _states_by_id_dict {0}".format(e))
+                print("ERROR:AzurermTfStep3NewStack:", "_states_by_id_dict", id, e)
+        return self.states_by_id_dict
+
+    ################# FIX   virtual network and subnet mess : assuming the subnet is added only one vnet########
 
     ##### helper load and save files ##############
 
