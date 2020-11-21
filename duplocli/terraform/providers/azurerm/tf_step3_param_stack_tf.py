@@ -117,7 +117,20 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 var_name = "{0}_{1}_name".format(resource_type, self.index)
                 resource["name"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = name
-        if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
+
+        elif resource_type in ['azurerm_log_analytics_workspace']:
+            if "daily_quota_gb" in resource:
+                if resource["daily_quota_gb"] == -1:
+                    self._del_key(resource, "daily_quota_b")
+
+        elif resource_type in ["azurerm_dns_zone"]:
+            if "soa_record" in resource:
+                soa_records = resource["soa_record"]
+                for soa_record in soa_records:
+                    self._del_key(soa_record, "fqdn")
+
+
+        elif resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
             if "administrator_login" in resource:
                 name = resource["administrator_login"]
                 self.index = self.index + 1
@@ -125,7 +138,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 resource["administrator_login"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = name
 
-        if resource_type in ["azurerm_virtual_machine"]:
+        elif resource_type in ["azurerm_virtual_machine"]:
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
                 for resource in resource_profiles:
@@ -330,13 +343,26 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
          # move vnet name into variable
          # move instance.name into subnet
          if "subnet" in resource:
-             refer_vnet_name= "{0}.{1}.name".format(resource_type, resource["name"])
-             subnets = resource["subnet"]
-             for subnet in subnets:
-                subnet_id = subnet["id"]
-                main_subnet= self._get_main_by_var_name_dict(subnet_id)
-                main_subnet['virtual_network_name']="${"+refer_vnet_name+"}"
-             self._del_key(resource, "subnet")
+             subnets_new=[]
+             try:
+                 refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["name"])
+                 subnets = resource["subnet"]
+                 for subnet in subnets:
+                     subnet_id = subnet["id"]
+                     main_subnet = self._get_main_by_var_name_dict(subnet_id)
+                     if main_subnet:
+                        main_subnet['virtual_network_name'] = "${" + refer_vnet_name + "}"
+                     else:
+                         subnets_new.append(main_subnet)
+                         print("ERROR: not found subnets removed from ", subnet_id)
+             except Exception as e:
+                 self.file_utils._save_errors("ERROR:Step3: _fix_vnet_and_subnet {0}".format(e))
+                 print("ERROR:Step3:", "_fix_vnet_and_subnet", e)
+             if len(subnets_new) >0:
+                 resource["subnet"] = subnets_new
+             else:
+                self._del_key(resource, "subnet")
+             print("subnets removed from ", refer_vnet_name)
 
     ################# FIX  virtual network and subnet mess ########
     def _main_by_id_dict_by_type(self, tf_resource_type):
@@ -403,11 +429,11 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         if "${"  not in var_str:
             self._get_main_by_id_dict(var_str)
         if "${var"  in var_str:
-            var_name = var_str.replace("${", "").replace("}", "").strip()
-            id = self.variable_list_dict[var_name]
-            if id:
-                return self._get_main_by_id_dict(id)
-            print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
+            # var_name = var_str.replace("${", "").replace("}", "").strip()
+            # id = self.variable_list_dict[var_name]
+            # if id:
+            #     return self._get_main_by_id_dict(id)
+            # print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
             return None
         var_name = var_str.replace("${", "").replace("}", "").strip().lower()
         var_name_arr = var_name.split(".")
