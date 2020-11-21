@@ -70,8 +70,13 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     def _parameterize(self):
         self._interpolation_for_res_grps()
+        # TODO: need to delete some resources due to BUG
+        self._delete_main_res()
+
         resource_types = self.main_tf_dict["resource"]
         for resource_type in resource_types:
+
+            #
             resources = resource_types[resource_type]
             for resource_key in resources:
                 try:
@@ -107,6 +112,33 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
 
     ############## /subscriptions/extract them to variables as they are missing in import dependency list #############
+    def _delete_main_res(self):
+        resource_types = self.main_tf_dict["resource"]
+        for resource_type in resource_types:
+            if resource_type in ['azurerm_automation_runbook']:
+                resource_keys  = []
+                resources = resource_types[resource_type]
+                for resource_key in resources:
+                        resource = resources[resource_key]
+                        if resource["runbook_type"] == "Python2":
+                            resource_keys.append(resource_key)
+                for resource_key in resource_keys:
+                    try:
+                        self._del_key(resources, resource_key)
+                        #TODO: deletge from state also
+                        states_new = []
+                        found = False
+                        states = self.states_dict['resources']
+                        for resource in states:
+                            if resource["type"] == 'azurerm_automation_runbook' and resource["name"] == resource_key:
+                                found=True
+                            else:
+                                states_new.append(resource)
+                        if found:
+                            self.states_dict['resources'] = states_new
+                    except Exception as e:
+                        self.file_utils._save_errors("ERROR:Step3:4: _parameterize {0}".format(e))
+                        print("ERROR:AzurermTfStep3NewStack:4", "_parameterize", e)
 
     def _parameterize_for_res(self, resource_type, resource):
         if resource_type in ["azurerm_storage_account", "azurerm_app_service", "azurerm_app_service_plan",

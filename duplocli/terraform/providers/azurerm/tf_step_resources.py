@@ -492,7 +492,7 @@ class AzurermResources:
         print("\n\n\n===============DEBUG=======================================")
         self.DEBUG_EXPORT_ALL = True  # False True
         if self.DEBUG_EXPORT_ALL:
-            self.resources_skip = []
+            self.resources_skip = ["azurerm_monitor_metric_alert"]
         if True:
             self.tenant_resource_debug()
         print("======================DEBUG================================\n\n\n")
