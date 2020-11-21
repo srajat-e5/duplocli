@@ -123,11 +123,33 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 if resource["daily_quota_gb"] == -1:
                     self._del_key(resource, "daily_quota_gb")
 
-        elif resource_type in ["azurerm_dns_zone"]:
+        elif resource_type in ['azurerm_logic_app_workflow']:
+            fields=["connector_outbound_ip_addresses", "workflow_endpoint_ip_addresses", "workflow_outbound_ip_addresses"]
+            for field in fields:
+                if field in resource:
+                    self._del_key(resource, field)
+
+
+        elif resource_type in ['azurerm_managed_application']:
+            fields=["outputs"]
+            for field in fields:
+                if field in resource:
+                    self._del_key(resource, field)
+        #"name" must be between 3 and 64 characters in length and contains only letters or numbers.
+        # on main.tf.json line 1207, in resource.azurerm_managed_application_definition.a002-ctscan_v211:
+        #a002-ctscan_v211 : TODO: replace _ with -
+        elif resource_type in ['azurerm_managed_application_definition']:
+            if "name" in resource:
+                resource["name"] = resource["name"].replace("_","-").replace("-","")
+
+        elif resource_type in ["azurerm_dns_zone", 'azurerm_private_dns_zone']:
             if "soa_record" in resource:
                 soa_records = resource["soa_record"]
                 for soa_record in soa_records:
                     self._del_key(soa_record, "fqdn")
+                    if resource_type in ['azurerm_private_dns_zone']:
+                        self._del_key(soa_record, "host_name")
+                        self._del_key(soa_record, "serial_number")
 
 
         elif resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
