@@ -173,6 +173,12 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                     var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
                     resource["admin_username"] = "${var." + var_name + "}"
                     self.variable_list_dict[var_name] = name
+            if "storage_data_disk" in resource:
+                storage_data_disks = resource["storage_data_disk"]
+                for storage_data_disk in storage_data_disks:
+                    if "lun" not in storage_data_disk:
+                        storage_data_disk["lun"]=1
+
 
     def _parameterize_for_res_grp(self, resource_type, resource):
         if resource_type == "azurerm_resource_group":
