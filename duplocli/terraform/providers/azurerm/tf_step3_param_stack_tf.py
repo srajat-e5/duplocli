@@ -163,15 +163,15 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         elif resource_type in ["azurerm_virtual_machine"]:
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
-                for resource in resource_profiles:
+                for resource_profile in resource_profiles:
                     # user_name
-                    if "admin_username" in resource:
-                        name = resource["admin_username"]
+                    if "admin_username" in resource_profile:
+                        name = resource_profile["admin_username"]
                     else:
                         name = "admin_username"
                     self.index = self.index + 1
                     var_name = "{0}_{1}_admin_username".format(resource_type, self.index)
-                    resource["admin_username"] = "${var." + var_name + "}"
+                    resource_profile["admin_username"] = "${var." + var_name + "}"
                     self.variable_list_dict[var_name] = name
             if "storage_data_disk" in resource:
                 storage_data_disks = resource["storage_data_disk"]
