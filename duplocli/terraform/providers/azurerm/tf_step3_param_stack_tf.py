@@ -121,7 +121,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         elif resource_type in ['azurerm_log_analytics_workspace']:
             if "daily_quota_gb" in resource:
                 if resource["daily_quota_gb"] == -1:
-                    self._del_key(resource, "daily_quota_b")
+                    self._del_key(resource, "daily_quota_gb")
 
         elif resource_type in ["azurerm_dns_zone"]:
             if "soa_record" in resource:
