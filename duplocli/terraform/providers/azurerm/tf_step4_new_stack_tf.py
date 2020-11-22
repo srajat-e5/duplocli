@@ -170,7 +170,8 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         self.variables_tf_dict["variable"] = variables_tf_root
         for variable_name in self.variable_list_dict:
             variables_tf_root[variable_name] = {
-                "description": "value e.g." + self.variable_list_dict[variable_name]
+                # "description": "value e.g." + self.get_string(self.variable_list_dict[variable_name])
+                "description": "value e.g. {0}".format(  self.variable_list_dict[variable_name])
             }
         self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
 

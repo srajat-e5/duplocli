@@ -408,32 +408,50 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     ############
     ################# FIX  virtual network and subnet mess ########
+    def _create_var_and_assgin(self, key_name, resource_type, resource):
+        if key_name in resource :
+            key_value = resource[key_name]
+            self.index = self.index + 1
+            var_name = "{0}_{1}_{2}".format(resource_type, self.index, key_name)
+            resource[key_name] = "${var." + var_name + "}"
+            self.variable_list_dict[var_name] = key_value
+
     def _fix_vnet_and_subnet(self, resource_type, resource):
-         if "azurerm_virtual_network" != resource_type:
-             return
-         # move vnet name into variable
-         # move instance.name into subnet
-         if "subnet" in resource:
-             subnets_new=[]
-             try:
-                 refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["name"])
-                 subnets = resource["subnet"]
-                 for subnet in subnets:
-                     subnet_id = subnet["id"]
-                     main_subnet = self._get_main_by_var_name_dict(subnet_id)
-                     if main_subnet:
-                        main_subnet['virtual_network_name'] = "${" + refer_vnet_name + "}"
-                     else:
-                         main_subnet.append(subnet)
-                         print("ERROR: not found subnets removed from ", subnet_id)
-             except Exception as e:
-                 self.file_utils._save_errors("ERROR:Step3: _fix_vnet_and_subnet {0}".format(e))
-                 print("ERROR:Step3:", "_fix_vnet_and_subnet", e)
-             if subnets_new and len(subnets_new) >0:
-                 resource["subnet"] = subnets_new
-             else:
-                self._del_key(resource, "subnet")
-             print("subnets removed from ", refer_vnet_name)
+         if resource_type  in ["azurerm_virtual_network", "azurerm_subnet", "azurerm_local_network_gateway"]:
+             key_name = "address_space"
+             self._create_var_and_assgin(key_name, resource_type, resource)
+             key_name = "address_prefixes"
+             self._create_var_and_assgin(key_name, resource_type, resource)
+             #to var: address_prefixes gateway_address
+             #to ref: virtual_network_name
+             pass
+         if resource_type in ["azurerm_subnet" ]:
+             pass
+         elif resource_type in ["azurerm_virtual_network"]:
+             #address_space
+             # move vnet name into variable
+             # move instance.name into subnet
+             if "subnet" in resource:
+                 subnets_new = []
+                 try:
+                     refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["name"])
+                     subnets = resource["subnet"]
+                     for subnet in subnets:
+                         subnet_id = subnet["id"]
+                         main_subnet = self._get_main_by_var_name_dict(subnet_id)
+                         if main_subnet:
+                            main_subnet['virtual_network_name'] = "${" + refer_vnet_name + "}"
+                         else:
+                             subnets_new.append(subnet)
+                             print("ERROR: not found subnets removed from ", subnet_id)
+                 except Exception as e:
+                     self.file_utils._save_errors("ERROR:Step3: _fix_vnet_and_subnet {0}".format(e))
+                     print("ERROR:Step3:", "_fix_vnet_and_subnet", e)
+                 if subnets_new and len(subnets_new) >0:
+                     resource["subnet"] = subnets_new
+                 else:
+                    self._del_key(resource, "subnet")
+                 print("subnets removed from ", refer_vnet_name)
 
     ################# FIX  virtual network and subnet mess ########
     def _main_by_id_dict_by_type(self, tf_resource_type):
@@ -579,9 +597,14 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         self.variables_tf_dict["variable"] = variables_tf_root
         for variable_name in self.variable_list_dict:
             variables_tf_root[variable_name] = {
-                "description": "value e.g." + self.variable_list_dict[variable_name]
+                # "description": "value e.g." + self.get_string(self.variable_list_dict[variable_name])
+                "description": "value e.g. {0}".format(  self.variable_list_dict[variable_name])
             }
         self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
+    def get_string(val_obj):
+        if isinstance(val_obj, str):
+            return  "value e.g." + val_obj
+        return ""
 
     def _copy_text_file(self, filename):
         try:
