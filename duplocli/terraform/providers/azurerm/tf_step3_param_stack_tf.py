@@ -141,6 +141,17 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                         print("ERROR:AzurermTfStep3NewStack:4", "_parameterize", e)
 
     def _parameterize_for_res(self, resource_type, resource):
+        if resource_type in ["azurerm_subnet"]:
+            if "delegation" in resource:
+                delegations = resource["delegation"]
+                for delegation in delegations:
+                    if "service_delegation" in delegation:
+                        service_delegations = delegation["service_delegation"]
+                        for service_delegation in service_delegations:
+                            if "name" in service_delegation : #and "serverfarms" in service_delegation["name"]:
+                                service_delegation["name"] = service_delegation["name"].replace("serverfarms","serverFarms")
+                                print(service_delegation["name"])
+
         if resource_type in ["azurerm_storage_account", "azurerm_app_service", "azurerm_app_service_plan",
                              'azurerm_mysql_server', 'azurerm_postgresql_server']:
             if "name" in resource:
@@ -413,12 +424,12 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                      if main_subnet:
                         main_subnet['virtual_network_name'] = "${" + refer_vnet_name + "}"
                      else:
-                         subnets_new.append(main_subnet)
+                         main_subnet.append(subnet)
                          print("ERROR: not found subnets removed from ", subnet_id)
              except Exception as e:
                  self.file_utils._save_errors("ERROR:Step3: _fix_vnet_and_subnet {0}".format(e))
                  print("ERROR:Step3:", "_fix_vnet_and_subnet", e)
-             if len(subnets_new) >0:
+             if subnets_new and len(subnets_new) >0:
                  resource["subnet"] = subnets_new
              else:
                 self._del_key(resource, "subnet")
