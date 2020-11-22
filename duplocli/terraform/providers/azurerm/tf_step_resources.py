@@ -67,6 +67,13 @@ class AzurermResources:
     res_groups_subnet_unique_dict = []
     res_groups_subnet_unique_dict2 = []
     # azurerm_metricalerts
+    todo_unknown_res={
+        "azurerm_app_certificate_order":"resourceGroups/duploinfra-demo/providers/Microsoft.CertificateRegistration/certificateOrders/duplocloud",
+        "azurerm_restore_point_collections":"../resourceGroups/AzureBackupRG_westus2_1/providers/Microsoft.Compute/restorePointCollections/AzureBackup_duploservices-a002-ctscan-web02-pqeypp_7...",
+        "azurerm_versions":"../resourceGroups/SharedGalleryRG/providers/Microsoft.Compute/galleries/myGallery/images/testcompliance/versions/20.0.0",
+        "azurerm_monitor_metric_alert":"resourceGroups/duploservices-azdemo1/providers/Microsoft.Insights/metricalerts/testmetrics2-servers-storage_percent"
+    }
+
     azure_name_to_resoure_map = {
         "azurerm_workflows":"azurerm_logic_app_workflow",
         "azurerm_applications":"azurerm_managed_application",
