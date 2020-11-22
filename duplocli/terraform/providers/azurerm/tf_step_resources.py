@@ -337,7 +337,7 @@ class AzurermResources:
             print("ERROR:AzurermResources:2", "_get_backend_ports", e)
         return found_new
 
-    def _get_subnets(self, res_group_name):
+    def _fetch_subnets(self, res_group_name):
         found_new =False
         try:
             if res_group_name in self.res_groups_subnet_unique_dict:
@@ -364,6 +364,9 @@ class AzurermResources:
                           skip_if_exists=False):
         if tf_variable_id[0].isdigit():
             tf_variable_id = "s-{0}".format(tf_variable_id)
+        if tf_resource_type in ["azurerm_subnet"]:
+            #subnet names not usnique across res group or vnet?
+            tf_variable_id =  self._get_unique_subnet_name(tf_variable_id, tf_import_id)
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
@@ -601,14 +604,21 @@ class AzurermResources:
         if type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(type_name)
 
+    def _get_unique_subnet_name(self, id, name):
+        id_metadata = self._parse_id_metadata(id)
+        res_grp_name=id_metadata["resourceGroups"].replace("_","").replace("-","")
+        var_name = "{0}-{1}".format(res_grp_name, name)
+        return var_name
+
     def _tf_cloud_resource_vn_subnets(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
         resource_group_name = id_metadata["resource_group_name"]
         # resource_group_id = id_metadata["resource_group_id"]
-        process = self._get_subnets(resource_group_name)
+        process = self._fetch_subnets(resource_group_name)
         type_name="azurerm_subnet"
         if process:
            for id in self.subnet_dict:
                subnet = self.subnet_dict[id]
+
                self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
                                       tf_import_id=subnet.id, skip_if_exists=True)
                if type_name not in self.unique_processed_resouces:
