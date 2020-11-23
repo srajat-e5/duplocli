@@ -19,7 +19,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
             self._tf_resources(cloud_obj_list)
             self._create_tf_state()
         except Exception as e:
-            self.file_utils._save_errors("ERROR:Step1: execute {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:Step1: execute {0}".format(e))
 
         return self.file_utils.tf_main_file()
 
@@ -56,7 +56,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
             try:
                 self._tf_resource(cloud_obj)
             except Exception as e:
-                self.file_utils._save_errors("ERROR:Step1: _tf_resources {0}".format(e))
+                self.file_utils._save_errors(e,"ERROR:Step1: _tf_resources {0}".format(e))
 
     def _tf_resource(self, cloud_obj):
         tf_resource_type = cloud_obj['tf_resource_type']
@@ -70,7 +70,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                     # keep an eye --- we are neglecting data types ! until we get error ?
                     resource_obj[required_name] = "xxxx"
         except Exception as e:
-            self.file_utils._save_errors("ERROR:Step1: _tf_resource {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:Step1: _tf_resource {0}".format(e))
         return resource_obj
 
     def _init_tf_resource(self, cloud_obj):

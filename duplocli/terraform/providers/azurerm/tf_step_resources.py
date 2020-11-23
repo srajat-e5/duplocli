@@ -1,5 +1,7 @@
 import json
-import datetime
+import random
+from datetime import datetime
+# import datetime
 from collections import defaultdict
 import os
 from azure.common.credentials import ServicePrincipalCredentials
@@ -261,7 +263,7 @@ class AzurermResources:
             self._init_azure_client()
             self._create_env_sh()
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources: __init__ {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources: __init__ {0}".format(e))
             print("ERROR:AzurermResources:", "__init__", e)
 
     ###### azure client ######
@@ -305,7 +307,7 @@ class AzurermResources:
             # self.az_sql_client.firewall_rules.list_by_server(resource_group_name, server_name)
 
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources: _init_azure_client {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources: _init_azure_client {0}".format(e))
             print("ERROR:AzurermResources:", "_init_azure_client", e)
 
     def _create_env_sh(self):
@@ -360,10 +362,10 @@ class AzurermResources:
                         self.subnet_dict[load_balancer_backend_address.id] = load_balancer_backend_address
                         found_new = True
                 except Exception as e:
-                    self.file_utils._save_errors("ERROR:step0:resources: _get_backend_ports {0}".format(e))
+                    self.file_utils._save_errors(e,"ERROR:step0:resources: _get_backend_ports {0}".format(e))
                     print("ERROR:AzurermResources:1", "_get_backend_ports", e)
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources:2 _get_backend_ports {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources:2 _get_backend_ports {0}".format(e))
             print("ERROR:AzurermResources:2", "_get_backend_ports", e)
         return found_new
 
@@ -383,10 +385,10 @@ class AzurermResources:
                         self.subnet_dict[subnet.id] = subnet
                         found_new = True
                 except Exception as e:
-                    self.file_utils._save_errors("ERROR:step0:resources: _get_subnets {0}".format(e))
+                    self.file_utils._save_errors(e,"ERROR:step0:resources: _get_subnets {0}".format(e))
                     print("ERROR:AzurermResources:1", "_get_subnets", e)
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources:2 _get_subnets {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources:2 _get_subnets {0}".format(e))
             print("ERROR:AzurermResources:2", "_get_subnets", e)
         return found_new
 
@@ -396,7 +398,7 @@ class AzurermResources:
             tf_variable_id = "s-{0}".format(tf_variable_id)
         if tf_resource_type in ["azurerm_subnet"]:
             #subnet names not usnique across res group or vnet?
-            tf_variable_id =  self._get_unique_subnet_name(tf_import_id, tf_variable_id)
+            tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
@@ -439,7 +441,7 @@ class AzurermResources:
             with open(json_path) as f:
                 self.azurerm_resources = json.load(f)
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources: _load_azurerm_resources_json {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources: _load_azurerm_resources_json {0}".format(e))
             print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
 
     def _load_env(self):
@@ -589,7 +591,7 @@ class AzurermResources:
                         print("======== ABORT 2 NOT_FOUND: not supported by azurerm terraform?", res.type_name, "===",
                               res.id)
                 except Exception as e:
-                    self.file_utils._save_errors("ERROR:step0:resources: get_all_resources {0}".format(e))
+                    self.file_utils._save_errors(e,"ERROR:step0:resources: get_all_resources {0}".format(e))
                     print("ERROR:AzurermResources:", "get_all_resources", e)
                     print("========ABORT 3 ERROR", res.type_name, "===", res.id)
 
@@ -622,7 +624,7 @@ class AzurermResources:
 
 
         except Exception as e:
-            self.file_utils._save_errors("ERROR:step0:resources: _parse_id_metadata {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:step0:resources: _parse_id_metadata {0}".format(e))
             print("ERROR:AzurermResources:", "get_all_resources", e)
         return res_metadata
 
@@ -634,10 +636,13 @@ class AzurermResources:
         if type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(type_name)
 
-    def _get_unique_subnet_name(self, id, name):
+    def _get_unique_sub_src_name(self, id, name):
+        random.seed(datetime.now())
+        rndint= random.randint(10, 9999)
         id_metadata = self._parse_id_metadata(id)
-        res_grp_name=id_metadata["resourceGroups"].replace("_","").replace("-","")
+        res_grp_name = "s{0}".format(rndint) #id_metadata["resourceGroups"].replace("_","").replace("-","")
         var_name = "{0}-{1}".format(res_grp_name, name)
+
         return var_name
 
     def _tf_cloud_resource_vn_subnets(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
