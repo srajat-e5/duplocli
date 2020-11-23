@@ -37,6 +37,19 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         super()._create_tf_state()
         self.file_utils.create_state(self.file_utils.tf_run_script())
 
+    def _pull_additional_sub_res(self):
+        if "azurerm_virtual_machine_scale_set" in self.cloud_obj_list:
+            self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+            if not self.file_utils.file_exists(self.state_read_from_file):
+                raise Exception(
+                    "Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+            self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
+            # network_profile ip_configuration load_balancer_backend_address_pool_ids
+            # "load_balancer_backend_address_pool_ids": [
+            #     "/subscriptions/3a1286e1-be22-46c9-8e79-adcc388bf66f/resourceGroups/MC_duploinfra-azdev_azdev_francecentral/providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/aksOutboundBackendPool",
+            #     "/subscriptions/3a1286e1-be22-46c9-8e79-adcc388bf66f/resourceGroups/MC_duploinfra-azdev_azdev_francecentral/providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/kubernetes"
+            # ],
+
     ############ aws tf resources ##########
     def _tf_resources(self, cloud_obj_list):
         for cloud_obj in cloud_obj_list:
