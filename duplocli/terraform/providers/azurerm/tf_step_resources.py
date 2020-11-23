@@ -366,7 +366,7 @@ class AzurermResources:
             tf_variable_id = "s-{0}".format(tf_variable_id)
         if tf_resource_type in ["azurerm_subnet"]:
             #subnet names not usnique across res group or vnet?
-            tf_variable_id =  self._get_unique_subnet_name(tf_variable_id, tf_import_id)
+            tf_variable_id =  self._get_unique_subnet_name(tf_import_id, tf_variable_id)
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:

@@ -428,13 +428,13 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
          if resource_type in ["azurerm_subnet" ]:
              pass
          elif resource_type in ["azurerm_virtual_network"]:
-             #address_space
+             # address_space
              # move vnet name into variable
              # move instance.name into subnet
              if "subnet" in resource:
                  subnets_new = []
                  try:
-                     refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["name"])
+                     refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["tf_resource_var_name"])
                      subnets = resource["subnet"]
                      for subnet in subnets:
                          subnet_id = subnet["id"]
