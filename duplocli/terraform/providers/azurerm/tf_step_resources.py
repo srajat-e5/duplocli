@@ -300,6 +300,7 @@ class AzurermResources:
             self.az_network_client = NetworkManagementClient(credentials, subscription_id)
             self.az_sql_client = SqlManagementClient(credentials, subscription_id)
 
+           #self.az_network_client.load_balancers
 
             # self.az_sql_client.firewall_rules.list_by_server(resource_group_name, server_name)
 
