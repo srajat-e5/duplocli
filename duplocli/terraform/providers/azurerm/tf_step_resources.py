@@ -71,8 +71,47 @@ class AzurermResources:
         "azurerm_app_certificate_order":"resourceGroups/duploinfra-demo/providers/Microsoft.CertificateRegistration/certificateOrders/duplocloud",
         "azurerm_restore_point_collections":"../resourceGroups/AzureBackupRG_westus2_1/providers/Microsoft.Compute/restorePointCollections/AzureBackup_duploservices-a002-ctscan-web02-pqeypp_7...",
         "azurerm_versions":"../resourceGroups/SharedGalleryRG/providers/Microsoft.Compute/galleries/myGallery/images/testcompliance/versions/20.0.0",
-        "azurerm_monitor_metric_alert":"resourceGroups/duploservices-azdemo1/providers/Microsoft.Insights/metricalerts/testmetrics2-servers-storage_percent"
+        "azurerm_monitor_metric_alert":"resourceGroups/duploservices-azdemo1/providers/Microsoft.Insights/metricalerts/testmetrics2-servers-storage_percent",
+        "azurerm_network_intent_policies": "../resourceGroups/duploinfra-azdev/providers/Microsoft.Network/networkIntentPolicies/mi_default_8221d37b-1b37-4a6d-9fab-edfae4814b2a_10-228-2-0-24"
     }
+    resources_skip = [
+        "azurerm_monitor_metric_alert",
+        "azurerm_snapshot",
+        "azurerm_private_dns_zone_virtual_network_link",
+        "azurerm_app_service_certificate",
+        "azurerm_public_ip",
+        "azurerm_container_group"
+    ]
+    supported_corum = ['azurerm_kubernetes_cluster', 'azurerm_resource_group', 'azurerm_subnet',
+                     'azurerm_key_vault', 'azurerm_network_security_group', 'azurerm_virtual_network',
+                     'azurerm_storage_account', 'azurerm_availability_set', 'azurerm_mysql_server',
+                     'azurerm_user_assigned_identity', 'azurerm_application_security_group',
+                     'azurerm_app_service_plan', 'azurerm_app_service', 'azurerm_virtual_machine_scale_set',
+                     'azurerm_lb', 'azurerm_route_table']
+    supported_corum_all = ['azurerm_availability_set', 'azurerm_resource_group', 'azurerm_sql_server',
+                           'azurerm_user_assigned_identity', 'azurerm_application_security_group',
+                           'azurerm_app_service_plan', 'azurerm_app_service', 'azurerm_kubernetes_cluster',
+                           'azurerm_subnet', 'azurerm_key_vault', 'azurerm_network_security_group',
+                           'azurerm_virtual_network', 'azurerm_storage_account', 'azurerm_mysql_server',
+                           'azurerm_managed_disk', 'azurerm_virtual_machine', 'azurerm_virtual_machine_extension',
+                           'azurerm_network_interface', 'azurerm_public_ip', 'azurerm_virtual_machine_scale_set',
+                           'azurerm_lb', 'azurerm_route_table', 'azurerm_network_watcher']
+    supported_incloud_all = ['azurerm_storage_account', 'azurerm_resource_group', 'azurerm_log_analytics_workspace',
+                           'azurerm_log_analytics_solution', 'azurerm_managed_application_definition',
+                           'azurerm_managed_application', 'azurerm_custom_provider', 'azurerm_snapshot',
+                           'azurerm_image', 'azurerm_key_vault', 'azurerm_subnet', 'azurerm_network_security_group',
+                           'azurerm_public_ip', 'azurerm_virtual_network', 'azurerm_automation_account',
+                           'azurerm_automation_runbook', 'azurerm_managed_disk', 'azurerm_virtual_machine',
+                           'azurerm_virtual_machine_extension', 'azurerm_kubernetes_cluster',
+                           'azurerm_user_assigned_identity', 'azurerm_virtual_network_gateway_connection',
+                           'azurerm_dns_zone', 'azurerm_local_network_gateway', 'azurerm_network_interface',
+                           'azurerm_route_table', 'azurerm_virtual_network_gateway', 'azurerm_availability_set',
+                           'azurerm_logic_app_workflow', 'azurerm_application_security_group', 'azurerm_container_group',
+                           'azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_private_dns_zone',
+                           'azurerm_private_dns_zone_virtual_network_link', 'azurerm_app_service_certificate',
+                           'azurerm_app_service_plan', 'azurerm_app_service', 'azurerm_virtual_machine_scale_set',
+                           'azurerm_lb', 'azurerm_network_watcher', 'azurerm_shared_image_gallery', 'azurerm_sql_server']
+
 
     azure_name_to_resoure_map = {
         "azurerm_workflows":"azurerm_logic_app_workflow",
@@ -119,17 +158,7 @@ class AzurermResources:
         "A": ""
 
     }
-    resources_skip = [
-        "azurerm_monitor_metric_alert",
-        "azurerm_snapshot",
-        "azurerm_private_dns_zone_virtual_network_link",
-        "azurerm_app_service_certificate",
-        # "azurerm_managed_disk",
-        # "azurerm_virtual_machine",
-        # "azurerm_virtual_machine_extension",
-        "azurerm_public_ip",
-        "azurerm_container_group"
-    ]
+
     resources_skip111 = [
 
         'azurerm_automation_account',
