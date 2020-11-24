@@ -18,8 +18,13 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_const import *
 
 class AzureTfStepHelper:
+
+    tf_cloud_obj_list = []
+    resources_unique_ids = []
+
     def __init__(self, params):
         try:
+
             random.seed(datetime.now())
             self.params = params
             self.utils = TfUtils(params)
@@ -62,8 +67,44 @@ class AzureTfStepHelper:
 
         return var_name
 
-    def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
-                          skip_if_exists):
+    def set_cloud_obj_list(self, cloud_obj_list):
+        self.cloud_obj_list = cloud_obj_list
+        self.resources_unique_ids = self._resources_unique_ids(cloud_obj_list)
+
+    def _resources_unique_ids(self, cloud_obj_list=[]):
+        resources_unique_ids = []
+        for tf_resource in cloud_obj_list:
+            tf_id = tf_resource["tf_id"]
+            resources_unique_ids.append(tf_id)
+        return resources_unique_ids
+
+    def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
+                          skip_if_exists=False):
+        # TODO: move totally to helper
+        tf_resource = self._tf_cloud_resource(tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
+                                                     skip_if_exists)
+        tf_resource_var_name = tf_resource["tf_variable_id"]
+        tf_resource_type = tf_resource["tf_resource_type"]
+        tf_id = tf_resource["tf_id"]
+
+        if tf_id in self.resources_unique_ids:
+            if skip_if_exists:
+                # print(self.file_utils.stage_prefix(),
+                #       "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(
+                #           tf_resource_type, tf_resource_var_name, tf_id))
+                return
+            print(self.file_utils.stage_prefix(),
+                  "Exception tf_resource_var_name should be unique : {0} {1} {2}".format(
+                      tf_resource_type, tf_resource_var_name, tf_id))
+            raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
+
+        # create array
+        self.tf_cloud_obj_list.append(tf_resource)
+        self.resources_unique_ids.append(tf_id)
+        return tf_resource
+
+    def _tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
+                           skip_if_exists):
         if tf_variable_id[0].isdigit():
             tf_variable_id = "s-{0}".format(tf_variable_id)
         if tf_resource_type in ["azurerm_subnet"]:
