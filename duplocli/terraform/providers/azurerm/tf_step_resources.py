@@ -16,6 +16,7 @@ from stringcase import pascalcase, snakecase
 from duplocli.terraform.common.tf_utils import TfUtils
 from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_const import *
+from duplocli.terraform.providers.azurerm.tf_step_helper import AzureTfStepHelper
 
 class AzureTfStepResource:
     def __init__(self, res):
@@ -54,25 +55,16 @@ class AzureTfStepResource:
 
 
 class AzurermResources:
-    debug_print_out = False
-    debug_json = True
-    create_key_pair = False
-    #
-    aws_vpc_list = {}
-    #
     tf_cloud_obj_list = []
-    tf_cloud_sg_list = []
     resources_unique_ids = []
-
-    #
     subnet_dict = {}
     res_groups_subnet_unique_dict = []
     res_groups_subnet_unique_dict2 = []
 
     def __init__(self, params):
         try:
+            self.helper = AzureTfStepHelper(params)
             self.DEBUG_EXPORT_ALL = AzureTfStepConst.DEBUG_EXPORT_ALL
-
             if self.DEBUG_EXPORT_ALL:
                 self.resources_skip = AzureTfStepConst.resources_skip_all
             else:
@@ -217,24 +209,11 @@ class AzurermResources:
 
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
                           skip_if_exists=False):
-        if tf_variable_id[0].isdigit():
-            tf_variable_id = "s-{0}".format(tf_variable_id)
-        if tf_resource_type in ["azurerm_subnet"]:
-            #subnet names not usnique across res group or vnet?
-            tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
-        tf_resource_var_name = tf_variable_id
-        tf_resource_type_sync_id = tf_import_id
-        if tf_resource_var_name is None or tf_resource_type_sync_id is None:
-            print("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided", tf_resource_type,
-                  tf_resource_var_name, tf_import_id)
-            raise Exception("tf_cloud_resource 'tf_variable_id' 'tf_import_id' must be provided")
-
-        tf_resource_type = tf_resource_type.strip()
-        tf_resource_type_sync_id = tf_resource_type_sync_id.strip()
-        tf_resource_var_name = tf_resource_var_name.lower().strip()
-        tf_resource_var_name = tf_resource_var_name.replace(".", "-").replace("/", "-"). \
-            replace(" ", "-").replace("(", "-").replace(")", "-").replace("--", "-")
-        tf_id = "{}.{}".format(tf_resource_type, tf_resource_var_name)
+        #TODO: move totally to helper
+        tf_resource = self.helper.tf_cloud_resource( tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id, skip_if_exists)
+        tf_resource_var_name =  tf_resource["tf_variable_id"]
+        tf_resource_type =  tf_resource["tf_resource_type"]
+        tf_id = tf_resource["tf_id"]
 
         if tf_id in self.resources_unique_ids:
             if skip_if_exists:
@@ -248,9 +227,6 @@ class AzurermResources:
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
 
         # create array
-        tf_resource = {"tf_resource_type": tf_resource_type, "tf_variable_id": tf_resource_var_name,
-                       "tf_import_id": tf_resource_type_sync_id,
-                       "module": self.file_utils.params.module}
         self.tf_cloud_obj_list.append(tf_resource)
         self.resources_unique_ids.append(tf_id)
         return tf_resource
