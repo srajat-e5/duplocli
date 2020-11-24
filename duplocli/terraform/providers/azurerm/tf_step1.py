@@ -22,7 +22,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
             self._tf_resources(cloud_obj_list)
             self._create_tf_state()
         except Exception as e:
-            self.file_utils._save_errors(e,"ERROR:Step1: execute {0}".format(e))
+            self.file_utils._save_errors(e,"ERROR:Step1:1 execute {0}".format(e))
         try:
             found = self._pull_additional_sub_res(cloud_obj_list)
             if found:
@@ -31,7 +31,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                 self._tf_resources(self.helper.cloud_obj_list)
                 self._create_tf_state()
         except Exception as e:
-            self.file_utils._save_errors(e, "ERROR:Step1: execute {0}".format(e))
+            self.file_utils._save_errors(e, "ERROR:Step1:2 execute {0}".format(e))
 
         return self.file_utils.tf_main_file()
 
@@ -51,43 +51,44 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
 
     def _pull_additional_sub_res(self, cloud_obj_list):
         found=False
-        if "azurerm_virtual_machine_scale_set" in cloud_obj_list:
-            self.state_read_from_file = self.file_utils.tf_state_file_srep1()
-            if not self.file_utils.file_exists(self.state_read_from_file):
-                raise Exception(
-                    "Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
-            self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
-            resources = self.state_dict['resources']
-            for resource in resources:
-                try:
-                    tf_resource_type = resource["type"]
-                    tf_resource_var_name = resource["name"]
-                    if tf_resource_type =="azurerm_virtual_machine_scale_set":
-                        attributes = resource['instances'][0]['attributes']
-                        if "network_profile" in attributes:
-                            network_profiles  = attributes["network_profile"]
-                            for network_profile in network_profiles:
-                                if "ip_configuration" in network_profile:
-                                    ip_configurations = network_profile["ip_configuration"]
-                                    for ip_configuration in ip_configurations:
-                                        if "load_balancer_backend_address_pool_ids" in ip_configuration:
-                                            load_balancer_backend_address_pool_ids = ip_configuration["load_balancer_backend_address_pool_ids"]
-                                            for load_balancer_backend_address_pool_id in load_balancer_backend_address_pool_ids:
-                                                print("load_balancer_backend_address_pool_id", load_balancer_backend_address_pool_id)
-                                                found = True
-                                                # "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/MC_duploinfra-demo_test_westus2
-                                                # /providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/aksOutboundBackendPool",
-                                                metadata = self.helper._parse_id_metadata(load_balancer_backend_address_pool_id)
+        # for cloud_obj in cloud_obj_list:
+        # if "azurerm_virtual_machine_scale_set" in cloud_obj_list:
+        self.state_read_from_file = self.file_utils.tf_state_file_srep1()
+        if not self.file_utils.file_exists(self.state_read_from_file):
+            raise Exception(
+                "Error: Aborting import. Step1 failed to import terraform. Please check cred/permissions.")
+        self.state_dict = self.file_utils.load_json_file(self.state_read_from_file)
+        resources = self.state_dict['resources']
+        for resource in resources:
+            try:
+                tf_resource_type = resource["type"]
+                tf_resource_var_name = resource["name"]
+                if tf_resource_type =="azurerm_virtual_machine_scale_set":
+                    attributes = resource['instances'][0]['attributes']
+                    if "network_profile" in attributes:
+                        network_profiles  = attributes["network_profile"]
+                        for network_profile in network_profiles:
+                            if "ip_configuration" in network_profile:
+                                ip_configurations = network_profile["ip_configuration"]
+                                for ip_configuration in ip_configurations:
+                                    if "load_balancer_backend_address_pool_ids" in ip_configuration:
+                                        load_balancer_backend_address_pool_ids = ip_configuration["load_balancer_backend_address_pool_ids"]
+                                        for load_balancer_backend_address_pool_id in load_balancer_backend_address_pool_ids:
+                                            print("load_balancer_backend_address_pool_id", load_balancer_backend_address_pool_id)
+                                            found = True
+                                            # "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/MC_duploinfra-demo_test_westus2
+                                            # /providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/aksOutboundBackendPool",
+                                            metadata = self.helper._parse_id_metadata(load_balancer_backend_address_pool_id)
 
-                                                self.helper.tf_cloud_resource("azurerm_lb_backend_address_pool", metadata,
-                                                                       tf_variable_id=metadata["resource_name"],
-                                                                       tf_import_id=load_balancer_backend_address_pool_id, skip_if_exists=True)
+                                            self.helper.tf_cloud_resource("azurerm_lb_backend_address_pool", metadata,
+                                                                   tf_variable_id=metadata["resource_name"],
+                                                                   tf_import_id=load_balancer_backend_address_pool_id, skip_if_exists=True)
 
-                except Exception as e:
-                    self.file_utils._save_errors(e, "ERROR:Step2: _tf_resources {0}".format(e))
-                    print("ERROR:Step2:", "_tf_resources", e, resource)
+            except Exception as e:
+                self.file_utils._save_errors(e, "ERROR:Step2: _tf_resources {0}".format(e))
+                print("ERROR:Step2:", "_tf_resources", e, resource)
 
-                return found
+            return found
 
             # network_profile ip_configuration load_balancer_backend_address_pool_ids
             # "load_balancer_backend_address_pool_ids": [

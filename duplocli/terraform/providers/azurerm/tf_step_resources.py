@@ -158,28 +158,6 @@ class AzurermResources:
                           skip_if_exists=False):
         return self.helper.tf_cloud_resource(tf_resource_type, tf_cloud_obj, tf_variable_id=tf_variable_id,
                                tf_import_id=tf_import_id,  skip_if_exists=skip_if_exists)
-        # # TODO: move totally to helper
-        # tf_resource = self.helper._tf_cloud_resource(tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
-        #                                              skip_if_exists)
-        # tf_resource_var_name = tf_resource["tf_variable_id"]
-        # tf_resource_type = tf_resource["tf_resource_type"]
-        # tf_id = tf_resource["tf_id"]
-        #
-        # if tf_id in self.helper.resources_unique_ids:
-        #     if skip_if_exists:
-        #         # print(self.file_utils.stage_prefix(),
-        #         #       "SKIP: already exists - tf_resource_var_name should be unique : {0} {1} {2}".format(
-        #         #           tf_resource_type, tf_resource_var_name, tf_id))
-        #         return
-        #     print(self.file_utils.stage_prefix(),
-        #           "Exception tf_resource_var_name should be unique : {0} {1} {2}".format(
-        #               tf_resource_type, tf_resource_var_name, tf_id))
-        #     raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
-        #
-        # # create array
-        # self.helper.tf_cloud_obj_list.append(tf_resource)
-        # self.helper.resources_unique_ids.append(tf_id)
-        # return tf_resource
 
     ########## filter_resource ################
     def _all_resources(self):
@@ -225,7 +203,7 @@ class AzurermResources:
                             self.tf_cloud_resource(res.type_name, instance, tf_variable_id=res.name,
                                                    tf_import_id=res.id, skip_if_exists=True)
                             #additionaly always include respource group
-                            id_metadata = self._parse_id_metadata(res.id)
+                            id_metadata = self.helper._parse_id_metadata(res.id)
                             self._tf_cloud_resource_group(id_metadata, res.id, "azurerm_resource_group", instance)
                             self._tf_cloud_resource_vn_subnets(id_metadata,res.id,res.type_name, instance)
                             self._tf_cloud_resource_lb_backend_ports(id_metadata,res.id,res.type_name, instance)
@@ -331,17 +309,18 @@ class AzurermResources:
                    self.unique_processed_resouces.append(type_name)
 
     def _tf_cloud_resource_lb_backend_ports(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
-        resource_group_name = id_metadata["resource_group_name"]
-        # resource_group_id = id_metadata["resource_group_id"]
-        process = self._get_backend_ports(resource_group_name)
-        type_name="azurerm_subnet"
-        if process:
-           for id in self.subnet_dict:
-               subnet = self.subnet_dict[id]
-               self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
-                                      tf_import_id=subnet.id, skip_if_exists=True)
-               if type_name not in self.unique_processed_resouces:
-                   self.unique_processed_resouces.append(type_name)
+        pass
+        # resource_group_name = id_metadata["resource_group_name"]
+        # # resource_group_id = id_metadata["resource_group_id"]
+        # process = self._get_backend_ports(resource_group_name)
+        # type_name="azurerm_subnet"
+        # if process:
+        #    for id in self.subnet_dict:
+        #        subnet = self.subnet_dict[id]
+        #        self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
+        #                               tf_import_id=subnet.id, skip_if_exists=True)
+        #        if type_name not in self.unique_processed_resouces:
+        #            self.unique_processed_resouces.append(type_name)
 
     ########### helpers ###########
 
