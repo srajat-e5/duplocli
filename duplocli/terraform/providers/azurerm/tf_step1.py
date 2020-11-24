@@ -111,8 +111,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                                                                       tf_variable_id=metadata["resource_name"],
                                                                       tf_import_id=load_balancer_backend_address_pool_id,
                                                                       skip_if_exists=True)
-                                        return found
-
+            return found
         except Exception as e:
             pass
         return found
