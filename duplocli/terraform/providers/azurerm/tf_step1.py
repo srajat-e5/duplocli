@@ -24,7 +24,10 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         except Exception as e:
             self.file_utils._save_errors(e,"ERROR:Step1:1 execute {0}".format(e))
         try:
-            found = self._pull_additional_sub_res(cloud_obj_list)
+            self.helper.cloud_obj_list=[]
+            self.tf_import_sh_list = ["terraform init"]
+            self.tf_import_sh_list.append("source {0}".format(self.file_utils.get_azure_env_sh()))
+            found = self._fetch_additional_sub_res()
             if found:
                 ##
                 self.file_utils.tf_import_script_backup_file(self.tf_import_script_index)
@@ -32,6 +35,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                 ##
                 # self._copy_resources_file_to_all_steps(cloud_obj_list)
                 self._tf_resources(self.helper.cloud_obj_list)
+                cloud_obj_list.extend(self.helper.cloud_obj_list)
                 self._create_tf_state()
         except Exception as e:
             self.file_utils._save_errors(e, "ERROR:Step1:2 execute {0}".format(e))
@@ -56,10 +60,8 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         super()._create_tf_state()
         self.file_utils.create_state(self.file_utils.tf_run_script())
 
-    def _pull_additional_sub_res(self, cloud_obj_list):
+    def _fetch_additional_sub_res(self):
         found=False
-        # for cloud_obj in cloud_obj_list:
-        # if "azurerm_virtual_machine_scale_set" in cloud_obj_list:
         self.state_read_from_file = self.file_utils.tf_state_file_srep1()
         if not self.file_utils.file_exists(self.state_read_from_file):
             raise Exception(
