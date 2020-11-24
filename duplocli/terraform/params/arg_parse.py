@@ -100,25 +100,40 @@ class ArgParse:
         return tf_modules
 
     def  _set_defaults_azurerm(self, params):
+        filter_resources = params['filter_resources']
         tenant_name = params['tenant_name']
         infra_name = params['infra_name']
-        is_tenant = True
-        is_infra = True
-        if tenant_name is None or tenant_name.strip() == "":
-            is_tenant = False
-        else:
-            params['tenant_name'] = params['tenant_name'].strip()
-        if infra_name is None or infra_name.strip() == "":
-            is_infra = False
-        else:
-            params['infra_name'] = params['infra_name'].strip()
+        is_tenant = False
+        is_infra = False
+        is_filter_resources_all = False
+        ##
+        if filter_resources is not None:
+            filter_resources = filter_resources.strip()
+            params['filter_resources'] = filter_resources
+            if filter_resources =="all":
+                is_filter_resources_all = True
+        ##
+        if tenant_name is not None:
+            tenant_name = tenant_name.strip()
+            params['tenant_name'] = tenant_name
+            if len(tenant_name) > 0:
+                is_tenant = True
 
-        if is_tenant and is_infra:
-            prefix = "{0}_{1}".format(tenant_name, tenant_name)
+        ##
+        if infra_name is not None:
+            infra_name = infra_name.strip()
+            params['infra_name'] = infra_name
+            if len(infra_name) > 0:
+                is_infra = True
+
+        if is_filter_resources_all:
+            prefix = "filter_resources_all"
+        elif is_tenant and is_infra:
+            prefix = "{0}_{1}".format(tenant_name.replace(",","-"), tenant_name.replace(",","-"))
         elif is_tenant:
-            prefix = tenant_name
+            prefix = tenant_name.replace(",","-")
         elif is_infra:
-            prefix =infra_name
+            prefix = infra_name.replace(",", "-")
         else:
             self._raise_error(params,
                               "Exception: tenant_name or infra_name or both must be proveded.")
@@ -126,10 +141,28 @@ class ArgParse:
         params['folder_prefix'] = prefix
         params['is_tenant'] = is_tenant
         params['is_infra'] = is_infra
+        params['is_filter_resources_all'] = is_filter_resources_all
+        self.check_multiple_tenants_infra_azure(params)
+        print("is_filter_resources_all", is_filter_resources_all, "tenant_names", params["tenant_names"] , "infra_names", params["infra_names"] )
         return params
 
+    def _split_tenants_infra_azure(self, str_names):
+        arr_names_new = []
+        if str_names is not None:
+            # if "," in str_names:
+            arr_names = str_names.split(",")
+            for arr_name in arr_names:
+                arr_name = arr_name.strip()
+                if len(arr_name) > 0 :
+                    arr_names_new.append(arr_name)
+        return arr_names_new
 
-
+    def check_multiple_tenants_infra_azure(self, params):
+        if "tenant_name"  in params:
+            params["tenant_names"] = self._split_tenants_infra_azure(params["tenant_name"])
+        if "infra_name"  in params:
+            params["infra_names"] = self._split_tenants_infra_azure(params["infra_name"])
+        pass
     ############ aws ########################
 
     def getTfModulesAws(self, params):

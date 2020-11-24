@@ -16,29 +16,39 @@ class AwsParams(ParamBase):
                   "aws_region"]
 
     default_parameters = {
+        "provider": "aws",
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
+
+        # new
+        "is_filter_resources_all":False,
+        "filter_resources": "",
+        # defaults
+        "is_tenant": False,
+        "tenant_name": "infra",
+        "tenant_names": [],
+
+        "is_infra": False,
+        "infa_name": None,
+        "infra_names": [],
 
         "state_file": None,
         "zip_file_path": None,
 
-        "is_infra": False,
-        "is_tenant": False,
-
         "folder_prefix":"duplo_tf",
 
-        "tenant_name": "infra",
         "import_module": None,
         "default_import_module": "infra",
 
+        #sould not be part of terraform code but a extra cmd line call
         "download_aws_keys": "no",
         "url": None,
         "tenant_id": None,
         "api_token": None,
         "is_tenant_id_needed": False,
 
-        "aws_region": "us-west-2",
-        "provider": "aws"
+        "aws_region": "us-west-2"
+
     }
 
     def __init__(self):

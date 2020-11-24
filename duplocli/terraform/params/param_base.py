@@ -85,15 +85,16 @@ class ParamBase:
             else:
                 return "all"
         else: #if self.provider == 'azurerm':
-            prefix=""
-            self.is_tenant = self.parameters["is_tenant"]
-            self.is_infra = self.parameters["is_infra"]
-            if self.is_tenant and self.is_infra:
-                prefix = "{0}_{1}".format(self.tenant_name , self.infra_name )
-            elif self.is_tenant:
-                prefix = self.tenant_name
-            elif self.is_infra:
-                prefix = self.infra_name
+            prefix = self.parameters['folder_prefix']
+            # prefix = self.folder_prefix #self.params['folder_prefix']
+            # self.is_tenant = self.parameters["is_tenant"]
+            # self.is_infra = self.parameters["is_infra"]
+            # if self.is_tenant and self.is_infra:
+            #     prefix = "{0}_{1}".format(self.tenant_name , self.infra_name )
+            # elif self.is_tenant:
+            #     prefix = self.tenant_name
+            # elif self.is_infra:
+            #     prefix = self.infra_name
             return prefix
 
     def _create_work_file_paths(self):
@@ -144,3 +145,4 @@ class ParamBase:
         # if parsed_args.import_module is None:
         #     parsed_args.import_module = "all"
         #     parsed_args.tenant_name = "all"
+

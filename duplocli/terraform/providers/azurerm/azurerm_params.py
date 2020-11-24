@@ -21,21 +21,22 @@ class AzurermParams(ParamBase):
                   "aws_region"]
 
     default_parameters = {
+        "provider": "azurerm",
         "zip_folder": "../work/output/zip",
         "temp_folder": "../work/output",
 
         #new
+        "is_filter_resources_all": False,
         "filter_resources":"",
-        # defaults
-        "is_infra": False,
-        "tenant_name": None,
-        "infra_names": [],
 
+        # defaults
         "is_tenant": False,
         "tenant_name": None,
+        "tenant_names": [],
+
+        "is_infra": False,
+        "infra_name": None,
         "infra_names": [],
-
-
 
         # we
         "import_module": None,
@@ -46,14 +47,15 @@ class AzurermParams(ParamBase):
 
         "folder_prefix": "duplo_tf",
 
-        "download_aws_keys": "no",  # should not be part of export, but it could be a separate cmd.
+        # should not be part of export, but it could be a separate cmd.
+        "download_aws_keys": "no",
         "url": "all",
         "tenant_id": "all",
         "api_token": "all",
 
         "is_tenant_id_needed": False,
-        "aws_region": "us-west-2",
-        "provider": "azurerm"
+        "aws_region": "us-west-2"
+
 
     }
 
@@ -62,20 +64,6 @@ class AzurermParams(ParamBase):
         print(self.provider)
 
     def validate(self):
-        self.check_multiple_tenants_infra()
         super().validate()
 
-    def _split_tenants_infra(self, str_names):
-        arr_names_new = []
-        if str_names is not None:
-            if "," in str_names:
-                arr_names = self.str_names.split(",")
-                for arr_name in arr_names:
-                    arr_names_new.strip()
-                    if len(arr_name) > 0 :
-                        arr_names_new.append(arr_names_new)
-        return arr_names_new
 
-    def check_multiple_tenants_infra(self):
-        self.tenant_names = self._split_tenants_infra(self.tenant_name)
-        self.infra_names = self._split_tenants_infra(self.infra_name)
