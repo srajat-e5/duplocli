@@ -81,6 +81,15 @@ class AzurermResources:
             self.file_utils._save_errors(e,"ERROR:step0:resources: __init__ {0}".format(e))
             print("ERROR:AzurermResources:", "__init__", e)
 
+    #### public methods #######
+    def get_all_resources(self):
+        self._all_resources()
+        return self.tf_cloud_obj_list
+
+    def get_tenant_key_pair_list(self):
+        ##no impl for now
+        return None
+
     ###### azure client ######
 
     def _init_azure_client(self):
@@ -125,6 +134,13 @@ class AzurermResources:
             self.file_utils._save_errors(e,"ERROR:step0:resources: _init_azure_client {0}".format(e))
             print("ERROR:AzurermResources:", "_init_azure_client", e)
 
+    def _load_env(self):
+        json_path = "/shell/.duplo_env.json"
+        if not os.path.exists(json_path):
+            return {}
+        with open(json_path) as f:
+            return json.load(f)
+
     def _create_env_sh(self):
         # Issues  with env variables in imprt script and python on shell docker. need a clean and final method
         self.env_list = []
@@ -134,85 +150,17 @@ class AzurermResources:
         self.env_list.append("export ARM_TENANT_ID=\"{0}\"".format(os.environ.get('AZURE_TENANT_ID')))
         self.file_utils.create_azure_env_sh(self.env_list)
 
-    def _get_resources_root(self):
-        instance_root = []
-        for instance in self.az_resource_client.resources.list():
-            instance_root.append(instance)
-        return instance_root
 
-    #### public methods #######
-    def get_all_resources(self):
-        ##no change for now
-        self._all_resources()
-        return self.tf_cloud_obj_list
 
-    def get_tenant_resources(self):
-        ##no change for now
-        self._all_resources()
-        return self.tf_cloud_obj_list
 
-    def get_infra_resources(self):
-        ##no change for now
-        self._all_resources()
-        return self.tf_cloud_obj_list
-
-    def get_tenant_key_pair_list(self):
-        ##no impl for now
-        return None
-
-    ########### helpers ###########
-    def _get_backend_ports(self, res_group_name):
-        found_new = False
-        try:
-            if res_group_name in self.res_groups_subnet_unique_dict2:
-                return found_new
-            self.res_groups_subnet_unique_dict2.append(res_group_name)
-
-            load_balancers = self.az_network_client.load_balancers.list(res_group_name)
-            for load_balancer in load_balancers:
-                load_balancer_name = load_balancer.name
-                try:
-                    load_balancer_backend_address_pools = self.az_network_client.backend_address_pools.list(res_group_name, load_balancer_name)
-                    for load_balancer_backend_address in load_balancer_backend_address_pools:
-                        self.subnet_dict[load_balancer_backend_address.id] = load_balancer_backend_address
-                        found_new = True
-                except Exception as e:
-                    self.file_utils._save_errors(e,"ERROR:step0:resources: _get_backend_ports {0}".format(e))
-                    print("ERROR:AzurermResources:1", "_get_backend_ports", e)
-        except Exception as e:
-            self.file_utils._save_errors(e,"ERROR:step0:resources:2 _get_backend_ports {0}".format(e))
-            print("ERROR:AzurermResources:2", "_get_backend_ports", e)
-        return found_new
-
-    def _fetch_subnets(self, res_group_name):
-        found_new =False
-        try:
-            if res_group_name in self.res_groups_subnet_unique_dict:
-                return found_new
-            self.res_groups_subnet_unique_dict.append(res_group_name)
-
-            virtual_networks = self.az_network_client.virtual_networks.list(res_group_name)
-            for virtual_network in virtual_networks:
-                virtual_network_name = virtual_network.name
-                try:
-                    subnets =   self.az_network_client.subnets.list(res_group_name, virtual_network_name)
-                    for subnet in subnets:
-                        self.subnet_dict[subnet.id] = subnet
-                        found_new = True
-                except Exception as e:
-                    self.file_utils._save_errors(e,"ERROR:step0:resources: _get_subnets {0}".format(e))
-                    print("ERROR:AzurermResources:1", "_get_subnets", e)
-        except Exception as e:
-            self.file_utils._save_errors(e,"ERROR:step0:resources:2 _get_subnets {0}".format(e))
-            print("ERROR:AzurermResources:2", "_get_subnets", e)
-        return found_new
-
+    ########## filter_resource ################
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
                           skip_if_exists=False):
-        #TODO: move totally to helper
-        tf_resource = self.helper.tf_cloud_resource( tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id, skip_if_exists)
-        tf_resource_var_name =  tf_resource["tf_variable_id"]
-        tf_resource_type =  tf_resource["tf_resource_type"]
+        # TODO: move totally to helper
+        tf_resource = self.helper.tf_cloud_resource(tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
+                                                    skip_if_exists)
+        tf_resource_var_name = tf_resource["tf_variable_id"]
+        tf_resource_type = tf_resource["tf_resource_type"]
         tf_id = tf_resource["tf_id"]
 
         if tf_id in self.resources_unique_ids:
@@ -231,104 +179,7 @@ class AzurermResources:
         self.resources_unique_ids.append(tf_id)
         return tf_resource
 
-    def _load_azurerm_resources_json(self):
-        json_file = "azurerm_resources.json"  # "{0}__resources.json".format(self.params.provider)
-        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
-        if not os.path.exists(json_path):
-            raise Exception("schema {0} not found".format(json_path))
-        try:
-            with open(json_path) as f:
-                self.azurerm_resources = json.load(f)
-        except Exception as e:
-            self.file_utils._save_errors(e,"ERROR:step0:resources: _load_azurerm_resources_json {0}".format(e))
-            print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
-
-    def _load_env(self):
-        json_path = "/shell/.duplo_env.json"
-        if not os.path.exists(json_path):
-            return {}
-        with open(json_path) as f:
-            return json.load(f)
-
-    def tenant_resource_debug(self):
-        for instance in self.az_resource_client.resources.list():
-            id = instance.id
-            if self.params.is_tenant:
-            #if self.params.import_module == "tenant":
-                filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
-                if filter_tenant_str in id.lower():
-                    print("*****##tenant##*****  resourcegroups match? filter_resource ",  self.params.tenant_name.lower(), id)
-                elif self.params.tenant_name.lower() in id.lower():
-                    print("*****##tenant##*****  only tenant found? filter_resource ", self.params.tenant_name.lower(),
-                          id)
-                else:
-                    pass  # print("*****##tenant##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
-            if self.params.is_infra:
-            #if self.params.import_module == "infra":
-                filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
-                if filter_tenant_str in id.lower():
-                    print("*****##infra##*****  complete match? filter_resource ", self.params.infra_name.lower(), id)
-                elif self.params.infra_name.lower() in id.lower():
-                    print("*****##infra##*****  only infra-name found? filter_resource ", self.params.infra_name.lower(),
-                          id)
-                else:
-                    pass  # print("*****##infra##*****  not found? filter_resource ", self.params.infra_name.lower(), id)
-
-        return True
-
-    # duplocloud/shell:terraform_kubectl_azure_test_v26
-    def filter_resource(self, id):
-        #############
-        if  self.DEBUG_EXPORT_ALL:
-            return True
-        if self.params.is_tenant: #if self.params.import_module == "tenant":
-            filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
-            if filter_tenant_str in id.lower():
-                return True
-            elif self.params.tenant_name.lower() in id.lower():
-                return True
-        if self.params.is_infra: #elif self.params.import_module == "infra":
-            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
-            if filter_tenant_str in id.lower():
-                return True
-            elif self.params.infra_name in id.lower():
-                return True
-        return False
-
-    def should_import_resource_type(self, res):
-        if res.type_name not in self.azurerm_resources:
-            if res.type_name not in self.unique_unsupported_resouces:
-                self.unique_unsupported_resouces.append(res.type_name)
-                print("NOT_OK_UN_RESOLVED_MICROSOFT: not supported?: TypeName?", res.type_name, "===", res.id)
-            return False
-
-        ############# DEBUG #############
-        # test only few imports at a time
-        if self.resources_only_debug:
-            if res.type_name in ['azurerm_container_group',
-                                 'azurerm_virtual_machine']:  # ,'azurerm_network_interface']:
-                if res.type_name not in self.unique_processed_resouces:
-                    self.unique_processed_resouces.append(res.type_name)
-                print("OK:DEBUG:", res.type_name, "===", res.id)
-                return True
-            else:
-                if res.type_name not in self.unique_skip_resouces:
-                    self.unique_skip_resouces.append(res.type_name)
-                print("NOT_OK_SKIP_LIST:DEBUG:", res.type_name, "===", res.id)
-                return False
-        ############# DEBUG #############
-
-        if res.type_name in self.resources_skip:
-            if res.type_name not in self.unique_skip_resouces:
-                self.unique_skip_resouces.append(res.type_name)
-            print("NOT_OK_SKIP_LIST:", res.type_name, "===", res.id)
-            return False
-        if res.type_name not in self.unique_processed_resouces:
-            self.unique_processed_resouces.append(res.type_name)
-        # print("OK:", res.type_name, "===", res.id)
-        return True
-
-
+    ########## filter_resource ################
     def _all_resources(self):
         print("\n\n\n===============DEBUG=======================================")
         if True:
@@ -397,32 +248,63 @@ class AzurermResources:
         print("unique_unsupported_resouces", len(self.unique_unsupported_resouces), self.unique_unsupported_resouces)
         print("AzurermResources ======================================================\n\n\n")
         return arrAzureResources
+    ########## filter_resource ################
+    # duplocloud/shell:terraform_kubectl_azure_test_v26
+    def filter_resource(self, id):
+        #############
+        if  self.DEBUG_EXPORT_ALL:
+            return True
+        if self.params.is_tenant: #if self.params.import_module == "tenant":
+            filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
+            if filter_tenant_str in id.lower():
+                return True
+            elif self.params.tenant_name.lower() in id.lower():
+                return True
+        if self.params.is_infra: #elif self.params.import_module == "infra":
+            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
+            if filter_tenant_str in id.lower():
+                return True
+            elif self.params.infra_name in id.lower():
+                return True
+        return False
+
+    def should_import_resource_type(self, res):
+        if res.type_name not in self.azurerm_resources:
+            if res.type_name not in self.unique_unsupported_resouces:
+                self.unique_unsupported_resouces.append(res.type_name)
+                print("NOT_OK_UN_RESOLVED_MICROSOFT: not supported?: TypeName?", res.type_name, "===", res.id)
+            return False
+
+        ############# DEBUG #############
+        # test only few imports at a time
+        if self.resources_only_debug:
+            if res.type_name in ['azurerm_container_group',
+                                 'azurerm_virtual_machine']:  # ,'azurerm_network_interface']:
+                if res.type_name not in self.unique_processed_resouces:
+                    self.unique_processed_resouces.append(res.type_name)
+                print("OK:DEBUG:", res.type_name, "===", res.id)
+                return True
+            else:
+                if res.type_name not in self.unique_skip_resouces:
+                    self.unique_skip_resouces.append(res.type_name)
+                print("NOT_OK_SKIP_LIST:DEBUG:", res.type_name, "===", res.id)
+                return False
+        ############# DEBUG #############
+
+        if res.type_name in self.resources_skip:
+            if res.type_name not in self.unique_skip_resouces:
+                self.unique_skip_resouces.append(res.type_name)
+            print("NOT_OK_SKIP_LIST:", res.type_name, "===", res.id)
+            return False
+        if res.type_name not in self.unique_processed_resouces:
+            self.unique_processed_resouces.append(res.type_name)
+        # print("OK:", res.type_name, "===", res.id)
+        return True
 
 
-    def _parse_id_metadata(self, tf_import_id):
-        res_metadata={}
-        try:
-            tf_import_id_arr = tf_import_id.split("/")
-            new_id_arr = tf_import_id_arr[1:5]
-            new_id_temp = "/".join(new_id_arr)
-            tf_import_id_new = "/{0}".format(new_id_temp)
-            res_name = tf_import_id_arr[4].lower().strip()
-            res_metadata["resource_group_name"] = res_name
-            res_metadata["resource_group_id"] = tf_import_id_new
-
-            for i in range(1,len(tf_import_id_arr),2):
-                key = tf_import_id_arr[i]
-                val = tf_import_id_arr[i+1]
-                res_metadata[key] = val
-                #if i > 5:
-                res_metadata["key_{0}".format(i)] = key
-                res_metadata["val_{0}".format(i)] = val
-
-
-        except Exception as e:
-            self.file_utils._save_errors(e,"ERROR:step0:resources: _parse_id_metadata {0}".format(e))
-            print("ERROR:AzurermResources:", "get_all_resources", e)
-        return res_metadata
+    ########## filter_resource ################
+    ########## filter_resource ################
+    ########## filter_resource ################
 
     def _tf_cloud_resource_group(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
         res_name = id_metadata["resource_group_name"]
@@ -431,15 +313,6 @@ class AzurermResources:
                                tf_import_id=tf_import_id_new, skip_if_exists=True)
         if type_name not in self.unique_processed_resouces:
             self.unique_processed_resouces.append(type_name)
-
-    def _get_unique_sub_src_name(self, id, name):
-        random.seed(datetime.now())
-        rndint= random.randint(10, 9999)
-        id_metadata = self._parse_id_metadata(id)
-        res_grp_name = "s{0}".format(rndint) #id_metadata["resourceGroups"].replace("_","").replace("-","")
-        var_name = "{0}-{1}".format(res_grp_name, name)
-
-        return var_name
 
     def _tf_cloud_resource_vn_subnets(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
         resource_group_name = id_metadata["resource_group_name"]
@@ -467,3 +340,100 @@ class AzurermResources:
                                       tf_import_id=subnet.id, skip_if_exists=True)
                if type_name not in self.unique_processed_resouces:
                    self.unique_processed_resouces.append(type_name)
+
+    ########### helpers ###########
+
+    def _get_resources_root(self):
+        instance_root = []
+        for instance in self.az_resource_client.resources.list():
+            instance_root.append(instance)
+        return instance_root
+
+    def _get_backend_ports(self, res_group_name):
+        found_new = False
+        try:
+            if res_group_name in self.res_groups_subnet_unique_dict2:
+                return found_new
+            self.res_groups_subnet_unique_dict2.append(res_group_name)
+
+            load_balancers = self.az_network_client.load_balancers.list(res_group_name)
+            for load_balancer in load_balancers:
+                load_balancer_name = load_balancer.name
+                try:
+                    load_balancer_backend_address_pools = self.az_network_client.backend_address_pools.list(
+                        res_group_name, load_balancer_name)
+                    for load_balancer_backend_address in load_balancer_backend_address_pools:
+                        self.subnet_dict[load_balancer_backend_address.id] = load_balancer_backend_address
+                        found_new = True
+                except Exception as e:
+                    self.file_utils._save_errors(e, "ERROR:step0:resources: _get_backend_ports {0}".format(e))
+                    print("ERROR:AzurermResources:1", "_get_backend_ports", e)
+        except Exception as e:
+            self.file_utils._save_errors(e, "ERROR:step0:resources:2 _get_backend_ports {0}".format(e))
+            print("ERROR:AzurermResources:2", "_get_backend_ports", e)
+        return found_new
+
+    def _fetch_subnets(self, res_group_name):
+        found_new = False
+        try:
+            if res_group_name in self.res_groups_subnet_unique_dict:
+                return found_new
+            self.res_groups_subnet_unique_dict.append(res_group_name)
+
+            virtual_networks = self.az_network_client.virtual_networks.list(res_group_name)
+            for virtual_network in virtual_networks:
+                virtual_network_name = virtual_network.name
+                try:
+                    subnets = self.az_network_client.subnets.list(res_group_name, virtual_network_name)
+                    for subnet in subnets:
+                        self.subnet_dict[subnet.id] = subnet
+                        found_new = True
+                except Exception as e:
+                    self.file_utils._save_errors(e, "ERROR:step0:resources: _get_subnets {0}".format(e))
+                    print("ERROR:AzurermResources:1", "_get_subnets", e)
+        except Exception as e:
+            self.file_utils._save_errors(e, "ERROR:step0:resources:2 _get_subnets {0}".format(e))
+            print("ERROR:AzurermResources:2", "_get_subnets", e)
+        return found_new
+
+    def _load_azurerm_resources_json(self):
+        json_file = "azurerm_resources.json"  # "{0}__resources.json".format(self.params.provider)
+        json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), json_file)
+        if not os.path.exists(json_path):
+            raise Exception("schema {0} not found".format(json_path))
+        try:
+            with open(json_path) as f:
+                self.azurerm_resources = json.load(f)
+        except Exception as e:
+            self.file_utils._save_errors(e, "ERROR:step0:resources: _load_azurerm_resources_json {0}".format(e))
+            print("ERROR:AzurermResources:", "_load_azurerm_resources_json", e)
+
+        ######
+
+    def tenant_resource_debug(self):
+        for instance in self.az_resource_client.resources.list():
+            id = instance.id
+            if self.params.is_tenant:
+                # if self.params.import_module == "tenant":
+                filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
+                if filter_tenant_str in id.lower():
+                    print("*****##tenant##*****  resourcegroups match? filter_resource ",
+                          self.params.tenant_name.lower(), id)
+                elif self.params.tenant_name.lower() in id.lower():
+                    print("*****##tenant##*****  only tenant found? filter_resource ", self.params.tenant_name.lower(),
+                          id)
+                else:
+                    pass  # print("*****##tenant##*****  not found? filter_resource ", self.params.tenant_name.lower(), id)
+            if self.params.is_infra:
+                # if self.params.import_module == "infra":
+                filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
+                if filter_tenant_str in id.lower():
+                    print("*****##infra##*****  complete match? filter_resource ", self.params.infra_name.lower(), id)
+                elif self.params.infra_name.lower() in id.lower():
+                    print("*****##infra##*****  only infra-name found? filter_resource ",
+                          self.params.infra_name.lower(),
+                          id)
+                else:
+                    pass  # print("*****##infra##*****  not found? filter_resource ", self.params.infra_name.lower(), id)
+
+        return True

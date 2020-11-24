@@ -62,11 +62,7 @@ class AzurermTfSteps:
         print(self.file_utils.stage_prefix(), "step1_tf_state")
         # step1
         api = self._api()
-        # if self.params.module == 'infra':
-        #     cloud_resources = api.get_infra_resources()
-        # else:
-        #     cloud_resources = api.get_tenant_resources()
-        cloud_resources = api.get_tenant_resources()
+        cloud_resources = api.get_all_resources()
         # step2
         self.step1 = self._init_step1()
         self.step1.execute(cloud_resources)
