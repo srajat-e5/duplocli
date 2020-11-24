@@ -439,20 +439,17 @@ class TfFileUtils:
 
     def _store_error(self, ex):
         try:
-            trace = []
+            racemsag = "ERROR type = filename:{0}, message:{1} ".format(type(ex).__name__, str(ex))
+            self.errors.append(racemsag)
+            print(racemsag)
             tb = ex.__traceback__
             while tb is not None:
-                trace.append({
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno
-                })
+                racemsag ="ERROR trace = filename:{0}, name:{1}, lineno:{2}".format( tb.tb_frame.f_code.co_filename,
+                                                                                     tb.tb_frame.f_code.co_name,
+                                                                                     tb.tb_lineno)
+                self.errors.append(racemsag)
+                print(racemsag)
                 tb = tb.tb_next
-            print(str({
-                'type': type(ex).__name__,
-                'message': str(ex),
-                'trace': trace
-            }))
         except:
             pass
     def _save_errors(self, e,  *msg):
@@ -461,5 +458,5 @@ class TfFileUtils:
         self.errors.append(message)
         print("ERROR:", self.stage_prefix(), message)
     def print_errors(self):
-        message = " ".join( self.errors)
+        message = "\n".join( self.errors)
         print("ERROR:", self.stage_prefix(), message)

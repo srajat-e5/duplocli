@@ -1,5 +1,7 @@
 from duplocli.terraform.providers.azurerm.base_tf_step import AzureBaseTfImportStep
 import requests
+from duplocli.terraform.providers.azurerm.tf_step_const import *
+from duplocli.terraform.providers.azurerm.tf_step_helper import AzureTfStepHelper
 
 dummy_values = {
     "cidr_block": "0.0.0.0/0",
@@ -11,6 +13,7 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
 
     def __init__(self, params):
         super(AzurermTfImportStep1, self).__init__(params)
+        self.helper = AzureTfStepHelper(params)
 
     ############ execute_step public resources ##########
     def execute(self, cloud_obj_list=[]):
@@ -21,9 +24,11 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         except Exception as e:
             self.file_utils._save_errors(e,"ERROR:Step1: execute {0}".format(e))
         try:
-            found = self._pull_additional_sub_res()
+            found = self._pull_additional_sub_res(cloud_obj_list)
             if found:
-                self._tf_resources(cloud_obj_list)
+                cloud_obj_list.append(self.helper.cloud_obj_list)
+                self._copy_resources_file_to_all_steps(cloud_obj_list)
+                self._tf_resources(self.helper.cloud_obj_list)
                 self._create_tf_state()
         except Exception as e:
             self.file_utils._save_errors(e, "ERROR:Step1: execute {0}".format(e))
@@ -44,9 +49,9 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
         super()._create_tf_state()
         self.file_utils.create_state(self.file_utils.tf_run_script())
 
-    def _pull_additional_sub_res(self):
+    def _pull_additional_sub_res(self, cloud_obj_list):
         found=False
-        if "azurerm_virtual_machine_scale_set" in self.cloud_obj_list:
+        if "azurerm_virtual_machine_scale_set" in cloud_obj_list:
             self.state_read_from_file = self.file_utils.tf_state_file_srep1()
             if not self.file_utils.file_exists(self.state_read_from_file):
                 raise Exception(
@@ -70,6 +75,13 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                                             for load_balancer_backend_address_pool_id in load_balancer_backend_address_pool_ids:
                                                 print("load_balancer_backend_address_pool_id", load_balancer_backend_address_pool_id)
                                                 found = True
+                                                # "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/MC_duploinfra-demo_test_westus2
+                                                # /providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/aksOutboundBackendPool",
+                                                metadata = self.helper._parse_id_metadata(load_balancer_backend_address_pool_id)
+
+                                                self.helper.tf_cloud_resource("azurerm_lb_backend_address_pool", metadata,
+                                                                       tf_variable_id=metadata["resource_name"],
+                                                                       tf_import_id=load_balancer_backend_address_pool_id, skip_if_exists=True)
 
                 except Exception as e:
                     self.file_utils._save_errors(e, "ERROR:Step2: _tf_resources {0}".format(e))

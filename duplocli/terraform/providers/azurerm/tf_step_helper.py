@@ -43,7 +43,7 @@ class AzureTfStepHelper:
             res_name = tf_import_id_arr[4].lower().strip()
             res_metadata["resource_group_name"] = res_name
             res_metadata["resource_group_id"] = tf_import_id_new
-
+            res_metadata["resource_name"] = tf_import_id_arr[-1]
             for i in range(1,len(tf_import_id_arr),2):
                 key = tf_import_id_arr[i]
                 val = tf_import_id_arr[i+1]
@@ -107,7 +107,7 @@ class AzureTfStepHelper:
                            skip_if_exists):
         if tf_variable_id[0].isdigit():
             tf_variable_id = "s-{0}".format(tf_variable_id)
-        if tf_resource_type in ["azurerm_subnet"]:
+        if tf_resource_type in ["azurerm_subnet", "azurerm_lb_backend_address_pool"]:
             #subnet names not usnique across res group or vnet?
             tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
         tf_resource_var_name = tf_variable_id
