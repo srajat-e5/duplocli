@@ -90,6 +90,15 @@ class TfFileUtils:
     def tf_import_script(self):
         return os.path.join(self.work_folder(), self._script_file_name(self._tf_import_script_prefix))
 
+    def tf_import_script_backup(self, index):
+        return os.path.join(self.work_folder(),  self._script_file_name("{0}_{1}".format(self._tf_import_script_prefix , index)))
+
+    def tf_import_script_backup_file(self, index):
+        try:
+            shutil.copy(self.tf_import_script(), self.tf_import_script_backup(index))
+        except Exception as e:
+            pass
+
     def tf_run_script(self):
         return os.path.join(self.work_folder(), self._script_file_name(self._tf_run_script_prefix))
 

@@ -19,7 +19,7 @@ from duplocli.terraform.providers.azurerm.tf_step_const import *
 
 class AzureTfStepHelper:
 
-    tf_cloud_obj_list = []
+    cloud_obj_list = []
     resources_unique_ids = []
 
     def __init__(self, params):
@@ -99,7 +99,7 @@ class AzureTfStepHelper:
             raise Exception("tf_resource_var_name should be unique {}".format(tf_id))
 
         # create array
-        self.tf_cloud_obj_list.append(tf_resource)
+        self.cloud_obj_list.append(tf_resource)
         self.resources_unique_ids.append(tf_id)
         return tf_resource
 

@@ -62,7 +62,7 @@ class AzureTfStepConst:
                              'azurerm_sql_server']
 
     ####################
-    DEBUG_EXPORT_ALL = True  # False True
+    DEBUG_EXPORT_ALL = False  # False True
 
     resources_skip = [
         "azurerm_monitor_metric_alert",

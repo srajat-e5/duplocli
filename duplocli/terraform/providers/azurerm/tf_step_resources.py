@@ -84,7 +84,7 @@ class AzurermResources:
     #### public methods #######
     def get_all_resources(self):
         self._all_resources()
-        return self.helper.tf_cloud_obj_list
+        return self.helper.cloud_obj_list
 
     def get_tenant_key_pair_list(self):
         ##no impl for now
@@ -244,7 +244,7 @@ class AzurermResources:
             filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
             if filter_tenant_str in id.lower():
                 return True
-            elif self.params.infra_name in id.lower():
+            elif self.params.infra_name.lower() in id.lower():
                 return True
         return False
 
