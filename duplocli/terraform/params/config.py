@@ -15,6 +15,7 @@ arg_params = {
     #one of the two needed
     "tenant_name": {"short_name": "n", "disc": "Tenant Name(s) comma separated e.g. webdev or  webdev,website,default"},
     "infra_name": {"short_name": "s", "disc": "Infra Name(s)"},
+    "filter_resources": {"short_name": "f", "disc": "filter_resources = all ... other values are neglected for now"},
     #absolete
     "import_module": {"short_name": "m", "disc": "import_module=infra, tenant, tenant_list, all. default is tenant,"},
     "tenant_id": {"short_name": "t",

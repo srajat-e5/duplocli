@@ -64,8 +64,8 @@ class AzurermResources:
     def __init__(self, params):
         try:
             self.helper = AzureTfStepHelper(params)
-            self.DEBUG_EXPORT_ALL = AzureTfStepConst.DEBUG_EXPORT_ALL
-            if self.DEBUG_EXPORT_ALL:
+            self.filter_all = params.filter_resources =="all" or self.DEBUG_EXPORT_ALL
+            if self.filter_all:
                 self.resources_skip = AzureTfStepConst.resources_skip_all
             else:
                 self.resources_skip = AzureTfStepConst.resources_skip
@@ -230,21 +230,47 @@ class AzurermResources:
         return arrAzureResources
     ########## filter_resource ################
     # duplocloud/shell:terraform_kubectl_azure_test_v26
+
+    def _filter_resource_tenant(self, id):
+        if len(self.params.tenant_names) > 0:
+            id = id.lower()
+            for filter_name in self.params.tenant_names:
+                filter_name = filter_name.lower()
+                if "/resourcegroups/duploservices-{0}".format(filter_name) in id:
+                    return True
+                if "/resourcegroups/duploservices-{0}-lb".format(filter_name) in id:
+                    return True
+                if "/resourcegroups/duplomgapp-mgr-{0}".format(filter_name) in id:
+                    return True
+                #this is hack? will include all
+                if filter_name in id:
+                    return True
+        return True
+
+    def _filter_resource_infra(self, id):
+        if len(self.params.infra_names) > 0:
+            id = id.lower()
+            for filter_name in self.params.infra_names:
+                filter_name = filter_name.lower()
+                if "/resourcegroups/duploinfra-{0}".format(filter_name) in id:
+                    return True
+                if "/resourcegroups/duplobackups-{0}".format(filter_name) in id:
+                    return True
+                # this is hack? will include all
+                if filter_name in id:
+                    return True
+        return True
+
+
     def filter_resource(self, id):
         #############
-        if  self.DEBUG_EXPORT_ALL:
+        if  self.filter_all:
             return True
         if self.params.is_tenant: #if self.params.import_module == "tenant":
-            filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
-            if filter_tenant_str in id.lower():
-                return True
-            elif self.params.tenant_name.lower() in id.lower():
+             if self._filter_resource_tenant(id):
                 return True
         if self.params.is_infra: #elif self.params.import_module == "infra":
-            filter_tenant_str = "/resourcegroups/duploinfra-{0}".format(self.params.infra_name.lower())
-            if filter_tenant_str in id.lower():
-                return True
-            elif self.params.infra_name.lower() in id.lower():
+            if self._filter_resource_infra(id):
                 return True
         return False
 
