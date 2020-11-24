@@ -5,11 +5,7 @@ from duplocli.terraform.params.arg_parse import ArgParse, TfModule
 class AzurermParams(ParamBase):
     provider = "azurerm"
     attr_names = ["tenant_name",
-                  "tenant_names",
-
                   "infra_name",
-                  "infra_names",
-
                   "import_name",
                   "zip_file_path",
                   "params_json_file_path",

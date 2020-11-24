@@ -64,7 +64,7 @@ class AzurermResources:
     def __init__(self, params):
         try:
             self.helper = AzureTfStepHelper(params)
-            self.filter_all = params.filter_resources =="all" or self.DEBUG_EXPORT_ALL
+            self.filter_all = params.filter_resources =="all" or AzureTfStepConst.DEBUG_EXPORT_ALL
             if self.filter_all:
                 self.resources_skip = AzureTfStepConst.resources_skip_all
             else:
