@@ -107,7 +107,7 @@ class AzureTfStepHelper:
                            skip_if_exists):
         if tf_variable_id[0].isdigit():
             tf_variable_id = "s-{0}".format(tf_variable_id)
-        if tf_resource_type in ["azurerm_subnet", "azurerm_lb_backend_address_pool"]:
+        if tf_resource_type in ["azurerm_subnet", "azurerm_lb_backend_address_pool", "azurerm_public_ip"]:
             #subnet names not usnique across res group or vnet?
             tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
         tf_resource_var_name = tf_variable_id

@@ -26,6 +26,9 @@ class AzureTfStepConst:
         "azurerm_monitor_metric_alert": "resourceGroups/duploservices-azdemo1/providers/Microsoft.Insights/metricalerts/testmetrics2-servers-storage_percent",
         "azurerm_network_intent_policies": "../resourceGroups/duploinfra-azdev/providers/Microsoft.Network/networkIntentPolicies/mi_default_8221d37b-1b37-4a6d-9fab-edfae4814b2a_10-228-2-0-24"
     }
+    sub_res=[
+        "azurerm_lb_outbound_rule" , "azurerm_lb_backend_address_pool"
+    ]
     supported_corum = ['azurerm_kubernetes_cluster', 'azurerm_resource_group', 'azurerm_subnet',
                        'azurerm_key_vault', 'azurerm_network_security_group', 'azurerm_virtual_network',
                        'azurerm_storage_account', 'azurerm_availability_set', 'azurerm_mysql_server',
@@ -69,7 +72,7 @@ class AzureTfStepConst:
         "azurerm_snapshot",
         "azurerm_private_dns_zone_virtual_network_link",
         "azurerm_app_service_certificate",
-        "azurerm_public_ip",
+        #"azurerm_public_ip",
         "azurerm_container_group"
     ]
     resources_skip_all = ["azurerm_monitor_metric_alert"]

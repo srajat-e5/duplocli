@@ -243,7 +243,6 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
 
     def _skip_root_update_attrs_resource(self, tf_resource_type, resource_obj, resource_obj2):
         try:
-
             if tf_resource_type == "azurerm_lb":
                 if "frontend_ip_configuration" in resource_obj :
                     child_obj_list = resource_obj["frontend_ip_configuration"]
@@ -380,16 +379,37 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             else:
                                 resource_obj[attribute_name] = attribute
                         except Exception as e:
-                            self.file_utils._save_errors(e,"ERROR:Step2: site_config {0}".format(e))
-                            print("ERROR:Step2:", "site_config", e)
+                            self.file_utils._save_errors(e,"ERROR:Step2:1 site_config {0}".format(e))
+                            print("ERROR:Step2:1", "site_config", e)
                 resource_obj_parent[nested_atr_name] = resource_obj_arr
                 return True
 
-        # azurerm_virtual_machine
-        # storage_data_disk
-        # disk_size_gb
-        # lun
-        elif tf_resource_type == "azurerm_virtual_machine":
+        if tf_resource_type == "azurerm_lb":
+            #"azurerm_lb", frontend_ip_configuration
+            if nested_atr_name in ['frontend_ip_configuration']:
+                resource_obj_arr = []
+                skip_attr = ["id"]
+                for attribute_item in nested_atr:
+                    resource_obj = {}
+                    resource_obj_arr.append(resource_obj)
+                    for attribute_name, attribute in attribute_item.items():
+                        try:
+                            if isinstance(attribute, str):
+                                if (attribute != "" and attribute is not None):
+                                    if attribute_name not in skip_attr:
+                                        resource_obj[attribute_name] = attribute
+                            else:
+                                resource_obj[attribute_name] = attribute
+                        except Exception as e:
+                            self.file_utils._save_errors(e, "ERROR:Step2:2 _skip_process_nested {0}".format(e))
+                            print("ERROR:Step2:2", nested_atr_name, e)
+                if resource_obj_arr is not None:
+                    resource_obj_parent[nested_atr_name] = resource_obj_arr
+                else:
+                    print("WARN:Step2:VALUE empty", nested_atr_name)
+                return True
+            return False
+        if tf_resource_type == "azurerm_virtual_machine":
             if nested_atr_name in ['storage_image_reference', "os_profile", "storage_os_disk", "storage_data_disk"]:
                 resource_obj_arr = []
                 skip_attr=["managed_disk_id"]
@@ -405,8 +425,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                             else:
                                 resource_obj[attribute_name] = attribute
                         except Exception as e:
-                            self.file_utils._save_errors(e,"ERROR:Step2: _skip_process_nested {0}".format(e))
-                            print("ERROR:Step2:", nested_atr_name, e)
+                            self.file_utils._save_errors(e,"ERROR:Step2:3 _skip_process_nested {0}".format(e))
+                            print("ERROR:Step2:3", nested_atr_name, e)
                 if resource_obj_arr is not None:
                     resource_obj_parent[nested_atr_name] = resource_obj_arr
                 else:

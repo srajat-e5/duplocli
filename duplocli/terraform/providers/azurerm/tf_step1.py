@@ -91,13 +91,13 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
             if tf_resource_type == "azurerm_virtual_machine_scale_set":
                 attributes = resource['instances'][0]['attributes']
                 if "network_profile" in attributes:
-                    network_profiles = attributes["network_profile"]
-                    for network_profile in network_profiles:
-                        if "ip_configuration" in network_profile:
-                            ip_configurations = network_profile["ip_configuration"]
-                            for ip_configuration in ip_configurations:
-                                if "load_balancer_backend_address_pool_ids" in ip_configuration:
-                                    load_balancer_backend_address_pool_ids = ip_configuration[
+                    frontend_ip_configurations = attributes["network_profile"]
+                    for frontend_ip_configuration in frontend_ip_configurations:
+                        if "ip_configuration" in frontend_ip_configuration:
+                            outbound_rules = frontend_ip_configuration["ip_configuration"]
+                            for outbound_rule_list in outbound_rules:
+                                if "load_balancer_backend_address_pool_ids" in outbound_rule_list:
+                                    load_balancer_backend_address_pool_ids = outbound_rule_list[
                                         "load_balancer_backend_address_pool_ids"]
                                     for load_balancer_backend_address_pool_id in load_balancer_backend_address_pool_ids:
                                         print("load_balancer_backend_address_pool_id",
@@ -111,7 +111,28 @@ class AzurermTfImportStep1(AzureBaseTfImportStep):
                                                                       tf_variable_id=metadata["resource_name"],
                                                                       tf_import_id=load_balancer_backend_address_pool_id,
                                                                       skip_if_exists=True)
-            return found
+                return found
+            #azurerm_lb frontend_ip_configuration outbound_rules
+            if tf_resource_type == "azurerm_lb":
+                attributes = resource['instances'][0]['attributes']
+                if "frontend_ip_configuration" in attributes:
+                    frontend_ip_configurations = attributes["frontend_ip_configuration"]
+                    for frontend_ip_configuration in frontend_ip_configurations:
+                        if "outbound_rules" in frontend_ip_configuration:
+                            outbound_rules = frontend_ip_configuration["outbound_rules"]
+                            for outbound_rule_list in outbound_rules:
+                                for outbound_rule_id in outbound_rule_list:
+                                    print("frontend_ip_configuration outbound_rule_id", outbound_rule_id)
+                                    found = True
+                                    # "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/MC_duploinfra-demo_test_westus2
+                                    # /providers/Microsoft.Network/loadBalancers/kubernetes/backendAddressPools/aksOutboundBackendPool",
+                                    metadata = self.helper._parse_id_metadata(outbound_rule_id)
+
+                                    self.helper.tf_cloud_resource("azurerm_lb_outbound_rule", metadata,
+                                                                  tf_variable_id=metadata["resource_name"],
+                                                                  tf_import_id=outbound_rule_id,
+                                                                  skip_if_exists=True)
+                return found
         except Exception as e:
             pass
         return found

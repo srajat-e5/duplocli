@@ -112,6 +112,19 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             self._del_key(resource, "disk_iops_read_write")
             self._del_key(resource, "disk_mbps_read_write")
         # print(resource_type)
+
+        # azurerm_app_service = app_settings # WORDPRESS_DB_HOST  WORDPRESS_DB_NAME  WORDPRESS_DB_PASSWORD  WORDPRESS_DB_USER
+        if resource_type in ['azurerm_app_service']:
+            if "app_settings"   in resource:
+                auth_settings = resource["app_settings"]
+                for auth_setting in auth_settings:
+                    field_names = ["WORDPRESS_DB_HOST","WORDPRESS_DB_NAME","WORDPRESS_DB_USER","WORDPRESS_DB_PASSWORD"]
+                    for field_name in field_names and field_name in auth_setting:
+                        self.index = self.index + 1
+                        var_name = "{0}_{1}_".format(resource_type, self.index, field_name.lower())
+                        # resource[field_name] = "${var." + var_name + "}"
+                        self.variable_list_dict[var_name] = auth_setting[field_name] #self.password_const
+
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_sql_server']:
             if "administrator_login_password" not in resource:
                 # administrator_login_password = resource["administrator_login"]
