@@ -40,9 +40,9 @@ class AzureTfStepResource:
         self.type_name_orig = self.type_name
 
         if "azurerm_servers" == self.type_name:
-            if self.provider == "Microsoft.DBForMySQL":
+            if self.provider.lower() == "Microsoft.DBForMySQL".lower():
                 self.type_name = "azurerm_mysql_server"
-            if self.provider == "Microsoft.DBForPostgreSQL":
+            if self.provider.lower() == "Microsoft.DBForPostgreSQL".lower():
                 self.type_name = "azurerm_postgresql_server"
 
         # azurerm_mysql_server
@@ -109,7 +109,6 @@ class AzurermResources:
                 AZURE_TENANT_ID = None
                 AZURE_CLIENT_ID = None
                 AZURE_CLIENT_SECRET = None
-
 
 
                 subscription_id = AZURE_SUBSCRIPTION_ID or os.environ['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id

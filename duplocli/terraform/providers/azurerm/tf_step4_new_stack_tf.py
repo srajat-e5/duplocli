@@ -104,7 +104,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
             self._del_key(resource, "disk_iops_read_write")
             self._del_key(resource, "disk_mbps_read_write")
         # print(resource_type)
-        if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
+        if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_sql_server']:
             if "administrator_login_password" not in resource:
                 # administrator_login_password = resource["administrator_login"]
                 if "administrator_login" in self.variable_list_dict:

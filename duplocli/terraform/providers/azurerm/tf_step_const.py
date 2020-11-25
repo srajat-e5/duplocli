@@ -81,7 +81,7 @@ class AzureTfStepConst:
         "azurerm_application_definitions": "azurerm_managed_application_definition",
         "azurerm_managed_clusters": "azurerm_kubernetes_cluster",
         "azurerm_load_balancers": "azurerm_lb",
-        "azurerm_servers": "azurerm_sql_server",
+        #"azurerm_servers": "azurerm_sql_server",
         "azurerm_resource_providers": "azurerm_custom_provider",
         "azurerm_deployment_scripts": "azurerm_template_deployment",
         "azurerm_extensions": "azurerm_virtual_machine_extension",

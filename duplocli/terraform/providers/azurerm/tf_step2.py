@@ -223,10 +223,12 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
         if tf_resource_type == 'azurerm_key_vault' and attribute_name == 'access_policy':
             resource_obj[attribute_name] = attribute
             return True
-
+        #
+        if tf_resource_type == 'azurerm_lb_backend_address_pool' and attribute_name == 'backend_ip_configurations':
+            return True
         if tf_resource_type == 'azurerm_route_table' and attribute_name == 'subnets':
             return True
-        elif tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
+        if tf_resource_type == 'azurerm_network_interface' and attribute_name in ['private_ip_address',
                                                                                     'private_ip_addresses']:
             return True
         return False

@@ -49,10 +49,12 @@ class ParamBase:
         parameters = self.paramHelper.parsed_args(parsed_args)
 
         # set as attributes
-        self._set_attributes(parameters)
         self.tf_modules = self.paramHelper.getTfModules(parameters)
 
+        self._set_attributes(parameters)
+
         self.parameters = parameters
+
         ### create_work_file_paths
         self._create_work_file_paths()
 

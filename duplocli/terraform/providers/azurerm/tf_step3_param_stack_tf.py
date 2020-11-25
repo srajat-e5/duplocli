@@ -153,7 +153,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                                 print(service_delegation["name"])
 
         if resource_type in ["azurerm_storage_account", "azurerm_app_service", "azurerm_app_service_plan",
-                             'azurerm_mysql_server', 'azurerm_postgresql_server']:
+                             'azurerm_mysql_server','azurerm_sql_server', 'azurerm_postgresql_server']:
             if "name" in resource:
                 name = resource["name"]
                 self.index = self.index + 1
@@ -195,7 +195,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                         self._del_key(soa_record, "serial_number")
 
 
-        elif resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server']:
+        elif resource_type in ['azurerm_mysql_server', 'azurerm_sql_server','azurerm_postgresql_server']:
             if "administrator_login" in resource:
                 name = resource["administrator_login"]
                 self.index = self.index + 1
