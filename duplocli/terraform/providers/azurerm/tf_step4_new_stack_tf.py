@@ -122,7 +122,7 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                     for field_name in field_names and field_name in auth_setting:
                         self.index = self.index + 1
                         var_name = "{0}_{1}_".format(resource_type, self.index, field_name.lower())
-                        # resource[field_name] = "${var." + var_name + "}"
+                        resource[field_name] = "${var." + var_name + "}"
                         self.variable_list_dict[var_name] = auth_setting[field_name] #self.password_const
 
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_sql_server']:
