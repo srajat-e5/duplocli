@@ -385,9 +385,14 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                 resource_obj_parent[nested_atr_name] = resource_obj_arr
                 return True
 
+        # azurerm_virtual_machine
+        # storage_data_disk
+        # disk_size_gb
+        # lun
         elif tf_resource_type == "azurerm_virtual_machine":
-            if nested_atr_name in ['storage_image_reference', "os_profile", "storage_os_disk"]:
+            if nested_atr_name in ['storage_image_reference', "os_profile", "storage_os_disk", "storage_data_disk"]:
                 resource_obj_arr = []
+                skip_attr=["managed_disk_id"]
                 for attribute_item in nested_atr:
                     resource_obj = {}
                     resource_obj_arr.append(resource_obj)
@@ -395,7 +400,8 @@ class AzurermTfImportStep2(AzureBaseTfImportStep):
                         try:
                             if isinstance(attribute, str):
                                 if (attribute != "" and attribute is not None):
-                                    resource_obj[attribute_name] = attribute
+                                    if attribute_name not in skip_attr:
+                                        resource_obj[attribute_name] = attribute
                             else:
                                 resource_obj[attribute_name] = attribute
                         except Exception as e:

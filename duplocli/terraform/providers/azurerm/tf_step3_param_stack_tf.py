@@ -161,19 +161,19 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 resource["name"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = name
 
-        elif resource_type in ['azurerm_log_analytics_workspace']:
+        if resource_type in ['azurerm_log_analytics_workspace']:
             if "daily_quota_gb" in resource:
                 if resource["daily_quota_gb"] == -1:
                     self._del_key(resource, "daily_quota_gb")
 
-        elif resource_type in ['azurerm_logic_app_workflow']:
+        if resource_type in ['azurerm_logic_app_workflow']:
             fields=["connector_outbound_ip_addresses", "workflow_endpoint_ip_addresses", "workflow_outbound_ip_addresses"]
             for field in fields:
                 if field in resource:
                     self._del_key(resource, field)
 
 
-        elif resource_type in ['azurerm_managed_application']:
+        if resource_type in ['azurerm_managed_application']:
             fields=["outputs"]
             for field in fields:
                 if field in resource:
@@ -181,11 +181,11 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         #"name" must be between 3 and 64 characters in length and contains only letters or numbers.
         # on main.tf.json line 1207, in resource.azurerm_managed_application_definition.a002-ctscan_v211:
         #a002-ctscan_v211 : TODO: replace _ with -
-        elif resource_type in ['azurerm_managed_application_definition']:
+        if resource_type in ['azurerm_managed_application_definition']:
             if "name" in resource:
                 resource["name"] = resource["name"].replace("_","-").replace("-","")
 
-        elif resource_type in ["azurerm_dns_zone", 'azurerm_private_dns_zone']:
+        if resource_type in ["azurerm_dns_zone", 'azurerm_private_dns_zone']:
             if "soa_record" in resource:
                 soa_records = resource["soa_record"]
                 for soa_record in soa_records:
@@ -195,7 +195,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                         self._del_key(soa_record, "serial_number")
 
 
-        elif resource_type in ['azurerm_mysql_server', 'azurerm_sql_server','azurerm_postgresql_server']:
+        if resource_type in ['azurerm_mysql_server', 'azurerm_sql_server','azurerm_postgresql_server']:
             if "administrator_login" in resource:
                 name = resource["administrator_login"]
                 self.index = self.index + 1
@@ -203,7 +203,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                 resource["administrator_login"] = "${var." + var_name + "}"
                 self.variable_list_dict[var_name] = name
 
-        elif resource_type in ["azurerm_virtual_machine"]:
+        if resource_type in ["azurerm_virtual_machine"]:
             if "os_profile" in resource:
                 resource_profiles = resource["os_profile"]
                 for resource_profile in resource_profiles:
@@ -306,49 +306,58 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
 
     def _parameterize_res_for_dep_ids(self, resource_type, resource):
         resource_obj_parent = resource
+        if resource_type  in ["azurerm_network_interface", "azurerm_virtual_machine"]:
+            #network_interface_ids
+            pass
         for attribute_name, attribute in resource.items():
             try:
                 if isinstance(attribute, dict):
-                    self._parameterize_util_dict_for_dep_ids(resource_obj_parent, attribute_name, attribute)
+                    self._parameterize_util_dict_for_dep_ids(resource_type, resource_obj_parent, attribute_name, attribute)
                 elif isinstance(attribute, list):
                     is_string = False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._parameterize_util_dict_for_dep_ids(attribute, attribute_name, nested_item)
+                            self._parameterize_util_dict_for_dep_ids(resource_type, attribute, attribute_name, nested_item)
                         elif isinstance(nested_item, list):
                             print("isinstance(attribute, list):", "_process_dict", attribute_name)
                         else:
                             is_string = True
                     if is_string:
-                        self._get_unique_tf_variable(attribute, attribute_name, nested_item, True)
+                        self._get_unique_tf_variable(resource_type, resource_obj_parent, attribute_name, attribute,  True)
                 else:
-                    self._get_unique_tf_variable(resource_obj_parent, attribute_name, attribute, False)
+                    self._get_unique_tf_variable(resource_type, resource_obj_parent, attribute_name, attribute, False)
 
             except Exception as e:
                 self.file_utils._save_errors(e,"ERROR:Step3:2: _create_var {0}".format(e))
                 print("ERROR:Step2:", "_create_var", e)
 
-    def _parameterize_util_dict_for_dep_ids(self, resource_obj_parent, nested_atr_name, nested_atr):
+    def _parameterize_util_dict_for_dep_ids(self, resource_type, resource_obj_parent, nested_atr_name, nested_atr):
+        if resource_type  in ["azurerm_network_interface", "azurerm_virtual_machine"]:
+            #azurerm_virtual_machine network_interface_ids
+            pass
         for attribute_name, attribute in nested_atr.items():
             try:
                 if isinstance(attribute, list):
                     is_string = False
                     for nested_item in attribute:
                         if isinstance(nested_item, dict):
-                            self._parameterize_util_dict_for_dep_ids(attribute, nested_atr_name, nested_item)
+                            self._parameterize_util_dict_for_dep_ids(resource_type, attribute, nested_atr_name, nested_item)
                         elif isinstance(nested_item, list):
                             print("isinstance(attribute, list):", "_process_dict", nested_atr_name)
                         else:
                             is_string = True
                     if is_string:
-                        self._get_unique_tf_variable(nested_atr, attribute_name, attribute, True)
+                        self._get_unique_tf_variable(resource_type, nested_atr, attribute_name, attribute, True)
                 else:
-                    self._get_unique_tf_variable(nested_atr, attribute_name, attribute, False)
+                    self._get_unique_tf_variable(resource_type, nested_atr, attribute_name, attribute, False)
             except Exception as e:
                 self.file_utils._save_errors(e,"ERROR:Step3:2: _process_dict {0}".format(e))
                 print("ERROR:Step2:", "_process_dict", e)
 
-    def _get_unique_tf_variable(self, attribute, nested_atr_name, value, is_list):
+    def _get_unique_tf_variable(self, resource_type, attribute, nested_atr_name, value, is_list):
+        if resource_type  in ["azurerm_network_interface", "azurerm_virtual_machine"]:
+            #network_interface_ids
+            pass
         # array or string?
         if value is None:
             return value
@@ -361,7 +370,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             values = []  # array of ids?
             for value_item in value:
                 if value_item is not None and "{0}".format(value_item).startswith("/subscriptions/"):
-                    variable_id = self._get_variable_id_for_dep_id(value_item)
+                    variable_id = self._get_variable_id_for_dep_id(resource_type, attribute, nested_atr_name, value, is_list, value_item)
                     values.append(variable_id)
                     found = True
             if found:
@@ -371,7 +380,7 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             if "{0}".format(value).startswith("/subscriptions/"):
                 if nested_atr_name in attribute:
                     # print(is_list, "@@@@found ",nested_atr_name, value )
-                    variable_id = self._get_variable_id_for_dep_id(value)
+                    variable_id = self._get_variable_id_for_dep_id(resource_type, attribute, nested_atr_name, value, is_list, value)
                     attribute[nested_atr_name] = variable_id
                     return variable_id
                 else:
@@ -380,8 +389,13 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
         return value
 
     ############## /subscriptions/ extract them to variables as they are missing in import dependency list #############
-    def _get_variable_id_for_dep_id(self, id):
-        if "azurerm_user_assigned_identity" in id:
+    def _get_variable_id_for_dep_id(self,resource_type, attribute, nested_atr_name, value, is_list, id):
+        if "userAssignedIdentities" in id:
+            pass
+        if resource_type  in ["azurerm_network_interface", "azurerm_virtual_machine"]:
+            #network_interface_ids
+            pass
+        if "networkInterfaces" in id:
             pass
         if self._get_states_tf_var_by_id_dict(id) is not None:
             var_name_repl = "${" + self._get_states_tf_var_by_id_dict(id) + ".id}"
@@ -431,10 +445,12 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
              # address_space
              # move vnet name into variable
              # move instance.name into subnet
+             refer_vnet_name=""
              if "subnet" in resource:
                  subnets_new = []
                  try:
-                     refer_vnet_name = "{0}.{1}.name".format(resource_type, resource["tf_resource_var_name"])
+                     vnet_name = resource["name"]
+                     refer_vnet_name = "{0}.{1}.name".format(resource_type, vnet_name)
                      subnets = resource["subnet"]
                      for subnet in subnets:
                          subnet_id = subnet["id"]
@@ -451,7 +467,8 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                      resource["subnet"] = subnets_new
                  else:
                     self._del_key(resource, "subnet")
-                 print("subnets removed from ", refer_vnet_name)
+                    print("subnets removed from ", refer_vnet_name)
+
 
     ################# FIX  virtual network and subnet mess ########
     def _main_by_id_dict_by_type(self, tf_resource_type):

@@ -98,6 +98,14 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
 
     ##### helper load and save files ##############
     def _parameterize_for_res(self, resource_type, resource):
+        "azurerm_network_interface ip_configuration public_ip_address_id"
+        if resource_type in ["azurerm_network_interface"]:
+            if "ip_configuration" in resource:
+                ip_configurations = resource["ip_configuration"]
+                for ip_configuration in ip_configurations:
+                    if "public_ip_address_id" in ip_configuration:
+                        #not sure what is side effect of this... enable public ip afterwords?
+                        self._del_key(ip_configuration, "public_ip_address_id")
         # azurerm_managed_disk disk_iops_read_write and disk_mbps_read_write
         #.azurerm_managed_disk disk_iops_read_write
         if resource_type in ['azurerm_managed_disk' ]:
