@@ -124,9 +124,11 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
                 for field_name in field_names:
                     if field_name in auth_settings:
                         field_name_l = field_name.lower()
+                        value = auth_settings[field_name]
                         var_name = "{0}_{1}_{2}".format(resource_type, self.index, field_name_l)
+                        self.variable_list_dict[var_name] = value  # self.password_const
                         auth_settings[field_name] = "${var." + var_name + "}"
-                        self.variable_list_dict[var_name] = auth_settings[field_name] #self.password_const
+
 
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_sql_server']:
             if "administrator_login_password" not in resource:
