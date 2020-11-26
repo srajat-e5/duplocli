@@ -18,7 +18,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_const import *
 
 class AzureTfStepHelper:
-    resources_tf_unique_ids = []
+    resources_tf_unique_ids = {}
     cloud_obj_list = []
     resources_unique_ids = []
 
@@ -113,7 +113,7 @@ class AzureTfStepHelper:
             #subnet names not usnique across res group or vnet?
             if tf_import_id not in self.resources_tf_unique_ids:
                 tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
-                self.resources_tf_unique_ids.append(tf_variable_id)
+                self.resources_tf_unique_ids[tf_import_id]="{0}.{1}.name".format(tf_resource_type, tf_variable_id)
             else:
                 #alread in
                 return

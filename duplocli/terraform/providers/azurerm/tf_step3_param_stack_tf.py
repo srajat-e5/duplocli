@@ -532,15 +532,22 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
             return self._main_by_id_dict_by_type_and_var_name(tf_resource_type, tf_resource_var_name )
         return None
     def _get_main_by_var_name_dict(self, var_str):
-        if "${"  not in var_str:
-            self._get_main_by_id_dict(var_str)
-        if "${var"  in var_str:
-            # var_name = var_str.replace("${", "").replace("}", "").strip()
-            # id = self.variable_list_dict[var_name]
-            # if id:
-            #     return self._get_main_by_id_dict(id)
-            # print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
-            return None
+        # if "${"  not in var_str:
+        #     self._get_main_by_id_dict(var_str)
+        # if "${var"  in var_str:
+        #     var_name = var_str.replace("${", "").replace("}", "").strip()
+        #     id = self.variable_list_dict[var_name]
+        #     if id:
+        #         return self._get_main_by_id_dict(id)
+        #     print("ERROR:", "_get_main_by_var_name_dict: NOT FOUND", var_str)
+        #     return None
+        var_name = var_str.replace("${", "").replace("}", "").strip()
+        var_name_arr = var_name.split(".")
+        if  len(var_name_arr) > 1 and var_name_arr[0]=="var":
+            id = self.variable_list_dict[var_name]
+            if id:
+                return self._get_main_by_id_dict(id)
+        #
         var_name = var_str.replace("${", "").replace("}", "").strip().lower()
         var_name_arr = var_name.split(".")
         var_name_new = "{0}.{1}".format(var_name_arr[0],var_name_arr[1])
