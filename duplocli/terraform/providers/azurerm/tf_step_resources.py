@@ -111,7 +111,6 @@ class AzurermResources:
                 AZURE_CLIENT_SECRET = None
 
 
-
                 subscription_id = AZURE_SUBSCRIPTION_ID or os.environ['AZURE_SUBSCRIPTION_ID']  # your Azure Subscription Id
                 credentials = ServicePrincipalCredentials(
                     client_id= AZURE_CLIENT_ID or os.environ['AZURE_CLIENT_ID'],
@@ -327,12 +326,18 @@ class AzurermResources:
         if process:
             type_name = "azurerm_subnet"
             for id in self.subnet_dict:
-               subnet = self.subnet_dict[id]
-               # print("_tf_cloud_resource_vn_subnets", resource_group_name, id)
-               self.tf_cloud_resource("azurerm_subnet", tf_cloud_obj, tf_variable_id=subnet.name,
-                                      tf_import_id=subnet.id, skip_if_exists=True)
-               if type_name not in self.unique_processed_resouces:
-                   self.unique_processed_resouces.append(type_name)
+                try:
+                    res = self.subnet_dict[id]
+                    # print("_tf_cloud_resource_vn_subnets", resource_group_name, id)
+                    self.tf_cloud_resource("azurerm_subnet", tf_cloud_obj, tf_variable_id=res.name,
+                                           tf_import_id=res.id, skip_if_exists=True)
+                    if type_name not in self.unique_processed_resouces:
+                        self.unique_processed_resouces.append(type_name)
+                    id_metadata = self.helper._parse_id_metadata(res.id)
+                    self._tf_cloud_resource_group(id_metadata, res.id, "azurerm_resource_group", res)
+                except Exception as e:
+                    self.file_utils._save_errors(e,"ERROR:step0:_tf_cloud_resource_vn_subnets:  {0}".format(e))
+                    print("ERROR:step0:: ", "_tf_cloud_resource_vn_subnets", e)
 
     def _tf_cloud_resource_lb_backend_ports(self, id_metadata, tf_import_id, type_name, tf_cloud_obj):
         pass
