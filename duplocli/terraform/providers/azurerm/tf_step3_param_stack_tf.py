@@ -458,8 +458,8 @@ class AzurermTfStep3ParamStack(AzureBaseTfImportStep):
                          if main_subnet:
                             main_subnet['virtual_network_name'] = "${" + refer_vnet_name + "}"
                          else:
-                             subnets_new.append(subnet)
-                             print("ERROR: not found subnets removed from ", subnet_id)
+                         #     subnets_new.append(subnet)
+                            print("ERROR: not found subnets removed from ", subnet_id)
                  except Exception as e:
                      self.file_utils._save_errors(e,"ERROR:Step3: _fix_vnet_and_subnet {0}".format(e))
                      print("ERROR:Step3:", "_fix_vnet_and_subnet", e)

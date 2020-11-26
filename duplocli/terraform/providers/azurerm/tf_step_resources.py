@@ -324,11 +324,12 @@ class AzurermResources:
         resource_group_name = id_metadata["resource_group_name"]
         # resource_group_id = id_metadata["resource_group_id"]
         process = self._fetch_subnets(resource_group_name)
-        type_name="azurerm_subnet"
         if process:
-           for id in self.subnet_dict:
+            type_name = "azurerm_subnet"
+            for id in self.subnet_dict:
                subnet = self.subnet_dict[id]
-               self.tf_cloud_resource(type_name, tf_cloud_obj, tf_variable_id=subnet.name,
+               # print("_tf_cloud_resource_vn_subnets", resource_group_name, id)
+               self.tf_cloud_resource("azurerm_subnet", tf_cloud_obj, tf_variable_id=subnet.name,
                                       tf_import_id=subnet.id, skip_if_exists=True)
                if type_name not in self.unique_processed_resouces:
                    self.unique_processed_resouces.append(type_name)
@@ -382,16 +383,18 @@ class AzurermResources:
     def _fetch_subnets(self, res_group_name):
         found_new = False
         try:
-            if res_group_name in self.res_groups_subnet_unique_dict:
-                return found_new
-            self.res_groups_subnet_unique_dict.append(res_group_name)
+            # if res_group_name in self.res_groups_subnet_unique_dict:
+            #     return found_new
+            # self.res_groups_subnet_unique_dict.append(res_group_name)
 
             virtual_networks = self.az_network_client.virtual_networks.list(res_group_name)
             for virtual_network in virtual_networks:
                 virtual_network_name = virtual_network.name
                 try:
+                    # print("_fetch_subnets 1", res_group_name, virtual_network_name)
                     subnets = self.az_network_client.subnets.list(res_group_name, virtual_network_name)
                     for subnet in subnets:
+                        print("_fetch_subnets 2", res_group_name, virtual_network_name, subnet.id)
                         self.subnet_dict[subnet.id] = subnet
                         found_new = True
                 except Exception as e:
