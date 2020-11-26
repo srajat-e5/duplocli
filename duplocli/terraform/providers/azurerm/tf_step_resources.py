@@ -42,8 +42,25 @@ class AzureTfStepResource:
         if "azurerm_servers" == self.type_name:
             if self.provider.lower() == "Microsoft.DBForMySQL".lower():
                 self.type_name = "azurerm_mysql_server"
-            if self.provider.lower() == "Microsoft.DBForPostgreSQL".lower():
+            elif self.provider.lower() == "Microsoft.DBForPostgreSQL".lower():
                 self.type_name = "azurerm_postgresql_server"
+            elif self.provider.lower() == "Microsoft.Sql".lower():
+                self.type_name = "azurerm_sql_server"
+            else: #??????
+                print("??????? NOT_OK_UN_RESOLVED_MICROSOFT======== ??????? ",self.provider," SHOULD ? azurerm_servers === Default to azurerm_sql_server")
+                #self.type_name = "azurerm_sql_server"
+
+        #??????? NOT_OK_UN_RESOLVED_MICROSOFT======== ???????  azurerm_databases === /subscriptions/3a1286e1-be22-46c9-8e79-adcc388bf66f/resourceGroups/cbtenant-sample/providers/Microsoft.Sql/servers/sqlserversample04/databases/master
+        if "azurerm_databases" == self.type_name:
+            if self.provider.lower() == "Microsoft.DBForMySQL".lower():
+                self.type_name = "azurerm_MYsql_database"
+            elif self.provider.lower() == "Microsoft.DBForPostgreSQL".lower():
+                self.type_name = "azurerm_postgresql_database"
+            elif self.provider.lower() == "Microsoft.Sql".lower():
+                self.type_name = "azurerm_sql_database"
+            else: #??????
+                print("??????? NOT_OK_UN_RESOLVED_MICROSOFT======== ???????",self.provider,"  SHOULD ?  azurerm_databases === Default to azurerm_sql_database")
+                #self.type_name = "azurerm_sql_database"
 
         # azurerm_mysql_server
         if self.type_name == "azurerm_public_i_p_addresses":
