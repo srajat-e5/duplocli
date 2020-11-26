@@ -117,13 +117,16 @@ class AzurermTfStep4NewStack(AzureBaseTfImportStep):
         if resource_type in ['azurerm_app_service']:
             if "app_settings"   in resource:
                 auth_settings = resource["app_settings"]
-                for auth_setting in auth_settings:
-                    field_names = ["WORDPRESS_DB_HOST","WORDPRESS_DB_NAME","WORDPRESS_DB_USER","WORDPRESS_DB_PASSWORD"]
-                    for field_name in field_names and field_name in auth_setting:
-                        self.index = self.index + 1
-                        var_name = "{0}_{1}_".format(resource_type, self.index, field_name.lower())
-                        resource[field_name] = "${var." + var_name + "}"
-                        self.variable_list_dict[var_name] = auth_setting[field_name] #self.password_const
+                # for auth_setting in auth_settings:
+                field_names = ["WORDPRESS_DB_HOST","WORDPRESS_DB_NAME","WORDPRESS_DB_USER","WORDPRESS_DB_PASSWORD"]
+                if field_names[0] in auth_settings:
+                    self.index = self.index + 1
+                for field_name in field_names:
+                    if field_name in auth_settings:
+                        field_name_l = field_name.lower()
+                        var_name = "{0}_{1}_{2}".format(resource_type, self.index, field_name_l)
+                        auth_settings[field_name] = "${var." + var_name + "}"
+                        self.variable_list_dict[var_name] = auth_settings[field_name] #self.password_const
 
         if resource_type in ['azurerm_mysql_server', 'azurerm_postgresql_server', 'azurerm_sql_server']:
             if "administrator_login_password" not in resource:

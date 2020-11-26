@@ -18,7 +18,7 @@ from duplocli.terraform.common.tf_file_utils import TfFileUtils
 from duplocli.terraform.providers.azurerm.tf_step_const import *
 
 class AzureTfStepHelper:
-
+    resources_tf_unique_ids = []
     cloud_obj_list = []
     resources_unique_ids = []
 
@@ -70,12 +70,14 @@ class AzureTfStepHelper:
     def set_cloud_obj_list(self, cloud_obj_list):
         self.cloud_obj_list = cloud_obj_list
         self.resources_unique_ids = self._resources_unique_ids(cloud_obj_list)
+        # self.resources_tf_unique_ids = []
 
     def _resources_unique_ids(self, cloud_obj_list=[]):
         resources_unique_ids = []
         for tf_resource in cloud_obj_list:
             tf_id = tf_resource["tf_id"]
             resources_unique_ids.append(tf_id)
+            self.resources_tf_unique_ids.append(tf_id)
         return resources_unique_ids
 
     def tf_cloud_resource(self, tf_resource_type, tf_cloud_obj, tf_variable_id=None, tf_import_id=None,
@@ -84,7 +86,7 @@ class AzureTfStepHelper:
         tf_resource = self._tf_cloud_resource(tf_resource_type, tf_cloud_obj, tf_variable_id, tf_import_id,
                                                      skip_if_exists)
         tf_resource_var_name = tf_resource["tf_variable_id"]
-        tf_resource_type = tf_resource["tf_resource_type"]
+        tf_resource_type = tf_resource["tf_import_id"]
         tf_id = tf_resource["tf_id"]
 
         if tf_id in self.resources_unique_ids:
@@ -109,7 +111,12 @@ class AzureTfStepHelper:
             tf_variable_id = "s-{0}".format(tf_variable_id)
         if tf_resource_type in ["azurerm_subnet", "azurerm_lb_backend_address_pool", "azurerm_public_ip"]:
             #subnet names not usnique across res group or vnet?
-            tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
+            if tf_import_id not in self.resources_tf_unique_ids:
+                tf_variable_id =  self._get_unique_sub_src_name(tf_import_id, tf_variable_id)
+                self.resources_tf_unique_ids.append(tf_variable_id)
+            else:
+                #alread in
+                return
         tf_resource_var_name = tf_variable_id
         tf_resource_type_sync_id = tf_import_id
         if tf_resource_var_name is None or tf_resource_type_sync_id is None:
