@@ -71,9 +71,11 @@ class AzureTfStepConst:
         "azurerm_monitor_metric_alert",
         "azurerm_snapshot",
         "azurerm_private_dns_zone_virtual_network_link",
-        "azurerm_app_service_certificate",
-        #"azurerm_public_ip",
-        "azurerm_container_group"
+        ##"azurerm_app_service_certificate",
+        ##"azurerm_public_ip",
+        "azurerm_sql_database",
+        ##"azurerm_container_group",
+        ""
     ]
     resources_skip_all = ["azurerm_monitor_metric_alert"]
 
