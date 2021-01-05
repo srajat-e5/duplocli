@@ -32,7 +32,13 @@ RUN terraform version
 
 ######
 
-COPY duplo/duplo/99-duplo-code-server-init /etc/cont-init.d/
+COPY duplo/99-duplo-code-server-init /etc/cont-init.d/
 COPY duplo/duplo-tf-init.sh /root/
 RUN chmod 777 /root/*.sh
 #######
+
+##
+RUN cd /tmp && wget https://storage.googleapis.com/kubernetes-release/release/v1.20.0/bin/linux/amd64/kubectl \
+    && chmod +x ./kubectl \
+    && mv ./kubectl /usr/local/bin/kubectl
+##

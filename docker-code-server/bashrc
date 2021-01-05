@@ -1,1 +1,2 @@
-export PATH=/config/.local/bin:$PATH
+mkdir -p /usr/local/go/bin
+export PATH=/config/.local/bin:/usr/local/go:/usr/local/go/bin:$PATH
