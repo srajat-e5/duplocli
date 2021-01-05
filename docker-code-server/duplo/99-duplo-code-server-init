@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+
+
+mkdir -p $HOME/go/bin
+mkdir -p $HOME/go/src
+##
+chmod -R 777 /config/go
+chmod -R 777 /home1
+##
+chown -R abc:abc /config/go
+chown -R abc:abc /home1
+#
+chmod 777 /root/duplo-tf-init.sh
+cp /root/duplo-tf-init.sh /config/go
+
+
