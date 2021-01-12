@@ -4,6 +4,7 @@
 ## install requirements: tested with python 3.6 and conda
 pip install -r requirements.txt  
 
+####duplocloud/shell:terraform_kubectl_v8
 ##setup terraform: https://learn.hashicorp.com/terraform/getting-started/install.html
 ### Terraform Install
     * mac
@@ -125,10 +126,161 @@ pip install -r requirements.txt
        }
   ```
  
-    
+ 
+ 
+ 
+
 ###  Creating new tenant ?
     * please add manually the key_pair for new tenant. (as shown above )
     * remove ipaddresses from 'main.tf.json'
     * may be you need to look at conflicting additional optional attributes. by. running "terraform plan".
     
+ 
+ ### param sample ?
+ 
+  --import_name "my_test" 
+  --import_module "infra" 
+  --tenant_name "compliance" 
+  --aws_region "us-west-2" 
+  --download_aws_keys "yes" 
+  --url "https://incloud.duplocloud.net" 
+  --tenant_id "3c763ce2-2033-4c52-80a6-b21d94129e5a" 
+  --api_token "AQAAANCMnd8BFdERjHoAwE_Cl-sBAAAAlNxds4SOrESIPwxm3nDxZAAAAAACAAAAAAAQZgAAAAEAACAAAACxV8cLYNUDxoXVeQ_jzLLQGvQkZTTHKAyBL_wCK688ywAAAAAOgAAAAAIAACAAAAADHLDHeIQ07ZMbvPdaeWFhjQM8mfuf3CtrmuXMstoSQJAAAADtAEvDRmIsu752o5P_jZdTUtAuhI88sIq4eJ7UOFxbOrK7Ap9m-V1Q8K6UfvE4c6UoDfPL-8aA8-azKr0ifEbe4Cr8-x141eNORaXE9DBfPDAJt7UF9fmrUz9Y43SZmLaKTs1ShpKsybTjs4b48D01HCLkPKYBZIcHae_-fLwr51o9iJBn3hVW4VFHnx633MhAAAAARzhH8-YcHfyHZR5HdfgE4bZXfi2jLyEidXUlJEr5SIy0v_Mld0eEQxLnDRvhhsf8anmQan5-FZu4HhcOKJtHhw"
+ 
+ 
+ 
+ --import_name "my_test" 
+ --infra  "yes"
+ --tenant_name "compliance" 
+ --aws_region "us-west-2" 
+ --download_aws_keys "yes" 
+ --url "https://incloud.duplocloud.net" 
+ --tenant_id "xxxx-2033-4c52-80a6-b21d94129e5a" 
+ --api_token "xxxxx"
+{
+  "tenant_name": "compliance",
+  "aws_region":"us-west-2",
+  "download_aws_keys": "yes",
+  "url": "https://incloud.duplocloud.net",
+  "tenant_id": "xxxxxxx-2033-4c52-80a6-b21d94129e5a",
+   "api_token": "xxxxx"
+ }
+python python tf_import.py \
+--tenant_name "compliance" --aws_region "us-west-2" --download_aws_keys "yes" \
+--url "https://incloud.duplocloud.net" --tenant_id "xxx-2033-4c52-80a6-b21d94129e5a" --api_token "xxxxx"
+
+
+
+
+## azure terraform export:  parameterization
+### usage : export terraform from azure
+``` 
+# myoutputfoldername = tenant1
+duplocli/duplocli/terraform/tf_import_azure.py  --import_name tenant1  --import_module tenant --tenant_name azdemo1
+
+```
+
+### files in final output folder 
+    * variables.tf.json = variable definition
+    * terraform.tfvars.json = default values for variables
+    * main.tf.json = tf main file     
+    * terraform.tfstate = tf state. only required for existing stack
+    * replace.py   = utility to rename parameter/ variable names. Only required for new stack.            
+    * parameterization.md - short readme (this file)
+### existing stack 
+``` 
+# source "/shell/.duplo_env.sh" ##for docker
+# source ~/.duplo_env.sh # mac linux
+# .duplo_env.sh  =
+##### source PATH_TO_DUPLO_ENV/.duplo_env.sh  
+##
+#export AZURE_SUBSCRIPTION_ID="x"
+#export AZURE_CLIENT_ID="xx"
+#export AZURE_CLIENT_SECRET="xx"
+#export AZURE_TENANT_ID="xx"
+##
+#export ARM_SUBSCRIPTION_ID="x"
+#export ARM_CLIENT_ID="xx"
+#export ARM_CLIENT_SECRET="xx"
+#export ARM_TENANT_ID="xx"
+ 
+terrform init
+terrform plan -var-file=terraform.tfvars.json
+
+```
+
+### new stack 
+``` 
+source ~/.duplo_env.sh
+terrform init
+
+# must rename tenant name/prefix. all globaly unique azure object names e.g. storage
+python replace.py --src duploservices --dest tfsvs
+python replace.py --src azdemo1 --dest tftenant20
+
+#plan
+terrform plan -var-file=terraform.tfvars.json
+
+#create new stack
+terrform apply -var-file=terraform.tfvars.json
+
+```
+
+
+
+## azure terraform export:  run locally
+
+
+``` 
+
+###### sh file to run azure terraform import from command prompt ######
+
+### azure env setup ####
+
+envPath=/SOME_PATH_FOR_SHELL_ENV/.duplo_env.sh
+echo "export ARM_SUBSCRIPTION_ID='${AZURE_SUBSCRIPTION_ID}'"  > $envPath
+echo "export ARM_CLIENT_ID='${AZURE_CLIENT_ID}'"  >> $envPath
+echo "export ARM_CLIENT_SECRET='${AZURE_CLIENT_SECRET}'"  >> $envPath
+echo "export ARM_TENANT_ID='${AZURE_TENANT_ID}'"  >> $envPath
+
+#todo use these names in env
+echo "export AZURE_SUBSCRIPTION_ID='${AZURE_SUBSCRIPTION_ID}'"  >> $envPath
+echo "export AZURE_CLIENT_ID='${AZURE_CLIENT_ID}'"  >> $envPath
+echo "export AZURE_CLIENT_SECRET='${AZURE_CLIENT_SECRET}'"  >> $envPath
+echo "export AZURE_TENANT_ID='${AZURE_TENANT_ID}'"  >> $envPath
+
+### run 
+source /SOME_PATH_FOR_SHELL_ENV/.duplo_env.sh
+###############
+
+
+
+
+### path and PYTHONPATH
+path_to_git=/Users/brighu/_duplo_code/branch/duplocli
+export PYTHONPATH=$PYTHONPATH:$path_to_git
+cd $path_to_git/duplocli/terraform
+
+ 
+###
+export tenant_name=azdemo1
+
+
+###
+### export file name and zip folder
+mkdir -p ./zip 
+export import_name="azure-$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"
+export zip_file_path="./zip/$import_name"
+
+
+### terraform export 
+python3 tf_import_azure.py --import_module tenant --tenant_name $tenant_name   --zip_file_path=$zip_file_path
+
+
+
+
+
+ 
+
+```
  

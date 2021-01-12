@@ -1,8 +1,5 @@
 FROM lsiobase/ubuntu:bionic
 
-#### build terrafrom ###
-## docker build -f Dockerfile.tf  -t  duplocloud/code-server:sso_tf_v4 . ; docker push  duplocloud/code-server:sso_tf_v4
-
 # set version label
 ARG BUILD_DATE
 ARG VERSION

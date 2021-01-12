@@ -1,8 +1,0 @@
-{
-  "backup_enable": "no",
-  "import_root_folder": "work/output",
-  "backup_root_folder": "work/backup",
-  "s3_backup_enable": "no",
-  "s3_bucket_backup": "duploservices-default-backupterraform"
-}
-

@@ -1,0 +1,346 @@
+{
+  "helm_release": {
+    "all_attributes": [
+      "atomic",
+      "chart",
+      "cleanup_on_fail",
+      "create_namespace",
+      "dependency_update",
+      "description",
+      "devel",
+      "disable_crd_hooks",
+      "disable_openapi_validation",
+      "disable_webhooks",
+      "force_update",
+      "id",
+      "keyring",
+      "lint",
+      "max_history",
+      "metadata",
+      "name",
+      "namespace",
+      "recreate_pods",
+      "render_subchart_notes",
+      "replace",
+      "repository",
+      "repository_ca_file",
+      "repository_cert_file",
+      "repository_key_file",
+      "repository_password",
+      "repository_username",
+      "reset_values",
+      "reuse_values",
+      "skip_crds",
+      "status",
+      "timeout",
+      "values",
+      "verify",
+      "version",
+      "wait",
+      "postrender",
+      "set",
+      "set_sensitive",
+      "set_string"
+    ],
+    "computed": [
+      "id",
+      "status",
+      "version"
+    ],
+    "data_type": {
+      "atomic": "bool",
+      "chart": "string",
+      "cleanup_on_fail": "bool",
+      "create_namespace": "bool",
+      "dependency_update": "bool",
+      "description": "string",
+      "devel": "bool",
+      "disable_crd_hooks": "bool",
+      "disable_openapi_validation": "bool",
+      "disable_webhooks": "bool",
+      "force_update": "bool",
+      "id": "string",
+      "keyring": "string",
+      "lint": "bool",
+      "max_history": "number",
+      "metadata": "['list', ['object', {'chart': 'string', 'name': 'string', 'namespace': 'string', 'revision': 'number', 'values': 'string', 'version': 'string'}]]",
+      "name": "string",
+      "namespace": "string",
+      "recreate_pods": "bool",
+      "render_subchart_notes": "bool",
+      "replace": "bool",
+      "repository": "string",
+      "repository_ca_file": "string",
+      "repository_cert_file": "string",
+      "repository_key_file": "string",
+      "repository_password": "string",
+      "repository_username": "string",
+      "reset_values": "bool",
+      "reuse_values": "bool",
+      "skip_crds": "bool",
+      "status": "string",
+      "timeout": "number",
+      "values": "['list', 'string']",
+      "verify": "bool",
+      "version": "string",
+      "wait": "bool"
+    },
+    "nested": [
+      "postrender",
+      "set",
+      "set_sensitive",
+      "set_string"
+    ],
+    "nested_block": {
+      "postrender": {
+        "all_attributes": [
+          "binary_path"
+        ],
+        "computed": [],
+        "data_type": {
+          "binary_path": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "binary_path"
+        ],
+        "optional": [],
+        "required": [
+          "binary_path"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "set": {
+        "all_attributes": [
+          "name",
+          "type",
+          "value"
+        ],
+        "computed": [],
+        "data_type": {
+          "name": "string",
+          "type": "string",
+          "value": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "name",
+          "type",
+          "value"
+        ],
+        "optional": [
+          "type"
+        ],
+        "required": [
+          "name",
+          "value"
+        ],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      },
+      "set_sensitive": {
+        "all_attributes": [
+          "name",
+          "type",
+          "value"
+        ],
+        "computed": [],
+        "data_type": {
+          "name": "string",
+          "type": "string",
+          "value": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "name",
+          "type",
+          "value"
+        ],
+        "optional": [
+          "type"
+        ],
+        "required": [
+          "name",
+          "value"
+        ],
+        "sensitive": [
+          "value"
+        ],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      },
+      "set_string": {
+        "all_attributes": [
+          "name",
+          "value"
+        ],
+        "computed": [],
+        "data_type": {
+          "name": "string",
+          "value": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "name",
+          "value"
+        ],
+        "optional": [],
+        "required": [
+          "name",
+          "value"
+        ],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      }
+    },
+    "non_computed": [
+      "atomic",
+      "chart",
+      "cleanup_on_fail",
+      "create_namespace",
+      "dependency_update",
+      "description",
+      "devel",
+      "disable_crd_hooks",
+      "disable_openapi_validation",
+      "disable_webhooks",
+      "force_update",
+      "keyring",
+      "lint",
+      "max_history",
+      "metadata",
+      "name",
+      "namespace",
+      "recreate_pods",
+      "render_subchart_notes",
+      "replace",
+      "repository",
+      "repository_ca_file",
+      "repository_cert_file",
+      "repository_key_file",
+      "repository_password",
+      "repository_username",
+      "reset_values",
+      "reuse_values",
+      "skip_crds",
+      "timeout",
+      "values",
+      "verify",
+      "wait"
+    ],
+    "optional": [
+      "atomic",
+      "cleanup_on_fail",
+      "create_namespace",
+      "dependency_update",
+      "description",
+      "devel",
+      "disable_crd_hooks",
+      "disable_openapi_validation",
+      "disable_webhooks",
+      "force_update",
+      "id",
+      "keyring",
+      "lint",
+      "max_history",
+      "namespace",
+      "recreate_pods",
+      "render_subchart_notes",
+      "replace",
+      "repository",
+      "repository_ca_file",
+      "repository_cert_file",
+      "repository_key_file",
+      "repository_password",
+      "repository_username",
+      "reset_values",
+      "reuse_values",
+      "skip_crds",
+      "timeout",
+      "values",
+      "verify",
+      "version",
+      "wait"
+    ],
+    "required": [
+      "chart",
+      "name"
+    ],
+    "sensitive": [
+      "repository_password"
+    ],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "helm_repository": {
+    "all_attributes": [
+      "ca_file",
+      "cert_file",
+      "id",
+      "key_file",
+      "metadata",
+      "name",
+      "password",
+      "url",
+      "username"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "ca_file": "string",
+      "cert_file": "string",
+      "id": "string",
+      "key_file": "string",
+      "metadata": "['list', ['object', {'name': 'string', 'url': 'string'}]]",
+      "name": "string",
+      "password": "string",
+      "url": "string",
+      "username": "string"
+    },
+    "nested": [],
+    "nested_block": {},
+    "non_computed": [
+      "ca_file",
+      "cert_file",
+      "key_file",
+      "metadata",
+      "name",
+      "password",
+      "url",
+      "username"
+    ],
+    "optional": [
+      "ca_file",
+      "cert_file",
+      "id",
+      "key_file",
+      "password",
+      "username"
+    ],
+    "required": [
+      "name",
+      "url"
+    ],
+    "sensitive": [
+      "password"
+    ],
+    "spec": {
+      "nesting_mode": ""
+    }
+  }
+}

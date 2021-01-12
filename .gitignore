@@ -113,3 +113,4 @@ ENV/
 .mypy_cache/
 
 cli/
+terraform2/

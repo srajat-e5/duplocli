@@ -1,10 +1,23 @@
 FROM duplocloud/shell:sso_v1
 
 ENV DEBIAN_FRONTEND=noninteractive
-#Terraform v0.12.24
-ENV TERRAFORM_VERSION=0.12.24
+#Terraform v0.12.24   soon be released = v0.14
+ENV TERRAFORM_VERSION=0.13.2
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
+
+
+##########
+RUN apt-get update
+#RUN apt-get install -y curl python3.6 python3.6-distutils python3.6-dev python3-pip python-pip
+#RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
+#RUN update-alternatives --set python /usr/bin/python3.6
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+RUN apt-get install -y python3.6
+##########
+
 RUN apt-get install -y python-pip
 RUN pip install awscli
 
@@ -28,7 +41,9 @@ RUN pip install boto3
 RUN pip install requests
 RUN pip install psutil
 RUN pip install graphviz
-RUN pip install -r /duplocli/duplocli/terraform/requirements.txt
+#RUN pip install -r /duplocli/duplocli/terraform/requirements.txt
+
+RUN pip3 install -r /duplocli/duplocli/terraform/requirements.txt
 
 RUN rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \
@@ -42,10 +57,14 @@ COPY shell/shell.conf /etc/supervisor/conf.d/
 COPY shell/nginx-custom.conf /etc/nginx/sites-available/default
 COPY shell/shell_init.sh /shell/shell_init.sh
 COPY shell/shell.sh /shell/shell.sh
+COPY shell/shell_env_create.sh /shell/shell_env_create.sh
 COPY shell/docker_init.sh /shell/docker_init.sh
 COPY shell/app /shell/app
 COPY shell/uwsgi.ini /etc/uwsgi/uwsgi.ini
 
 RUN chmod +x /shell/*.sh
+
+RUN python3 -V
+RUN python -V
 
 ENTRYPOINT [ "supervisord", "-n" ]

@@ -1,0 +1,66 @@
+{
+  "azurerm_application_gateway": [
+    "duploservices-az01-httpd",
+    "duploservices-az01-nginx",
+    "duploservices-b0071-app01-app-01"
+  ],
+  "azurerm_application_security_group": [
+    "duploservices-a0071-app01-asg",
+    "duploservices-a0071poc01-asg",
+    "duploservices-az01-asg",
+    "duploservices-az01-httpd-asg",
+    "duploservices-az01-nginx-asg",
+    "duploservices-b0071-app01-app-01-asg",
+    "duploservices-b0071-app01-asg",
+    "duploservices-test01-asg"
+  ],
+  "azurerm_managed_disk": [
+    "duploservices-a0071-app01-app01-zjyzo",
+    "duploservices-a0071-app01-app02-oazhi8",
+    "duploservices-a0071poc01-1234-trjsa8",
+    "duploservices-az01-linux1-lfluf",
+    "duploservices-az01-linux2-c293i",
+    "duploservices-b0071-app01-web01-l2usc7",
+    "duploservices-b0071-app01-web02-2rz6v",
+    "duploservices-test01-host1-8fbtdj"
+  ],
+  "azurerm_network_interface": [
+    "duploservices-a0071-app01-app01-zjyzo",
+    "duploservices-a0071-app01-app02-oazhi8",
+    "duploservices-a0071poc01-1234-trjsa8",
+    "duploservices-a0071poc01-a0071app01-5f37j",
+    "duploservices-a0071poc01-a0071vmapp02-6m7j7s",
+    "duploservices-az01-linux1-lfluf",
+    "duploservices-az01-linux2-c293i",
+    "duploservices-b0071-app01-web01-l2usc7",
+    "duploservices-b0071-app01-web02-2rz6v",
+    "duploservices-test01-host1-8fbtdj"
+  ],
+  "azurerm_public_ip": [
+    "duploservices-az01-httpd",
+    "duploservices-az01-nginx",
+    "duploservices-b0071-app01-app-01",
+    "gateway-pip"
+  ],
+  "azurerm_user_assigned_identity": [
+    "duploservices-a0071-app01",
+    "duploservices-a0071poc01",
+    "duploservices-az01",
+    "duploservices-b0071-app01",
+    "duploservices-test01"
+  ],
+  "azurerm_virtual_network": [
+    "a0071",
+    "a0071harsh",
+    "azeastus2",
+    "azuseast",
+    "b0071",
+    "k0071"
+  ],
+  "azurerm_virtual_network_gateway": [
+    "gatewaytoduplo"
+  ],
+  "azurerm_virtual_network_gateway_connection": [
+    "azure-to-duplo"
+  ]
+}

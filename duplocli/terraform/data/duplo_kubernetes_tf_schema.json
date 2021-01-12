@@ -1,0 +1,3778 @@
+{
+  "kubernetes_api_service": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "ca_bundle",
+          "group",
+          "group_priority_minimum",
+          "insecure_skip_tls_verify",
+          "version",
+          "version_priority"
+        ],
+        "computed": [],
+        "data_type": {
+          "ca_bundle": "string",
+          "group": "string",
+          "group_priority_minimum": "number",
+          "insecure_skip_tls_verify": "bool",
+          "version": "string",
+          "version_priority": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "ca_bundle",
+          "group",
+          "group_priority_minimum",
+          "insecure_skip_tls_verify",
+          "version",
+          "version_priority"
+        ],
+        "optional": [
+          "ca_bundle",
+          "insecure_skip_tls_verify"
+        ],
+        "required": [
+          "group",
+          "group_priority_minimum",
+          "version",
+          "version_priority"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_cluster_role": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "rule"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "rule"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "rule": {
+        "all_attributes": [
+          "api_groups",
+          "non_resource_urls",
+          "resource_names",
+          "resources",
+          "verbs"
+        ],
+        "computed": [],
+        "data_type": {
+          "api_groups": "['list', 'string']",
+          "non_resource_urls": "['list', 'string']",
+          "resource_names": "['list', 'string']",
+          "resources": "['list', 'string']",
+          "verbs": "['list', 'string']"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "api_groups",
+          "non_resource_urls",
+          "resource_names",
+          "resources",
+          "verbs"
+        ],
+        "optional": [
+          "api_groups",
+          "non_resource_urls",
+          "resource_names",
+          "resources"
+        ],
+        "required": [
+          "verbs"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_cluster_role_binding": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "role_ref",
+      "subject"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "role_ref",
+      "subject"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "role_ref": {
+        "all_attributes": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "computed": [],
+        "data_type": {
+          "api_group": "string",
+          "kind": "string",
+          "name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "optional": [],
+        "required": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "subject": {
+        "all_attributes": [
+          "api_group",
+          "kind",
+          "name",
+          "namespace"
+        ],
+        "computed": [
+          "api_group"
+        ],
+        "data_type": {
+          "api_group": "string",
+          "kind": "string",
+          "name": "string",
+          "namespace": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "kind",
+          "name",
+          "namespace"
+        ],
+        "optional": [
+          "api_group",
+          "namespace"
+        ],
+        "required": [
+          "kind",
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_config_map": {
+    "all_attributes": [
+      "binary_data",
+      "data",
+      "id",
+      "metadata"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "binary_data": "['map', 'string']",
+      "data": "['map', 'string']",
+      "id": "string"
+    },
+    "nested": [
+      "metadata"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [
+      "binary_data",
+      "data"
+    ],
+    "optional": [
+      "binary_data",
+      "data",
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_cron_job": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "concurrency_policy",
+          "failed_jobs_history_limit",
+          "schedule",
+          "starting_deadline_seconds",
+          "successful_jobs_history_limit",
+          "suspend"
+        ],
+        "computed": [],
+        "data_type": {
+          "concurrency_policy": "string",
+          "failed_jobs_history_limit": "number",
+          "schedule": "string",
+          "starting_deadline_seconds": "number",
+          "successful_jobs_history_limit": "number",
+          "suspend": "bool"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "concurrency_policy",
+          "failed_jobs_history_limit",
+          "schedule",
+          "starting_deadline_seconds",
+          "successful_jobs_history_limit",
+          "suspend"
+        ],
+        "optional": [
+          "concurrency_policy",
+          "failed_jobs_history_limit",
+          "starting_deadline_seconds",
+          "successful_jobs_history_limit",
+          "suspend"
+        ],
+        "required": [
+          "schedule"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "delete"
+        ],
+        "computed": [],
+        "data_type": {
+          "delete": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "delete"
+        ],
+        "optional": [
+          "delete"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_daemonset": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "min_ready_seconds",
+          "revision_history_limit"
+        ],
+        "computed": [],
+        "data_type": {
+          "min_ready_seconds": "number",
+          "revision_history_limit": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "min_ready_seconds",
+          "revision_history_limit"
+        ],
+        "optional": [
+          "min_ready_seconds",
+          "revision_history_limit"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string",
+          "delete": "string",
+          "update": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "optional": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_deployment": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "min_ready_seconds",
+          "paused",
+          "progress_deadline_seconds",
+          "replicas",
+          "revision_history_limit"
+        ],
+        "computed": [],
+        "data_type": {
+          "min_ready_seconds": "number",
+          "paused": "bool",
+          "progress_deadline_seconds": "number",
+          "replicas": "number",
+          "revision_history_limit": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "min_ready_seconds",
+          "paused",
+          "progress_deadline_seconds",
+          "replicas",
+          "revision_history_limit"
+        ],
+        "optional": [
+          "min_ready_seconds",
+          "paused",
+          "progress_deadline_seconds",
+          "replicas",
+          "revision_history_limit"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string",
+          "delete": "string",
+          "update": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "optional": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_endpoints": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "subset"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "subset"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "subset": {
+        "all_attributes": [],
+        "computed": [],
+        "data_type": {},
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [],
+        "optional": [],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_horizontal_pod_autoscaler": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "max_replicas",
+          "min_replicas",
+          "target_cpu_utilization_percentage"
+        ],
+        "computed": [
+          "target_cpu_utilization_percentage"
+        ],
+        "data_type": {
+          "max_replicas": "number",
+          "min_replicas": "number",
+          "target_cpu_utilization_percentage": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "max_replicas",
+          "min_replicas"
+        ],
+        "optional": [
+          "min_replicas",
+          "target_cpu_utilization_percentage"
+        ],
+        "required": [
+          "max_replicas"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_ingress": {
+    "all_attributes": [
+      "id",
+      "load_balancer_ingress",
+      "wait_for_load_balancer",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string",
+      "load_balancer_ingress": "['list', ['object', {'hostname': 'string', 'ip': 'string'}]]",
+      "wait_for_load_balancer": "bool"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [],
+        "computed": [],
+        "data_type": {},
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [],
+        "optional": [],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [
+      "load_balancer_ingress",
+      "wait_for_load_balancer"
+    ],
+    "optional": [
+      "id",
+      "wait_for_load_balancer"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_job": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "active_deadline_seconds",
+          "backoff_limit",
+          "completions",
+          "manual_selector",
+          "parallelism",
+          "ttl_seconds_after_finished"
+        ],
+        "computed": [],
+        "data_type": {
+          "active_deadline_seconds": "number",
+          "backoff_limit": "number",
+          "completions": "number",
+          "manual_selector": "bool",
+          "parallelism": "number",
+          "ttl_seconds_after_finished": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "active_deadline_seconds",
+          "backoff_limit",
+          "completions",
+          "manual_selector",
+          "parallelism",
+          "ttl_seconds_after_finished"
+        ],
+        "optional": [
+          "active_deadline_seconds",
+          "backoff_limit",
+          "completions",
+          "manual_selector",
+          "parallelism",
+          "ttl_seconds_after_finished"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "delete"
+        ],
+        "computed": [],
+        "data_type": {
+          "delete": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "delete"
+        ],
+        "optional": [
+          "delete"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_limit_range": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [],
+        "computed": [],
+        "data_type": {},
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [],
+        "optional": [],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_mutating_webhook_configuration": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "webhook"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "webhook"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "webhook": {
+        "all_attributes": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "name",
+          "reinvocation_policy",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "computed": [],
+        "data_type": {
+          "admission_review_versions": "['list', 'string']",
+          "failure_policy": "string",
+          "match_policy": "string",
+          "name": "string",
+          "reinvocation_policy": "string",
+          "side_effects": "string",
+          "timeout_seconds": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "name",
+          "reinvocation_policy",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "optional": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "reinvocation_policy",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "required": [
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_namespace": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "delete"
+        ],
+        "computed": [],
+        "data_type": {
+          "delete": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "delete"
+        ],
+        "optional": [
+          "delete"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_network_policy": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "policy_types"
+        ],
+        "computed": [],
+        "data_type": {
+          "policy_types": "['list', 'string']"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "policy_types"
+        ],
+        "optional": [],
+        "required": [
+          "policy_types"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_persistent_volume": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "access_modes",
+          "capacity",
+          "mount_options",
+          "persistent_volume_reclaim_policy",
+          "storage_class_name"
+        ],
+        "computed": [],
+        "data_type": {
+          "access_modes": "['set', 'string']",
+          "capacity": "['map', 'string']",
+          "mount_options": "['set', 'string']",
+          "persistent_volume_reclaim_policy": "string",
+          "storage_class_name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "access_modes",
+          "capacity",
+          "mount_options",
+          "persistent_volume_reclaim_policy",
+          "storage_class_name"
+        ],
+        "optional": [
+          "mount_options",
+          "persistent_volume_reclaim_policy",
+          "storage_class_name"
+        ],
+        "required": [
+          "access_modes",
+          "capacity"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create"
+        ],
+        "optional": [
+          "create"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_persistent_volume_claim": {
+    "all_attributes": [
+      "id",
+      "wait_until_bound",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string",
+      "wait_until_bound": "bool"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "access_modes",
+          "storage_class_name",
+          "volume_name"
+        ],
+        "computed": [
+          "storage_class_name",
+          "volume_name"
+        ],
+        "data_type": {
+          "access_modes": "['set', 'string']",
+          "storage_class_name": "string",
+          "volume_name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "access_modes"
+        ],
+        "optional": [
+          "storage_class_name",
+          "volume_name"
+        ],
+        "required": [
+          "access_modes"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create"
+        ],
+        "optional": [
+          "create"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [
+      "wait_until_bound"
+    ],
+    "optional": [
+      "id",
+      "wait_until_bound"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_pod": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "active_deadline_seconds",
+          "automount_service_account_token",
+          "dns_policy",
+          "host_ipc",
+          "host_network",
+          "host_pid",
+          "hostname",
+          "node_name",
+          "node_selector",
+          "priority_class_name",
+          "restart_policy",
+          "service_account_name",
+          "share_process_namespace",
+          "subdomain",
+          "termination_grace_period_seconds"
+        ],
+        "computed": [
+          "hostname",
+          "node_name",
+          "service_account_name"
+        ],
+        "data_type": {
+          "active_deadline_seconds": "number",
+          "automount_service_account_token": "bool",
+          "dns_policy": "string",
+          "host_ipc": "bool",
+          "host_network": "bool",
+          "host_pid": "bool",
+          "hostname": "string",
+          "node_name": "string",
+          "node_selector": "['map', 'string']",
+          "priority_class_name": "string",
+          "restart_policy": "string",
+          "service_account_name": "string",
+          "share_process_namespace": "bool",
+          "subdomain": "string",
+          "termination_grace_period_seconds": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "active_deadline_seconds",
+          "automount_service_account_token",
+          "dns_policy",
+          "host_ipc",
+          "host_network",
+          "host_pid",
+          "node_selector",
+          "priority_class_name",
+          "restart_policy",
+          "share_process_namespace",
+          "subdomain",
+          "termination_grace_period_seconds"
+        ],
+        "optional": [
+          "active_deadline_seconds",
+          "automount_service_account_token",
+          "dns_policy",
+          "host_ipc",
+          "host_network",
+          "host_pid",
+          "hostname",
+          "node_name",
+          "node_selector",
+          "priority_class_name",
+          "restart_policy",
+          "service_account_name",
+          "share_process_namespace",
+          "subdomain",
+          "termination_grace_period_seconds"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create",
+          "delete"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string",
+          "delete": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create",
+          "delete"
+        ],
+        "optional": [
+          "create",
+          "delete"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_pod_disruption_budget": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "max_unavailable",
+          "min_available"
+        ],
+        "computed": [],
+        "data_type": {
+          "max_unavailable": "string",
+          "min_available": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "max_unavailable",
+          "min_available"
+        ],
+        "optional": [
+          "max_unavailable",
+          "min_available"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_priority_class": {
+    "all_attributes": [
+      "description",
+      "global_default",
+      "id",
+      "value",
+      "metadata"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "description": "string",
+      "global_default": "bool",
+      "id": "string",
+      "value": "number"
+    },
+    "nested": [
+      "metadata"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [
+      "description",
+      "global_default",
+      "value"
+    ],
+    "optional": [
+      "description",
+      "global_default",
+      "id"
+    ],
+    "required": [
+      "value"
+    ],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_replication_controller": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "min_ready_seconds",
+          "replicas",
+          "selector"
+        ],
+        "computed": [],
+        "data_type": {
+          "min_ready_seconds": "number",
+          "replicas": "number",
+          "selector": "['map', 'string']"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "min_ready_seconds",
+          "replicas",
+          "selector"
+        ],
+        "optional": [
+          "min_ready_seconds",
+          "replicas"
+        ],
+        "required": [
+          "selector"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string",
+          "delete": "string",
+          "update": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "optional": [
+          "create",
+          "delete",
+          "update"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_resource_quota": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "hard",
+          "scopes"
+        ],
+        "computed": [],
+        "data_type": {
+          "hard": "['map', 'string']",
+          "scopes": "['set', 'string']"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "hard",
+          "scopes"
+        ],
+        "optional": [
+          "hard",
+          "scopes"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create",
+          "update"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string",
+          "update": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create",
+          "update"
+        ],
+        "optional": [
+          "create",
+          "update"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_role": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "rule"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "rule"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "rule": {
+        "all_attributes": [
+          "api_groups",
+          "resource_names",
+          "resources",
+          "verbs"
+        ],
+        "computed": [],
+        "data_type": {
+          "api_groups": "['set', 'string']",
+          "resource_names": "['set', 'string']",
+          "resources": "['set', 'string']",
+          "verbs": "['set', 'string']"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "api_groups",
+          "resource_names",
+          "resources",
+          "verbs"
+        ],
+        "optional": [
+          "resource_names"
+        ],
+        "required": [
+          "api_groups",
+          "resources",
+          "verbs"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_role_binding": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "role_ref",
+      "subject"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "role_ref",
+      "subject"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "role_ref": {
+        "all_attributes": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "computed": [],
+        "data_type": {
+          "api_group": "string",
+          "kind": "string",
+          "name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "optional": [],
+        "required": [
+          "api_group",
+          "kind",
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "subject": {
+        "all_attributes": [
+          "api_group",
+          "kind",
+          "name",
+          "namespace"
+        ],
+        "computed": [
+          "api_group"
+        ],
+        "data_type": {
+          "api_group": "string",
+          "kind": "string",
+          "name": "string",
+          "namespace": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "kind",
+          "name",
+          "namespace"
+        ],
+        "optional": [
+          "api_group",
+          "namespace"
+        ],
+        "required": [
+          "kind",
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_secret": {
+    "all_attributes": [
+      "data",
+      "id",
+      "type",
+      "metadata"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "data": "['map', 'string']",
+      "id": "string",
+      "type": "string"
+    },
+    "nested": [
+      "metadata"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [
+      "data",
+      "type"
+    ],
+    "optional": [
+      "data",
+      "id",
+      "type"
+    ],
+    "required": [],
+    "sensitive": [
+      "data"
+    ],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_service": {
+    "all_attributes": [
+      "id",
+      "load_balancer_ingress",
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string",
+      "load_balancer_ingress": "['list', ['object', {'hostname': 'string', 'ip': 'string'}]]"
+    },
+    "nested": [
+      "metadata",
+      "spec",
+      "timeouts"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "cluster_ip",
+          "external_ips",
+          "external_name",
+          "external_traffic_policy",
+          "load_balancer_ip",
+          "load_balancer_source_ranges",
+          "publish_not_ready_addresses",
+          "selector",
+          "session_affinity",
+          "type"
+        ],
+        "computed": [
+          "cluster_ip",
+          "external_traffic_policy"
+        ],
+        "data_type": {
+          "cluster_ip": "string",
+          "external_ips": "['set', 'string']",
+          "external_name": "string",
+          "external_traffic_policy": "string",
+          "load_balancer_ip": "string",
+          "load_balancer_source_ranges": "['set', 'string']",
+          "publish_not_ready_addresses": "bool",
+          "selector": "['map', 'string']",
+          "session_affinity": "string",
+          "type": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "external_ips",
+          "external_name",
+          "load_balancer_ip",
+          "load_balancer_source_ranges",
+          "publish_not_ready_addresses",
+          "selector",
+          "session_affinity",
+          "type"
+        ],
+        "optional": [
+          "cluster_ip",
+          "external_ips",
+          "external_name",
+          "external_traffic_policy",
+          "load_balancer_ip",
+          "load_balancer_source_ranges",
+          "publish_not_ready_addresses",
+          "selector",
+          "session_affinity",
+          "type"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create"
+        ],
+        "optional": [
+          "create"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [
+      "load_balancer_ingress"
+    ],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_service_account": {
+    "all_attributes": [
+      "automount_service_account_token",
+      "default_secret_name",
+      "id",
+      "image_pull_secret",
+      "metadata",
+      "secret",
+      "timeouts"
+    ],
+    "computed": [
+      "default_secret_name",
+      "id"
+    ],
+    "data_type": {
+      "automount_service_account_token": "bool",
+      "default_secret_name": "string",
+      "id": "string"
+    },
+    "nested": [
+      "image_pull_secret",
+      "metadata",
+      "secret",
+      "timeouts"
+    ],
+    "nested_block": {
+      "image_pull_secret": {
+        "all_attributes": [
+          "name"
+        ],
+        "computed": [],
+        "data_type": {
+          "name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "name"
+        ],
+        "optional": [
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      },
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "secret": {
+        "all_attributes": [
+          "name"
+        ],
+        "computed": [],
+        "data_type": {
+          "name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "name"
+        ],
+        "optional": [
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "set"
+        }
+      },
+      "timeouts": {
+        "all_attributes": [
+          "create"
+        ],
+        "computed": [],
+        "data_type": {
+          "create": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "create"
+        ],
+        "optional": [
+          "create"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "nesting_mode": "single"
+        }
+      }
+    },
+    "non_computed": [
+      "automount_service_account_token"
+    ],
+    "optional": [
+      "automount_service_account_token",
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_stateful_set": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "spec"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "spec"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "namespace",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "namespace": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "namespace"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name",
+          "namespace"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "spec": {
+        "all_attributes": [
+          "pod_management_policy",
+          "replicas",
+          "revision_history_limit",
+          "service_name"
+        ],
+        "computed": [
+          "pod_management_policy",
+          "revision_history_limit"
+        ],
+        "data_type": {
+          "pod_management_policy": "string",
+          "replicas": "number",
+          "revision_history_limit": "number",
+          "service_name": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "replicas",
+          "service_name"
+        ],
+        "optional": [
+          "pod_management_policy",
+          "replicas",
+          "revision_history_limit"
+        ],
+        "required": [
+          "service_name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_storage_class": {
+    "all_attributes": [
+      "allow_volume_expansion",
+      "id",
+      "mount_options",
+      "parameters",
+      "reclaim_policy",
+      "storage_provisioner",
+      "volume_binding_mode",
+      "metadata"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "allow_volume_expansion": "bool",
+      "id": "string",
+      "mount_options": "['set', 'string']",
+      "parameters": "['map', 'string']",
+      "reclaim_policy": "string",
+      "storage_provisioner": "string",
+      "volume_binding_mode": "string"
+    },
+    "nested": [
+      "metadata"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [
+      "allow_volume_expansion",
+      "mount_options",
+      "parameters",
+      "reclaim_policy",
+      "storage_provisioner",
+      "volume_binding_mode"
+    ],
+    "optional": [
+      "allow_volume_expansion",
+      "id",
+      "mount_options",
+      "parameters",
+      "reclaim_policy",
+      "volume_binding_mode"
+    ],
+    "required": [
+      "storage_provisioner"
+    ],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  },
+  "kubernetes_validating_webhook_configuration": {
+    "all_attributes": [
+      "id",
+      "metadata",
+      "webhook"
+    ],
+    "computed": [
+      "id"
+    ],
+    "data_type": {
+      "id": "string"
+    },
+    "nested": [
+      "metadata",
+      "webhook"
+    ],
+    "nested_block": {
+      "metadata": {
+        "all_attributes": [
+          "annotations",
+          "generate_name",
+          "generation",
+          "labels",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "computed": [
+          "generation",
+          "name",
+          "resource_version",
+          "self_link",
+          "uid"
+        ],
+        "data_type": {
+          "annotations": "['map', 'string']",
+          "generate_name": "string",
+          "generation": "number",
+          "labels": "['map', 'string']",
+          "name": "string",
+          "resource_version": "string",
+          "self_link": "string",
+          "uid": "string"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "annotations",
+          "generate_name",
+          "labels"
+        ],
+        "optional": [
+          "annotations",
+          "generate_name",
+          "labels",
+          "name"
+        ],
+        "required": [],
+        "sensitive": [],
+        "spec": {
+          "max_items": 1,
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      },
+      "webhook": {
+        "all_attributes": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "name",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "computed": [],
+        "data_type": {
+          "admission_review_versions": "['list', 'string']",
+          "failure_policy": "string",
+          "match_policy": "string",
+          "name": "string",
+          "side_effects": "string",
+          "timeout_seconds": "number"
+        },
+        "nested": [],
+        "nested_block": {},
+        "non_computed": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "name",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "optional": [
+          "admission_review_versions",
+          "failure_policy",
+          "match_policy",
+          "side_effects",
+          "timeout_seconds"
+        ],
+        "required": [
+          "name"
+        ],
+        "sensitive": [],
+        "spec": {
+          "min_items": 1,
+          "nesting_mode": "list"
+        }
+      }
+    },
+    "non_computed": [],
+    "optional": [
+      "id"
+    ],
+    "required": [],
+    "sensitive": [],
+    "spec": {
+      "nesting_mode": ""
+    }
+  }
+}

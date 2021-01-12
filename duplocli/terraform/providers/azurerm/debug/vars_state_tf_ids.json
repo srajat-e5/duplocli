@@ -1,0 +1,66 @@
+{
+  "azurerm_application_gateway": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01-ag/providers/Microsoft.Network/applicationGateways/duploservices-az01-httpd",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01-ag/providers/Microsoft.Network/applicationGateways/duploservices-az01-nginx",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01-ag/providers/Microsoft.Network/applicationGateways/duploservices-b0071-app01-app-01"
+  ],
+  "azurerm_application_security_group": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071-app01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-a0071-app01-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071poc01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-a0071poc01-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-az01-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-az01-httpd-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-az01-nginx-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-b0071-app01-app-01-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-b0071-app01-asg",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-test01/providers/Microsoft.Network/applicationSecurityGroups/duploservices-test01-asg"
+  ],
+  "azurerm_managed_disk": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-A0071-APP01/providers/Microsoft.Compute/disks/duploservices-a0071-app01-app01-zjyzo",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-A0071-APP01/providers/Microsoft.Compute/disks/duploservices-a0071-app01-app02-oazhi8",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-A0071POC01/providers/Microsoft.Compute/disks/duploservices-a0071poc01-1234-trjsa8",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-AZ01/providers/Microsoft.Compute/disks/duploservices-az01-linux1-lfluf",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-AZ01/providers/Microsoft.Compute/disks/duploservices-az01-linux2-c293i",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-B0071-APP01/providers/Microsoft.Compute/disks/duploservices-b0071-app01-web01-l2usc7",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-B0071-APP01/providers/Microsoft.Compute/disks/duploservices-b0071-app01-web02-2rz6v",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/DUPLOSERVICES-TEST01/providers/Microsoft.Compute/disks/duploservices-test01-host1-8fbtdj"
+  ],
+  "azurerm_network_interface": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071-app01/providers/Microsoft.Network/networkInterfaces/duploservices-a0071-app01-app01-zjyzo",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071-app01/providers/Microsoft.Network/networkInterfaces/duploservices-a0071-app01-app02-oazhi8",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071poc01/providers/Microsoft.Network/networkInterfaces/duploservices-a0071poc01-1234-trjsa8",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071poc01/providers/Microsoft.Network/networkInterfaces/duploservices-a0071poc01-a0071app01-5f37j",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071poc01/providers/Microsoft.Network/networkInterfaces/duploservices-a0071poc01-a0071vmapp02-6m7j7s",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.Network/networkInterfaces/duploservices-az01-linux1-lfluf",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.Network/networkInterfaces/duploservices-az01-linux2-c293i",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01/providers/Microsoft.Network/networkInterfaces/duploservices-b0071-app01-web01-l2usc7",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01/providers/Microsoft.Network/networkInterfaces/duploservices-b0071-app01-web02-2rz6v",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-test01/providers/Microsoft.Network/networkInterfaces/duploservices-test01-host1-8fbtdj"
+  ],
+  "azurerm_public_ip": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01-ag/providers/Microsoft.Network/publicIPAddresses/duploservices-az01-httpd",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01-ag/providers/Microsoft.Network/publicIPAddresses/duploservices-az01-nginx",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01-ag/providers/Microsoft.Network/publicIPAddresses/duploservices-b0071-app01-app-01",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-azuseast/providers/Microsoft.Network/publicIPAddresses/gateway-pip"
+  ],
+  "azurerm_user_assigned_identity": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071-app01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-a0071-app01",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-a0071poc01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-a0071poc01",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-az01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-az01",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-b0071-app01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-b0071-app01",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploservices-test01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-test01"
+  ],
+  "azurerm_virtual_network": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-a0071/providers/Microsoft.Network/virtualNetworks/a0071",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-a0071harsh/providers/Microsoft.Network/virtualNetworks/a0071harsh",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-azeastus2/providers/Microsoft.Network/virtualNetworks/azeastus2",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-azuseast/providers/Microsoft.Network/virtualNetworks/azuseast",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-b0071/providers/Microsoft.Network/virtualNetworks/b0071",
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-k0071/providers/Microsoft.Network/virtualNetworks/k0071"
+  ],
+  "azurerm_virtual_network_gateway": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-azuseast/providers/Microsoft.Network/virtualNetworkGateways/gatewaytoduplo"
+  ],
+  "azurerm_virtual_network_gateway_connection": [
+    "/subscriptions/1bba704a-8668-4174-8bb4-07d06dbefdb2/resourceGroups/duploinfra-azuseast/providers/Microsoft.Network/connections/azure-to-duplo"
+  ]
+}

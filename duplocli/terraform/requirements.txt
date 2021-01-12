@@ -1,4 +1,11 @@
-#python2.6
+#python3.6
 boto3==1.13.0
 requests==2.23.0
 psutil==5.7.0
+graphviz>=0.14
+azure-mgmt-resource==0.30.0rc5
+azure-mgmt-storage==0.30.0rc5
+azure-mgmt-network==0.30.0rc5
+azure-mgmt-compute==0.30.0rc5
+stringcase==1.2.0
+haikunator

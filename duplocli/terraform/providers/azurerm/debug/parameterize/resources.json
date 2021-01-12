@@ -1,0 +1,162 @@
+[
+  {
+    "tf_resource_type": "azurerm_custom_provider",
+    "tf_variable_id": "public",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duplomgapp-mgr-azdemo1/providers/Microsoft.CustomProviders/resourceProviders/public",
+    "module": "azdemo1",
+    "tf_variable_id_new": "public",
+    "interpolation_id": "${azurerm_custom_provider.public.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_resource_group",
+    "tf_variable_id": "duplomgapp-mgr-azdemo1",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duplomgapp-mgr-azdemo1",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duplomgapp-mgr-azdemo1",
+    "interpolation_id": "${azurerm_resource_group.duplomgapp-mgr-azdemo1.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_availability_set",
+    "tf_variable_id": "duploservices-azdemo1-as",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Compute/availabilitySets/duploservices-azdemo1-as",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1-as",
+    "interpolation_id": "${azurerm_availability_set.duploservices-azdemo1-as.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_resource_group",
+    "tf_variable_id": "duploservices-azdemo1",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1",
+    "interpolation_id": "${azurerm_resource_group.duploservices-azdemo1.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_container_group",
+    "tf_variable_id": "u2aebu5533dj6azscripts",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.ContainerInstance/containerGroups/u2aebu5533dj6azscripts",
+    "module": "azdemo1",
+    "tf_variable_id_new": "u2aebu5533dj6azscripts",
+    "interpolation_id": "${azurerm_container_group.u2aebu5533dj6azscripts.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_user_assigned_identity",
+    "tf_variable_id": "duploservices-azdemo1",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.ManagedIdentity/userAssignedIdentities/duploservices-azdemo1",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1",
+    "interpolation_id": "${azurerm_user_assigned_identity.duploservices-azdemo1.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_application_security_group",
+    "tf_variable_id": "duploservices-azdemo1-asg",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/applicationSecurityGroups/duploservices-azdemo1-asg",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1-asg",
+    "interpolation_id": "${azurerm_application_security_group.duploservices-azdemo1-asg.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_application_security_group",
+    "tf_variable_id": "duploservices-azdemo1-checkingrpc-asg",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/applicationSecurityGroups/duploservices-azdemo1-checkingrpc-asg",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1-checkingrpc-asg",
+    "interpolation_id": "${azurerm_application_security_group.duploservices-azdemo1-checkingrpc-asg.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_network_interface",
+    "tf_variable_id": "duploservices-azdemo1-host1-dohpx",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkInterfaces/duploservices-azdemo1-host1-dohpx",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1-host1-dohpx",
+    "interpolation_id": "${azurerm_network_interface.duploservices-azdemo1-host1-dohpx.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_network_interface",
+    "tf_variable_id": "duploservices-azdemo1-log-aqlg5r",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkInterfaces/duploservices-azdemo1-log-aqlg5r",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploservices-azdemo1-log-aqlg5r",
+    "interpolation_id": "${azurerm_network_interface.duploservices-azdemo1-log-aqlg5r.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_network_security_group",
+    "tf_variable_id": "checkase-nsg",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkSecurityGroups/checkase-NSG",
+    "module": "azdemo1",
+    "tf_variable_id_new": "checkase-nsg",
+    "interpolation_id": "${azurerm_network_security_group.checkase-nsg.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_network_security_group",
+    "tf_variable_id": "internalase-nsg",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/networkSecurityGroups/internalase-NSG",
+    "module": "azdemo1",
+    "tf_variable_id_new": "internalase-nsg",
+    "interpolation_id": "${azurerm_network_security_group.internalase-nsg.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_private_dns_zone",
+    "tf_variable_id": "internalase-appserviceenvironment-net",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/privateDnsZones/internalase.appserviceenvironment.net",
+    "module": "azdemo1",
+    "tf_variable_id_new": "internalase-appserviceenvironment-net",
+    "interpolation_id": "${azurerm_private_dns_zone.internalase-appserviceenvironment-net.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_route_table",
+    "tf_variable_id": "checkase-route-table",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/routeTables/checkase-Route-Table",
+    "module": "azdemo1",
+    "tf_variable_id_new": "checkase-route-table",
+    "interpolation_id": "${azurerm_route_table.checkase-route-table.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_route_table",
+    "tf_variable_id": "internalase-route-table",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/routeTables/internalase-Route-Table",
+    "module": "azdemo1",
+    "tf_variable_id_new": "internalase-route-table",
+    "interpolation_id": "${azurerm_route_table.internalase-route-table.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_route_table",
+    "tf_variable_id": "rt-azure-managed",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Network/routeTables/rt-azure-managed",
+    "module": "azdemo1",
+    "tf_variable_id_new": "rt-azure-managed",
+    "interpolation_id": "${azurerm_route_table.rt-azure-managed.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_storage_account",
+    "tf_variable_id": "duploazdemoacc1",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Storage/storageAccounts/duploazdemoacc1",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duploazdemoacc1",
+    "interpolation_id": "${azurerm_storage_account.duploazdemoacc1.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_app_service_plan",
+    "tf_variable_id": "checkfileshare",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Web/serverfarms/checkfileshare",
+    "module": "azdemo1",
+    "tf_variable_id_new": "checkfileshare",
+    "interpolation_id": "${azurerm_app_service_plan.checkfileshare.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_app_service",
+    "tf_variable_id": "dockerduplo",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Web/sites/dockerduplo",
+    "module": "azdemo1",
+    "tf_variable_id_new": "dockerduplo",
+    "interpolation_id": "${azurerm_app_service.dockerduplo.id}"
+  },
+  {
+    "tf_resource_type": "azurerm_app_service",
+    "tf_variable_id": "duplotestfileshare",
+    "tf_import_id": "/subscriptions/29474c73-cd93-48f0-80ee-9577a54e2227/resourceGroups/duploservices-azdemo1/providers/Microsoft.Web/sites/duplotestfileshare",
+    "module": "azdemo1",
+    "tf_variable_id_new": "duplotestfileshare",
+    "interpolation_id": "${azurerm_app_service.duplotestfileshare.id}"
+  }
+]
