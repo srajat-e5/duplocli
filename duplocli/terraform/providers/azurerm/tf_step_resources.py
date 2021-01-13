@@ -330,6 +330,7 @@ class AzurermResources:
     def tenant_resource_debug(self):
         for instance in self.az_resource_client.resources.list():
             id = instance.id
+            #print("*****##11111111111111resourceGroups tenant_resource_debug dubug ",  id)
             if self.params.import_module == "tenant":
                 filter_tenant_str = "/resourcegroups/duploservices-{0}".format(self.params.tenant_name.lower())
                 if filter_tenant_str in id.lower():

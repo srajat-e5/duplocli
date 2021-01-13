@@ -105,15 +105,21 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
                     try:
                         self._parameterize_for_res_grp(resource_type, resource)
                     except Exception as e:
-                        print("ERROR:AzurermTfStep3NewStack:1", "_parameterize", e)
+                        print("ERROR:AzurermTfStep3NewStack:1", "_parameterize_for_res_grp", e)
 
                     try:
                         self._parameterize_res_for_dep_ids(resource_type, resource)
                     except Exception as e:
-                        print("ERROR:AzurermTfStep3NewStack:2", "_parameterize", e)
+                        print("ERROR:AzurermTfStep3NewStack:2", "_parameterize_res_for_dep_ids", e)
+
+                    try:
+                        self._parameterize_res_for_secret_fields(resource_type, resource)
+                    except Exception as e:
+                        print("ERROR:AzurermTfStep3NewStack:3", "_parameterize_res_for_secret_fields", e)
+
 
                 except Exception as e:
-                    print("ERROR:AzurermTfStep3NewStack:3", "_parameterize", e)
+                    print("ERROR:AzurermTfStep3NewStack:4", "_parameterize", e)
 
     ###### resource_groups name and location parameterization #############
     def _encode_tenant(self, resource_group_name ):
@@ -344,6 +350,89 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
 
     ############
 
+    #################### parameterise passwords and any secret fields ####
+    #_parameterize_res_for_dep_ids  _secret_fields
+    def _parameterize_res_for_secret_fields(self, resource_type, resource):
+        resource_obj_parent = resource
+        for attribute_name, attribute in resource.items():
+            try:
+                if isinstance(attribute, dict):
+                    self._parameterize_util_dict_for_secret_fields(resource_obj_parent, attribute_name, attribute)
+                elif isinstance(attribute, list):
+                    is_string = False
+                    for nested_item in attribute:
+                        if isinstance(nested_item, dict):
+                            self._parameterize_util_dict_for_secret_fields(attribute, attribute_name, nested_item)
+                        elif isinstance(nested_item, list):
+                            print("isinstance(attribute, list):", "_process_dict", attribute_name)
+                        else:
+                            is_string = True
+                    if is_string:
+                        self._get_tf_variable_for_secret_fields(attribute, attribute_name, nested_item, True)
+                else:
+                    self._get_tf_variable_for_secret_fields(resource_obj_parent, attribute_name, attribute, False)
+
+            except Exception as e:
+                print("ERROR:Step2:", "_create_var", e)
+    #_parameterize_util_dict_for_dep_ids
+    def _parameterize_util_dict_for_secret_fields(self, resource_obj_parent, nested_atr_name, nested_atr):
+        for attribute_name, attribute in nested_atr.items():
+            try:
+                if isinstance(attribute, list):
+                    is_string = False
+                    for nested_item in attribute:
+                        if isinstance(nested_item, dict):
+                            self._parameterize_util_dict_for_dep_ids(attribute, nested_atr_name, nested_item)
+                        elif isinstance(nested_item, list):
+                            print("isinstance(attribute, list):", "_process_dict", nested_atr_name)
+                        else:
+                            is_string = True
+                    if is_string:
+                        self._get_tf_variable_for_secret_fields(nested_atr, attribute_name, attribute, True)
+                else:
+                    self._get_tf_variable_for_secret_fields(nested_atr, attribute_name, attribute, False)
+            except Exception as e:
+                print("ERROR:Step2:", "_process_dict", e)
+
+    def _get_tf_variable_for_secret_fields(self, attribute, nested_atr_name, value, is_list):
+        # array or string?
+        if value is None:
+            return value
+        # its bug
+        if nested_atr_name not in attribute:
+            return value
+        secret_field_list=["password", "pwd", "wordpress",  "db_",   "docker_registry_", "wp_"]
+        is_secret_field=False
+        for secret_field in  secret_field_list:
+            if secret_field in nested_atr_name.lower():
+                is_secret_field=True
+                #print("?????????????? is_secret_field", is_secret_field, secret_field  , nested_atr_name.lower())
+
+        #not  secret_field
+        if not is_secret_field:
+            return value
+        # create
+        if isinstance(value, list):
+            values = []
+            for value_item in value:
+                variable_id = self._get_variable_for_secret_field(nested_atr_name, value_item)
+                values.append(variable_id)
+            attribute[nested_atr_name] = values
+            return values
+        else:
+            variable_id = self._get_variable_for_secret_field(nested_atr_name, value)
+            attribute[nested_atr_name] = variable_id
+            return variable_id
+        return value
+
+    def _get_variable_for_secret_field(self, var_prefix_name, value):
+        self.index = self.index + 1
+        var_name = "variable_{0}_{1}".format(self.index, var_prefix_name)
+        var_name_repl = "${var." + var_name + "}"
+        self.variable_list_dict[var_name] = value
+        return var_name_repl
+    #################### parameterise passwords and any secret feilds ####
+
     ##### helper load and save files ##############
 
     def _load_files(self):
@@ -378,7 +467,7 @@ class AzurermTfStep3NewStack(AzureBaseTfImportStep):
         self.variables_tf_dict["variable"] = variables_tf_root
         for variable_name in self.variable_list_dict:
             variables_tf_root[variable_name] = {
-                "description": "value e.g." + self.variable_list_dict[variable_name]
+                "description": "value e.g. {0} ".format(self.variable_list_dict[variable_name])
             }
         self.file_utils.save_json_to_work_folder("variables.tf.json", self.variables_tf_dict)
 
