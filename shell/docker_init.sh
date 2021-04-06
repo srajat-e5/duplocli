@@ -7,7 +7,7 @@ kubectl config --kubeconfig=config-demo set-context K8 --cluster=K8_CLUSTER --us
 export KUBECONFIG=config-demo
 kubectl config use-context K8
 if [ -n "$4" ]; then
-    kubectl exec -it "$4" -- sh -c "clear; (bash || ash || sh)"
+    kubectl exec -it "$4" -- sh -c "command -v bash 2>&1 >/dev/null && exec bash ; command -v ash 2>&1 >/dev/null && exec ash ; exec sh"
 else
     bash
 fi
