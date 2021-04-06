@@ -1,8 +1,8 @@
 FROM duplocloud/shell:sso_v1
 
 ENV DEBIAN_FRONTEND=noninteractive
-#Terraform v0.12.24
-ENV TERRAFORM_VERSION=0.12.24
+#Terraform v0.12.30
+ENV TERRAFORM_VERSION=0.12.30
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 RUN apt-get install -y python-pip
@@ -17,6 +17,11 @@ RUN apt-get update \
 RUN mkdir -p /duplocli
 COPY . /duplocli/
 
+WORKDIR /shell/shellinabox
+RUN rm -f kubectl \
+  && curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/kubectl \
+  && chmod +x kubectl
+
 WORKDIR /duplocli
 RUN ls -altR .
 RUN python3 -V
@@ -29,6 +34,7 @@ RUN pip install requests
 RUN pip install psutil
 RUN pip install graphviz
 RUN pip install -r /duplocli/duplocli/terraform/requirements.txt
+RUN pip install -r /duplocli/shell/requirements.txt
 
 RUN rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \

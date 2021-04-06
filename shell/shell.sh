@@ -27,7 +27,7 @@ elif [ -n "$TF" ]; then
     zip_file_path="/zip/$import_name"
     mkdir -p /zip
     python import_tf.py --tenant_name $tenant_name --aws_region $aws_region --download_aws_keys "yes" \
-     --url $duplo_endpoint --tenant_id $tenant_id --api_token $api_token --zip_file_path=$zip_file_path
+     --url $duplo_endpoint --tenant_id $tenant_id --api_token "$api_token" --zip_file_path=$zip_file_path
     aws s3 cp $zip_file_path.zip s3://$EXPORT_BUCKET/
 
 
@@ -39,7 +39,7 @@ elif [ -n "$TF" ]; then
     echo ""
     echo ""
     echo "******************************************************************************************************************"
-    echo "*******************PLEASE COPY s3 url to download the terrfrom file from s3 *******************"
+    echo "*******************PLEASE COPY s3 url to download the terraform file from s3 *******************"
     echo "s3 url = "
     echo "$s3_signed_url"
     echo "**************************************"
