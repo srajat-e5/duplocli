@@ -5,6 +5,7 @@ URL=$1
 
 TF=$(python /shell/parseurl.py $URL 'terraform')
 KUBECTL=$(python /shell/parseurl.py $URL 'kubectl')
+ECS=$(python /shell/parseurl.py $URL 'ecs-exec')
 
 IP=$(python /shell/parseurl.py $URL 'ip')
 aws_region=$(python /shell/parseurl.py $URL 'aws_region')
@@ -18,9 +19,15 @@ pod=$(python /shell/parseurl.py $URL 'pod')
 k8_api_url=$(python /shell/parseurl.py $URL 'k8_api_url')
 k8_token=$(python /shell/parseurl.py $URL 'k8_token')
 
+ecs_cluster=$(python /shell/parseurl.py $URL 'ecs_cluster')
+ecs_task_id=$(python /shell/parseurl.py $URL 'ecs_task_id')
+ecs_container_name=$(python /shell/parseurl.py $URL 'ecs_container_name')
+
 export PATH=/shell/bin:${PATH}
 if [ -n "$KUBECTL" ]; then
-    /bin/bash /shell/docker_init.sh $k8_api_url $k8_token duploservices-$tenant_name $pod 
+    /bin/bash /shell/docker_init.sh $k8_api_url $k8_token duploservices-$tenant_name $pod
+elif [ -n "$ECS" ]; then
+    aws ecs execute-command --region "$aws_region" --cluster "$ecs_cluster" --task "$ecs_task_id" --container "$ecs_container_name" --command "/bin/bash" --interactive
 elif [ -n "$TF" ]; then
     cd /duplocli
     import_name="$tenant_name-`date +"%m_%d_%y__%H_%M_%S"`"

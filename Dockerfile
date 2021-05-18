@@ -6,7 +6,8 @@ ENV TERRAFORM_VERSION=0.12.30
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 RUN apt-get install -y python-pip
-RUN pip install awscli
+
+#RUN pip install awscli
 
 RUN apt-get update \
   && apt-get install -y wget vim unzip curl jq bash ca-certificates git openssl unzip wget \
@@ -26,6 +27,13 @@ WORKDIR /duplocli
 RUN ls -altR .
 RUN python3 -V
 RUN python -V
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+RUN dpkg -i session-manager-plugin.deb
 
 RUN apt-get update &&  apt-get install -y graphviz
 ENV PATH=/usr/local/bin/dot:$PATH
