@@ -2,7 +2,7 @@ FROM duplocloud/shell:sso_v1
 
 ENV DEBIAN_FRONTEND=noninteractive
 #Terraform v0.12.30
-ENV TERRAFORM_VERSION=0.12.30
+ENV TERRAFORM_VERSION=0.14.11
 
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 RUN apt-get install -y python-pip

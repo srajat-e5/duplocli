@@ -1,10 +1,9 @@
-FROM duplocloud/code-server:sso_v16
-
-
+FROM duplocloud/code-server:sso_tf_v5
 ###############################
 ##
+ENV DEBIAN_FRONTEND=noninteractive
 ENV GOVERSION=1.15.6
-ENV TERRAFORM_VERSION=0.14.3
+ENV TERRAFORM_VERSION=0.14.11
 ##
 ENV TF_DEV=true
 ENV TF_RELEASE=true
@@ -19,10 +18,20 @@ RUN mkdir -p $GOPATH/bin
 RUN mkdir -p $GOPATH/src
 ENV PATH=$PATH:$GOROOT/bin:$GOBIN:$GOPATH:$GOPATH/bin:$GOPATH/src
 #
-RUN apt-get update && apt-get -y install make wget unzip curl jq ca-certificates openssl
+RUN apt-get update && apt-get -y install make wget unzip curl jq ca-certificates openssl  vim bash git
+
+
+#RUN apt-get update && apt-get upgrade -y && apt-get clean
+#RUN apt-get install -y python-pip
+RUN rm /usr/local/bin/terraform
+RUN apt-get update \
+  && cd /tmp \
+  && wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+  && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin
+
+
 RUN cd /usr/local && wget https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz &&  tar zxf go${GOVERSION}.linux-amd64.tar.gz && rm go${GOVERSION}.linux-amd64.tar.gz
-RUN cd /tmp && wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip  && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-#
+
 RUN mkdir -p $GOPATH/src/github.com/hashicorp/terraform
 RUN mkdir -p $GOPATH/src/github.com/duplocloud/terraform-provider-duplocloud
 #
