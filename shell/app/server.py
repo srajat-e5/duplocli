@@ -18,6 +18,12 @@ app.config.from_object(__name__)
 CORS(app)
 Session(app)
 
+allowed_roles = os.environ.get('ALLOWED_ROLES')
+allowed_roles_list = ["Administrator", "User"]
+
+if allowed_roles:
+    allowed_roles_list = allowed_roles.split(";")
+
 # rules_detail = os.environ.get('ACCESS_RULES')
 # rules_detail = rules_detail.replace("'", '"')
 # rules = []
@@ -118,16 +124,25 @@ def api_private():
 
 def authorize_user(duplo_sso_token):
     duplo_auth_url = os.environ.get('DUPLO_AUTH_URL')
-    tenant_id = os.environ.get('TENANT_ID')
     is_allowed = False
 
     duplo_auth_headers = {
         'Authorization': 'Bearer ' + duplo_sso_token
     }
-    duplo_userinfo_response = requests.get(duplo_auth_url + "/admin/GetTenantConfigData/" + tenant_id, headers=duplo_auth_headers)
+    duplo_userinfo_response = requests.get(duplo_auth_url + "/admin/GetUserRoleInfo", headers=duplo_auth_headers)
     userinfo = {}
     if duplo_userinfo_response.status_code == 200:
         print("Userinfo api success response", duplo_userinfo_response.json())
+        userinfo = duplo_userinfo_response.json()
+    else:
+        return False
+
+    if "Roles" in userinfo:
+        for role in userinfo["Roles"]:
+            if role in allowed_roles_list:
+                is_allowed = True
+                break
+    elif "Role" in userinfo and userinfo["Role"] in allowed_roles_list:
         is_allowed = True
 
     return is_allowed

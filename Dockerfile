@@ -42,7 +42,7 @@ RUN pip install requests
 RUN pip install psutil
 RUN pip install graphviz
 RUN pip install -r /duplocli/duplocli/terraform/requirements.txt
-RUN pip install -r /duplocli/shell/requirements.txt
+RUN pip3 install -r /duplocli/shell/requirements.txt
 
 RUN rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \

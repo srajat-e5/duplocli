@@ -1,4 +1,5 @@
-flask
+flask==1.1.4
 flask-cors
 Flask-Session
 requests
+markupsafe==1.1.1
